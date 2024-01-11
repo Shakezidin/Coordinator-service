@@ -1,0 +1,22 @@
+syntax ="proto3";
+
+package pb;
+
+option go_package = ".";
+
+
+service Admin {
+    rpc AdminLoginRequest(Login) returns (LoginResponce);
+}
+
+message Login {
+    string email = 1;
+    string password = 2;
+    string role = 3;
+}
+
+message LoginResponce{
+    string status = 1;
+    string email = 2;
+    string token = 3;
+}
