@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CoordinatorClient interface {
-	CoordinatorLoginRequest(ctx context.Context, in *Login, opts ...grpc.CallOption) (*CordinatorLoginResponce, error)
+	CoordinatorLoginRequest(ctx context.Context, in *CoorinatorLogin, opts ...grpc.CallOption) (*CordinatorLoginResponce, error)
 	CoordinatorSignupRequest(ctx context.Context, in *Signup, opts ...grpc.CallOption) (*SignupResponce, error)
 	CoordinatorSignupVerifyRequest(ctx context.Context, in *Verify, opts ...grpc.CallOption) (*VerifyResponce, error)
 }
@@ -41,7 +41,7 @@ func NewCoordinatorClient(cc grpc.ClientConnInterface) CoordinatorClient {
 	return &coordinatorClient{cc}
 }
 
-func (c *coordinatorClient) CoordinatorLoginRequest(ctx context.Context, in *Login, opts ...grpc.CallOption) (*CordinatorLoginResponce, error) {
+func (c *coordinatorClient) CoordinatorLoginRequest(ctx context.Context, in *CoorinatorLogin, opts ...grpc.CallOption) (*CordinatorLoginResponce, error) {
 	out := new(CordinatorLoginResponce)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorLoginRequest_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -72,7 +72,7 @@ func (c *coordinatorClient) CoordinatorSignupVerifyRequest(ctx context.Context, 
 // All implementations must embed UnimplementedCoordinatorServer
 // for forward compatibility
 type CoordinatorServer interface {
-	CoordinatorLoginRequest(context.Context, *Login) (*CordinatorLoginResponce, error)
+	CoordinatorLoginRequest(context.Context, *CoorinatorLogin) (*CordinatorLoginResponce, error)
 	CoordinatorSignupRequest(context.Context, *Signup) (*SignupResponce, error)
 	CoordinatorSignupVerifyRequest(context.Context, *Verify) (*VerifyResponce, error)
 	mustEmbedUnimplementedCoordinatorServer()
@@ -82,7 +82,7 @@ type CoordinatorServer interface {
 type UnimplementedCoordinatorServer struct {
 }
 
-func (UnimplementedCoordinatorServer) CoordinatorLoginRequest(context.Context, *Login) (*CordinatorLoginResponce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorLoginRequest(context.Context, *CoorinatorLogin) (*CordinatorLoginResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorLoginRequest not implemented")
 }
 func (UnimplementedCoordinatorServer) CoordinatorSignupRequest(context.Context, *Signup) (*SignupResponce, error) {
@@ -105,7 +105,7 @@ func RegisterCoordinatorServer(s grpc.ServiceRegistrar, srv CoordinatorServer) {
 }
 
 func _Coordinator_CoordinatorLoginRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Login)
+	in := new(CoorinatorLogin)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func _Coordinator_CoordinatorLoginRequest_Handler(srv interface{}, ctx context.C
 		FullMethod: Coordinator_CoordinatorLoginRequest_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoordinatorServer).CoordinatorLoginRequest(ctx, req.(*Login))
+		return srv.(CoordinatorServer).CoordinatorLoginRequest(ctx, req.(*CoorinatorLogin))
 	}
 	return interceptor(ctx, in, info, handler)
 }

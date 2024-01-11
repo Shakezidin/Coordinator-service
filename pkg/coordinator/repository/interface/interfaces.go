@@ -9,4 +9,5 @@ type CoordinatorRepoInter interface {
 	FindUserByEmail(email string) (*cDOM.User, error)
 	FindUserByPhone(number int)(*cDOM.User,error)
 	CreateUser(user *cDOM.User) error
+	FindCoordinatorPackages(id uint) (*[]cDOM.Package, error)
 }

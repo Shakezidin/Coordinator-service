@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/twilio/twilio-go"
 	verify "github.com/twilio/twilio-go/rest/verify/v2"
 )
@@ -23,10 +25,12 @@ func SetupTwilio(cfg *Config) *TwilioVerify {
 
 func (t *TwilioVerify) SentTwilioOTP(phone string) (*verify.VerifyV2Verification, error) {
 	params := verify.CreateVerificationParams{}
-	params.SetTo("+91" + phone)
+	params.SetTo("+91 " + phone)
 	params.SetChannel("sms")
 
 	resp, err := t.Client.VerifyV2.CreateVerification(t.Cfg.SERVICETOKEN, &params)
+	fmt.Println("helloooooo")
+
 	return resp, err
 }
 

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/Shakezidin/config"
@@ -22,6 +23,7 @@ type CoordinatorSVC struct {
 	Repo   inter.CoordinatorRepoInter
 	twilio *config.TwilioVerify
 	redis  *redis.Client
+	cfg    *config.Config
 }
 
 func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.SignupResponce, error) {
@@ -30,14 +32,16 @@ func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.SignupResponce, error) {
 		log.Printf("unable to hash password in CoordinatorSvc() - service, err: %v", err.Error())
 		return nil, err
 	}
+	phone, _ := strconv.Atoi(p.Phone)
 	user := &cDOM.User{
-		Phone:    int(p.Phone),
+		Phone:    phone,
 		Email:    p.Email,
 		Password: string(hashPassword),
 		Name:     p.Name,
 	}
 	// send otp to phone number
-	resp, err := c.twilio.SentTwilioOTP(string(p.Phone))
+
+	resp, err := c.twilio.SentTwilioOTP(p.Phone)
 	if err != nil {
 		return nil, err
 	} else {
@@ -78,7 +82,9 @@ func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.VerifyResponce, error) {
 	}
 
 	code := fmt.Sprintf("%v", p.OTP)
-	resp, err := c.twilio.VerifyTwilioOTP(string(userData.Phone), code)
+	phone := strconv.Itoa(userData.Phone)
+	fmt.Println(phone, "hhhhhhhhhhhhhhhhh")
+	resp, err := c.twilio.VerifyTwilioOTP(phone, code)
 	if err != nil {
 		return nil, err
 	} else {
@@ -111,8 +117,66 @@ func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.VerifyResponce, error) {
 
 }
 
-func NewCoordinatorSVC(repo inter.CoordinatorRepoInter) SVCinter.CoordinatorSVCInter {
+func (c *CoordinatorSVC) UserLogin(p *cpb.CoorinatorLogin) (*cpb.CordinatorLoginResponce, error) {
+	user, err := c.Repo.FindUserByEmail(p.Email)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Printf("No existing record found og %v", p.Email)
+			return nil, err
+		} else {
+			log.Printf("unable to login %v, err: %v", p.Email, err.Error())
+			return nil, err
+		}
+	}
+
+	check := utils.CheckPasswordMatch([]byte(user.Password), p.Password)
+	if !check {
+		log.Printf("password mismatch for user %v", p.Email)
+		return nil, fmt.Errorf("password mismatch for user %v", p.Email)
+	}
+
+	token, err := utils.GenerateToken(p.Email, p.Role, config.LoadConfig().SECRETKEY)
+	if err != nil {
+		log.Printf("unable to generate token for user %v, err: %v", p.Email, err.Error())
+		return nil, err
+	}
+
+	packages, _ := c.Repo.FindCoordinatorPackages(user.ID)
+
+	var cdpackages []*cpb.Package
+	for _, packagess := range *packages {
+		// Check if packagess.Images is not nil before marshaling
+		var imgs []byte
+		if packagess.Images != nil {
+			imgs, _ = json.Marshal(packagess.Images)
+		}
+
+		pkgs := &cpb.Package{
+			DestinationCount: int32(packagess.NumOfDestination),
+			Name:             packagess.Name,
+			Destination:      packagess.Destination,
+			Enddatetime:      packagess.EndDate,
+			Endlocation:      packagess.EndLoaction,
+			Image:            string(imgs),
+			Price:            int32(packagess.Price),
+			Startdatetime:    packagess.StartDate,
+			Startlocation:    packagess.StartLocation,
+		}
+
+		cdpackages = append(cdpackages, pkgs)
+	}
+
+	return &cpb.CordinatorLoginResponce{
+		Packages: cdpackages,
+		Token:    token,
+	}, nil
+}
+
+func NewCoordinatorSVC(repo inter.CoordinatorRepoInter, twilio *config.TwilioVerify, redis *redis.Client, cfg *config.Config) SVCinter.CoordinatorSVCInter {
 	return &CoordinatorSVC{
-		Repo: repo,
+		Repo:   repo,
+		twilio: twilio,
+		redis:  redis,
+		cfg:    cfg,
 	}
 }

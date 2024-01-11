@@ -40,6 +40,14 @@ func (c *CoordinatorRepo) CreateUser(user *cDOM.User) error {
 	return nil
 }
 
+func (c *CoordinatorRepo) FindCoordinatorPackages(id uint) (*[]cDOM.Package, error) {
+	var packages []cDOM.Package
+	if err := c.db.Where("coordinator_id = ?", id).Find(&packages).Error; err != nil {
+		return nil, err
+	}
+	return &packages, nil
+}
+
 func NewCoordinatorRepo(db *gorm.DB) inter.CoordinatorRepoInter {
 	return &CoordinatorRepo{
 		db: db,

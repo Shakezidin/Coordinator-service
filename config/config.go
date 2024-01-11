@@ -13,11 +13,12 @@ type Config struct {
 	Database            string `mapstructure:"DATABASE"`
 	Port                string `mapstructure:"PORT"`
 	Sslmode             string `mapstructure:"SSLMODE"`
-	GRPCADMINPORT       string `mapstructure:"GRPCADMINPORT"`
 	GRPCCOORDINATORPORT string `mapstructure:"GRPCCOORDINATORPORT"`
 	SID                 string `mapstructure:"SID"`
 	TOKEN               string `mapstructure:"TOKEN"`
 	SERVICETOKEN        string `mapstructure:"SERVICETOKEN"`
+	SECRETKEY           string `mapstructure:"SECRETKEY"`
+	REDISHOST           string `mapstructure:"REDISHOST"`
 }
 
 func LoadConfig() *Config {
@@ -29,6 +30,5 @@ func LoadConfig() *Config {
 	if err != nil {
 		log.Fatal("Error while loading configure")
 	}
-
 	return &config
 }

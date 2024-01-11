@@ -5,12 +5,12 @@ package pb;
 option go_package = ".";
 
 service Coordinator {
-    rpc CoordinatorLoginRequest(Login) returns (CordinatorLoginResponce);
+    rpc CoordinatorLoginRequest(CoorinatorLogin) returns (CordinatorLoginResponce);
     rpc CoordinatorSignupRequest(Signup) returns(SignupResponce);
     rpc CoordinatorSignupVerifyRequest(Verify)returns(VerifyResponce);
 }
 
-message Login{
+message CoorinatorLogin{
     string email = 1;
     string password = 2;
     string role = 3;
@@ -25,7 +25,7 @@ message Package{
     int32  price = 6;
     string image = 7;
     int32  destinationCount = 8;
-    string destinations = 9;
+    string destination = 9;
 }
 
 message CordinatorLoginResponce{
@@ -36,7 +36,7 @@ message CordinatorLoginResponce{
 message Signup{
     string name =1;
     string email = 2;
-    int32 phone = 3;
+    string phone = 3;
     string password = 4;
 }
 
