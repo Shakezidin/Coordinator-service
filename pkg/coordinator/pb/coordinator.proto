@@ -7,6 +7,7 @@ option go_package = ".";
 service Coordinator {
     rpc CoordinatorLoginRequest(Login) returns (CordinatorLoginResponce);
     rpc CoordinatorSignupRequest(Signup) returns(SignupResponce);
+    rpc CoordinatorSignupVerifyRequest(Verify)returns(VerifyResponce);
 }
 
 message Login{
@@ -40,6 +41,16 @@ message Signup{
 }
 
 message SignupResponce{
+    string status = 1;
+    string message = 2;
+}
+
+message Verify{
+    int32 OTP =1;
+    string email = 2;
+}
+
+message VerifyResponce{
     string status = 1;
     string message = 2;
 }
