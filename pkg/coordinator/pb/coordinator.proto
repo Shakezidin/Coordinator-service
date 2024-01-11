@@ -1,0 +1,45 @@
+syntax ="proto3";
+
+package pb;
+
+option go_package = ".";
+
+service Coordinator {
+    rpc CoordinatorLoginRequest(Login) returns (CordinatorLoginResponce);
+    rpc CoordinatorSignupRequest(Signup) returns(SignupResponce);
+}
+
+message Login{
+    string email = 1;
+    string password = 2;
+    string role = 3;
+}
+
+message Package{
+    string name = 1;
+    string startlocation = 2;
+    string endlocation = 3;
+    string startdatetime = 4;
+    string enddatetime = 5;
+    int32  price = 6;
+    string image = 7;
+    int32  destinationCount = 8;
+    string destinations = 9;
+}
+
+message CordinatorLoginResponce{
+    repeated Package Packages = 1;
+    string            token = 2;
+}
+
+message Signup{
+    string name =1;
+    string email = 2;
+    int32 phone = 3;
+    string password = 4;
+}
+
+message SignupResponce{
+    string status = 1;
+    string message = 2;
+}

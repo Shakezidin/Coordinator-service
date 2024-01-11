@@ -2,8 +2,8 @@ package repository
 
 import (
 	DOM "github.com/Shakezidin/pkg/DOM/admin"
-	"gorm.io/gorm"
 	inter "github.com/Shakezidin/pkg/admin/repository/interface"
+	"gorm.io/gorm"
 )
 
 type UserRepository struct {

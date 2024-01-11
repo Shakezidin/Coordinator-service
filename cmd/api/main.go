@@ -1,7 +1,12 @@
 package main
 
-import "github.com/Shakezidin/pkg/admin/di"
+import (
+	admindi "github.com/Shakezidin/pkg/admin/di"
+	coordinatordi "github.com/Shakezidin/pkg/coordinator/di"
+)
+
 
 func main() {
-	di.Init()
+	admindi.Init()
+	coordinatordi.Init()
 }

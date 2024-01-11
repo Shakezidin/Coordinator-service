@@ -1,7 +1,10 @@
 package admin
 
+import "gorm.io/gorm"
+
 type Admin struct {
-	Email    string
-	Password string
-	Role     string
+	gorm.Model
+	Email    string `gorm:"not null"`
+	Password string	`gorm:"not null"`
+	Role     string `gorm:"not null"`
 }

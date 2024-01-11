@@ -5,9 +5,10 @@ import (
 	"log"
 
 	"github.com/Shakezidin/config"
+	adminDOM "github.com/Shakezidin/pkg/DOM/admin"
+	cDOM "github.com/Shakezidin/pkg/DOM/coordinator"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	DOM "github.com/Shakezidin/pkg/DOM/admin"
 )
 
 func Database(config *config.Config) *gorm.DB {
@@ -26,7 +27,14 @@ func Database(config *config.Config) *gorm.DB {
 	}
 
 	// AutoMigrate all models
-	DB.AutoMigrate(DOM.Admin{})
+	err = DB.AutoMigrate(
+		adminDOM.Admin{},
+		cDOM.User{},
+	)
+	if err != nil {
+		fmt.Println("error while migrating")
+		return nil
+	}
 
 	return DB
 }
