@@ -9,11 +9,21 @@ service Coordinator {
     rpc CoordinatorSignupRequest(Signup) returns(SignupResponce);
     rpc CoordinatorSignupVerifyRequest(Verify)returns(VerifyResponce);
     rpc CoordinatorAddPackage(AddPackage)returns(AddPackageResponce);
+    rpc CoordinatorAddDestination(AddDestination)returns(AddDestinationResponce);
 }
 
-// message Images {
-//     string Image = 1;
-// }
+message AddDestination{
+    string destinationName = 1;
+    string Description = 2;
+    int64 PackageId = 3;
+    int64 minprice = 4;
+    string image = 5;
+    int64 MaxCapacity = 6;
+}
+
+message AddDestinationResponce{
+    string status = 1;
+}
 
 message AddPackage{
     string packagename = 1;

@@ -23,6 +23,7 @@ const (
 	Coordinator_CoordinatorSignupRequest_FullMethodName       = "/pb.Coordinator/CoordinatorSignupRequest"
 	Coordinator_CoordinatorSignupVerifyRequest_FullMethodName = "/pb.Coordinator/CoordinatorSignupVerifyRequest"
 	Coordinator_CoordinatorAddPackage_FullMethodName          = "/pb.Coordinator/CoordinatorAddPackage"
+	Coordinator_CoordinatorAddDestination_FullMethodName      = "/pb.Coordinator/CoordinatorAddDestination"
 )
 
 // CoordinatorClient is the client API for Coordinator service.
@@ -33,6 +34,7 @@ type CoordinatorClient interface {
 	CoordinatorSignupRequest(ctx context.Context, in *Signup, opts ...grpc.CallOption) (*SignupResponce, error)
 	CoordinatorSignupVerifyRequest(ctx context.Context, in *Verify, opts ...grpc.CallOption) (*VerifyResponce, error)
 	CoordinatorAddPackage(ctx context.Context, in *AddPackage, opts ...grpc.CallOption) (*AddPackageResponce, error)
+	CoordinatorAddDestination(ctx context.Context, in *AddDestination, opts ...grpc.CallOption) (*AddDestinationResponce, error)
 }
 
 type coordinatorClient struct {
@@ -79,6 +81,15 @@ func (c *coordinatorClient) CoordinatorAddPackage(ctx context.Context, in *AddPa
 	return out, nil
 }
 
+func (c *coordinatorClient) CoordinatorAddDestination(ctx context.Context, in *AddDestination, opts ...grpc.CallOption) (*AddDestinationResponce, error) {
+	out := new(AddDestinationResponce)
+	err := c.cc.Invoke(ctx, Coordinator_CoordinatorAddDestination_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoordinatorServer is the server API for Coordinator service.
 // All implementations must embed UnimplementedCoordinatorServer
 // for forward compatibility
@@ -87,6 +98,7 @@ type CoordinatorServer interface {
 	CoordinatorSignupRequest(context.Context, *Signup) (*SignupResponce, error)
 	CoordinatorSignupVerifyRequest(context.Context, *Verify) (*VerifyResponce, error)
 	CoordinatorAddPackage(context.Context, *AddPackage) (*AddPackageResponce, error)
+	CoordinatorAddDestination(context.Context, *AddDestination) (*AddDestinationResponce, error)
 	mustEmbedUnimplementedCoordinatorServer()
 }
 
@@ -105,6 +117,9 @@ func (UnimplementedCoordinatorServer) CoordinatorSignupVerifyRequest(context.Con
 }
 func (UnimplementedCoordinatorServer) CoordinatorAddPackage(context.Context, *AddPackage) (*AddPackageResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorAddPackage not implemented")
+}
+func (UnimplementedCoordinatorServer) CoordinatorAddDestination(context.Context, *AddDestination) (*AddDestinationResponce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorAddDestination not implemented")
 }
 func (UnimplementedCoordinatorServer) mustEmbedUnimplementedCoordinatorServer() {}
 
@@ -191,6 +206,24 @@ func _Coordinator_CoordinatorAddPackage_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Coordinator_CoordinatorAddDestination_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddDestination)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoordinatorServer).CoordinatorAddDestination(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Coordinator_CoordinatorAddDestination_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoordinatorServer).CoordinatorAddDestination(ctx, req.(*AddDestination))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Coordinator_ServiceDesc is the grpc.ServiceDesc for Coordinator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +246,10 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CoordinatorAddPackage",
 			Handler:    _Coordinator_CoordinatorAddPackage_Handler,
+		},
+		{
+			MethodName: "CoordinatorAddDestination",
+			Handler:    _Coordinator_CoordinatorAddDestination_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

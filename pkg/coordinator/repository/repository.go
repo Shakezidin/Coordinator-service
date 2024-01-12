@@ -55,6 +55,13 @@ func (c *CoordinatorRepo) CreatePackage(pkg *cDOM.Package) error {
 	return nil
 }
 
+func (c *CoordinatorRepo) CreateDestination(dtnt *cDOM.Destination) error {
+	if err := c.db.Create(&dtnt).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func NewCoordinatorRepo(db *gorm.DB) inter.CoordinatorRepoInter {
 	return &CoordinatorRepo{
 		db: db,

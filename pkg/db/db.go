@@ -30,6 +30,8 @@ func Database(config *config.Config) *gorm.DB {
 		cDOM.User{},
 		cDOM.Package{},
 		cDOM.Category{},
+		cDOM.Activity{},
+		cDOM.Destination{},
 	)
 	if err != nil {
 		fmt.Println("error while migrating")

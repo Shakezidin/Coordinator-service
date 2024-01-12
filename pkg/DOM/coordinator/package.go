@@ -40,11 +40,35 @@ type Package struct {
 	EndLoaction      string    `gorm:"not null"`
 	Price            int       `gorm:"not null"`
 	MaxCapacity      int       `gorm:"not null"`
+	NumOfDestination int       `gorm:"not null"`
+	TripStatus       bool      `gorm:"default:false"`
+	TripCategoryId   uint      `gorm:"not null"`
+	TripCategory     Category  `gorm:"ForeignKey:TripCategoryId"`
+	Images           string    `gorm:"not null"`
+	CoordinatorId    uint      `gorm:"not null"`
 	Description      string
-	NumOfDestination int      `gorm:"not null"`
-	TripStatus       bool     `gorm:"default:false"`
-	TripCategoryId   uint     `gorm:"not null"`
-	TripCategory     Category `gorm:"ForeignKey:TripCategoryId"`
-	Images           string   `gorm:"not null"`
-	CoordinatorId    uint     `gorm:"not null"`
+}
+
+type Destination struct {
+	gorm.Model
+	DestinationName string  `gorm:"not null"`
+	Description     string  `gorm:"not null"`
+	PackageID       uint    `gorm:"not null"`
+	Package         Package `gorm:"ForeignKey:PackageID"`
+	MinPrice        int     `gorm:"not null"`
+	MaxCapacity     int     `gorm:"not null"`
+	Image           string
+}
+
+type Activity struct {
+	gorm.Model
+	DestinationId uint        `gorm:"not null"`
+	Destination   Destination `gorm:"ForeignKey:DestinationId"`
+	ActivityName  string      `gorm:"not null"`
+	Description   string      `gorm:"not null"`
+	Location      string      `gorm:"not null"`
+	ActivityType  string      `gorm:"not null"`
+	Amount        int         `gorm:"not null"`
+	Date          time.Time
+	time          time.Time
 }

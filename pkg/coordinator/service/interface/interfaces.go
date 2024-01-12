@@ -9,4 +9,5 @@ type CoordinatorSVCInter interface {
 	VerifySVC(p *cpb.Verify) (*cpb.VerifyResponce, error)
 	UserLogin(p *cpb.CoorinatorLogin)(*cpb.CordinatorLoginResponce,error)
 	AddPackageSVC(p *cpb.AddPackage)(*cpb.AddPackageResponce,error)
+	AddDestinationSVC(p *cpb.AddDestination)(*cpb.AddDestinationResponce,error)
 }

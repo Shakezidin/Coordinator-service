@@ -11,4 +11,5 @@ type CoordinatorRepoInter interface {
 	CreateUser(user *cDOM.User) error
 	FindCoordinatorPackages(id uint) (*[]cDOM.Package, error)
 	CreatePackage(pkg *cDOM.Package) error
+	CreateDestination(dtnt *cDOM.Destination) error 
 }
