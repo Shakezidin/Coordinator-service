@@ -16,10 +16,19 @@ func (c *CoordinatorHandler) CoordinatorAddPackage(ctx context.Context, p *cpb.A
 	return respnc, nil
 }
 
-func (c *CoordinatorHandler)CoordinatorAddDestination(ctx context.Context,p *cpb.AddDestination)(*cpb.AddDestinationResponce,error){
+func (c *CoordinatorHandler) CoordinatorAddDestination(ctx context.Context, p *cpb.AddDestination) (*cpb.AddDestinationResponce, error) {
 	respnc, err := c.SVC.AddDestinationSVC(p)
 	if err != nil {
-		log.Printf("Unable to create %v package. err: %v", p.DestinationName, err.Error())
+		log.Printf("Unable to create %v destination. err: %v", p.DestinationName, err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}
+
+func (c *CoordinatorHandler) CoordinatorAddActivity(ctx context.Context, p *cpb.AddActivity) (*cpb.AddActivityResponce, error) {
+	respnc, err := c.SVC.AddActivitySVC(p)
+	if err != nil {
+		log.Printf("Unable to create %v activity. err: %v", p.ActivityName, err.Error())
 		return nil, err
 	}
 	return respnc, nil

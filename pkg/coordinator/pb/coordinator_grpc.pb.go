@@ -24,6 +24,7 @@ const (
 	Coordinator_CoordinatorSignupVerifyRequest_FullMethodName = "/pb.Coordinator/CoordinatorSignupVerifyRequest"
 	Coordinator_CoordinatorAddPackage_FullMethodName          = "/pb.Coordinator/CoordinatorAddPackage"
 	Coordinator_CoordinatorAddDestination_FullMethodName      = "/pb.Coordinator/CoordinatorAddDestination"
+	Coordinator_CoordinatorAddActivity_FullMethodName         = "/pb.Coordinator/CoordinatorAddActivity"
 )
 
 // CoordinatorClient is the client API for Coordinator service.
@@ -35,6 +36,7 @@ type CoordinatorClient interface {
 	CoordinatorSignupVerifyRequest(ctx context.Context, in *Verify, opts ...grpc.CallOption) (*VerifyResponce, error)
 	CoordinatorAddPackage(ctx context.Context, in *AddPackage, opts ...grpc.CallOption) (*AddPackageResponce, error)
 	CoordinatorAddDestination(ctx context.Context, in *AddDestination, opts ...grpc.CallOption) (*AddDestinationResponce, error)
+	CoordinatorAddActivity(ctx context.Context, in *AddActivity, opts ...grpc.CallOption) (*AddActivityResponce, error)
 }
 
 type coordinatorClient struct {
@@ -90,6 +92,15 @@ func (c *coordinatorClient) CoordinatorAddDestination(ctx context.Context, in *A
 	return out, nil
 }
 
+func (c *coordinatorClient) CoordinatorAddActivity(ctx context.Context, in *AddActivity, opts ...grpc.CallOption) (*AddActivityResponce, error) {
+	out := new(AddActivityResponce)
+	err := c.cc.Invoke(ctx, Coordinator_CoordinatorAddActivity_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoordinatorServer is the server API for Coordinator service.
 // All implementations must embed UnimplementedCoordinatorServer
 // for forward compatibility
@@ -99,6 +110,7 @@ type CoordinatorServer interface {
 	CoordinatorSignupVerifyRequest(context.Context, *Verify) (*VerifyResponce, error)
 	CoordinatorAddPackage(context.Context, *AddPackage) (*AddPackageResponce, error)
 	CoordinatorAddDestination(context.Context, *AddDestination) (*AddDestinationResponce, error)
+	CoordinatorAddActivity(context.Context, *AddActivity) (*AddActivityResponce, error)
 	mustEmbedUnimplementedCoordinatorServer()
 }
 
@@ -120,6 +132,9 @@ func (UnimplementedCoordinatorServer) CoordinatorAddPackage(context.Context, *Ad
 }
 func (UnimplementedCoordinatorServer) CoordinatorAddDestination(context.Context, *AddDestination) (*AddDestinationResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorAddDestination not implemented")
+}
+func (UnimplementedCoordinatorServer) CoordinatorAddActivity(context.Context, *AddActivity) (*AddActivityResponce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorAddActivity not implemented")
 }
 func (UnimplementedCoordinatorServer) mustEmbedUnimplementedCoordinatorServer() {}
 
@@ -224,6 +239,24 @@ func _Coordinator_CoordinatorAddDestination_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Coordinator_CoordinatorAddActivity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddActivity)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoordinatorServer).CoordinatorAddActivity(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Coordinator_CoordinatorAddActivity_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoordinatorServer).CoordinatorAddActivity(ctx, req.(*AddActivity))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Coordinator_ServiceDesc is the grpc.ServiceDesc for Coordinator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -250,6 +283,10 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CoordinatorAddDestination",
 			Handler:    _Coordinator_CoordinatorAddDestination_Handler,
+		},
+		{
+			MethodName: "CoordinatorAddActivity",
+			Handler:    _Coordinator_CoordinatorAddActivity_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

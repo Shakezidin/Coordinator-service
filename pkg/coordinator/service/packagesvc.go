@@ -29,6 +29,12 @@ func (c *CoordinatorSVC) AddPackageSVC(p *cpb.AddPackage) (*cpb.AddPackageRespon
 
 	startdate, err := time.Parse(layout, p.Startdate)
 	enddate, err := time.Parse(layout, p.Enddate)
+	if err != nil {
+		fmt.Println("date passing error")
+		return &cpb.AddPackageResponce{
+			Status: "date error",
+		}, errors.New("date passing error")
+	}
 
 	pkg.CoordinatorId = user.ID
 	pkg.Description = p.Description
@@ -72,6 +78,39 @@ func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.AddDestination) (*cpb.AddDesti
 		}, err
 	}
 	return &cpb.AddDestinationResponce{
+		Status: "Success",
+	}, nil
+}
+
+func (c *CoordinatorSVC) AddActivitySVC(p *cpb.AddActivity) (*cpb.AddActivityResponce, error) {
+	var activity dom.Activity
+	layout := "2006-01-02"
+
+	date, err := time.Parse(layout, p.Date)
+	time, err := time.Parse("15:04:05", p.Time)
+	if err != nil {
+		fmt.Println("date passing error")
+		return &cpb.AddActivityResponce{
+			Status: "date error",
+		}, errors.New("date passing error")
+	}
+
+	activity.ActivityName = p.ActivityName
+	activity.ActivityType = p.Activitytype
+	activity.Amount = int(p.Amount)
+	activity.Date = date
+	activity.Time = time
+	activity.Description=p.Description
+	activity.DestinationId=uint(p.DestinationId)
+	activity.Location=p.Location
+
+	err = c.Repo.CreateActivity(&activity)
+	if err != nil {
+		return &cpb.AddActivityResponce{
+			Status: "destination creation error",
+		}, err
+	}
+	return &cpb.AddActivityResponce{
 		Status: "Success",
 	}, nil
 }

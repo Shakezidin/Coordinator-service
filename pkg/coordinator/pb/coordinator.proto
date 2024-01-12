@@ -10,6 +10,22 @@ service Coordinator {
     rpc CoordinatorSignupVerifyRequest(Verify)returns(VerifyResponce);
     rpc CoordinatorAddPackage(AddPackage)returns(AddPackageResponce);
     rpc CoordinatorAddDestination(AddDestination)returns(AddDestinationResponce);
+    rpc CoordinatorAddActivity(AddActivity)returns(AddActivityResponce);
+}
+
+message AddActivity{
+    int64  destinationId = 1;
+    string ActivityName = 2;
+    string description = 3;
+    string location = 4;
+    string activitytype = 5;
+    int64  amount = 6;
+    string date = 7;
+    string time = 8;
+}
+
+message AddActivityResponce{
+    string status = 1;
 }
 
 message AddDestination{

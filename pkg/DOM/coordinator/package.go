@@ -70,5 +70,5 @@ type Activity struct {
 	ActivityType  string      `gorm:"not null"`
 	Amount        int         `gorm:"not null"`
 	Date          time.Time
-	time          time.Time
+	Time          time.Time
 }

@@ -62,6 +62,13 @@ func (c *CoordinatorRepo) CreateDestination(dtnt *cDOM.Destination) error {
 	return nil
 }
 
+func (c *CoordinatorRepo)CreateActivity(actvt *cDOM.Activity)error{
+	if err := c.db.Create(&actvt).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func NewCoordinatorRepo(db *gorm.DB) inter.CoordinatorRepoInter {
 	return &CoordinatorRepo{
 		db: db,
