@@ -8,6 +8,31 @@ service Coordinator {
     rpc CoordinatorLoginRequest(CoorinatorLogin) returns (CordinatorLoginResponce);
     rpc CoordinatorSignupRequest(Signup) returns(SignupResponce);
     rpc CoordinatorSignupVerifyRequest(Verify)returns(VerifyResponce);
+    rpc CoordinatorAddPackage(AddPackage)returns(AddPackageResponce);
+}
+
+// message Images {
+//     string Image = 1;
+// }
+
+message AddPackage{
+    string packagename = 1;
+    string Coorinatoremail = 2;
+    string startdate = 3;
+    string startlocation = 4;
+    string enddate = 5;
+    string endlocation = 6;
+    int64  price = 7;
+    string image = 8;
+    int64  destinationCount = 9;
+    string Destination = 10;
+    int64 categoryId = 11; 
+    string description = 12;
+    int64 MaxCapacity = 13;
+}
+
+message AddPackageResponce{
+    string status = 1;
 }
 
 message CoorinatorLogin{

@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -31,19 +32,19 @@ type Category struct {
 
 type Package struct {
 	gorm.Model
-	Name             string `gorm:"not null"`
-	Destination      string `gorm:"not null"`
-	StartDate        string `gorm:"not null"`
-	StartLocation    string `gorm:"not null"`
-	EndDate          string `gorm:"not null"`
-	EndLoaction      string `gorm:"not null"`
-	Price            int    `gorm:"not null"`
-	MaxCapacity      int    `gorm:"not null"`
+	Name             string    `gorm:"not null"`
+	Destination      string    `gorm:"not null"`
+	StartDate        time.Time `gorm:"not null"`
+	StartLocation    string    `gorm:"not null"`
+	EndDate          time.Time `gorm:"not null"`
+	EndLoaction      string    `gorm:"not null"`
+	Price            int       `gorm:"not null"`
+	MaxCapacity      int       `gorm:"not null"`
 	Description      string
 	NumOfDestination int      `gorm:"not null"`
 	TripStatus       bool     `gorm:"default:false"`
 	TripCategoryId   uint     `gorm:"not null"`
 	TripCategory     Category `gorm:"ForeignKey:TripCategoryId"`
-	Images           JSONB    `gorm:"type:jsonb"`
+	Images           string   `gorm:"not null"`
 	CoordinatorId    uint     `gorm:"not null"`
 }

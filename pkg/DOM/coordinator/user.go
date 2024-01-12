@@ -9,6 +9,5 @@ type User struct {
 	Phone    int    `gorm:"not null,unique"`
 	Password string `gorm:"not null"`
 	Role     string `gorm:"not null"`
+	Isblock  bool   `gorm:"default:false"`
 }
-
-

@@ -12,19 +12,10 @@ import (
 	"github.com/Shakezidin/config"
 	cDOM "github.com/Shakezidin/pkg/DOM/coordinator"
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
-	inter "github.com/Shakezidin/pkg/coordinator/repository/interface"
-	SVCinter "github.com/Shakezidin/pkg/coordinator/service/interface"
+
 	"github.com/Shakezidin/utils"
-	"github.com/go-redis/redis/v8"
 	"gorm.io/gorm"
 )
-
-type CoordinatorSVC struct {
-	Repo   inter.CoordinatorRepoInter
-	twilio *config.TwilioVerify
-	redis  *redis.Client
-	cfg    *config.Config
-}
 
 func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.SignupResponce, error) {
 	hashPassword, err := utils.HashPassword(p.Password)
@@ -83,7 +74,6 @@ func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.VerifyResponce, error) {
 
 	code := fmt.Sprintf("%v", p.OTP)
 	phone := strconv.Itoa(userData.Phone)
-	fmt.Println(phone, "hhhhhhhhhhhhhhhhh")
 	resp, err := c.twilio.VerifyTwilioOTP(phone, code)
 	if err != nil {
 		return nil, err
@@ -145,21 +135,16 @@ func (c *CoordinatorSVC) UserLogin(p *cpb.CoorinatorLogin) (*cpb.CordinatorLogin
 
 	var cdpackages []*cpb.Package
 	for _, packagess := range *packages {
-		// Check if packagess.Images is not nil before marshaling
-		var imgs []byte
-		if packagess.Images != nil {
-			imgs, _ = json.Marshal(packagess.Images)
-		}
 
 		pkgs := &cpb.Package{
 			DestinationCount: int32(packagess.NumOfDestination),
 			Name:             packagess.Name,
 			Destination:      packagess.Destination,
-			Enddatetime:      packagess.EndDate,
+			Enddatetime:      packagess.EndDate.Format("2006-01-02"),
 			Endlocation:      packagess.EndLoaction,
-			Image:            string(imgs),
+			Image:            packagess.Images,
 			Price:            int32(packagess.Price),
-			Startdatetime:    packagess.StartDate,
+			Startdatetime:    packagess.EndDate.Format("2006-01-02"),
 			Startlocation:    packagess.StartLocation,
 		}
 
@@ -170,13 +155,4 @@ func (c *CoordinatorSVC) UserLogin(p *cpb.CoorinatorLogin) (*cpb.CordinatorLogin
 		Packages: cdpackages,
 		Token:    token,
 	}, nil
-}
-
-func NewCoordinatorSVC(repo inter.CoordinatorRepoInter, twilio *config.TwilioVerify, redis *redis.Client, cfg *config.Config) SVCinter.CoordinatorSVCInter {
-	return &CoordinatorSVC{
-		Repo:   repo,
-		twilio: twilio,
-		redis:  redis,
-		cfg:    cfg,
-	}
 }

@@ -29,7 +29,9 @@ func (t *TwilioVerify) SentTwilioOTP(phone string) (*verify.VerifyV2Verification
 	params.SetChannel("sms")
 
 	resp, err := t.Client.VerifyV2.CreateVerification(t.Cfg.SERVICETOKEN, &params)
-	fmt.Println("helloooooo")
+	if err != nil {
+		fmt.Println("error while senting otp")
+	}
 
 	return resp, err
 }

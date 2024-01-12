@@ -10,4 +10,5 @@ type CoordinatorRepoInter interface {
 	FindUserByPhone(number int)(*cDOM.User,error)
 	CreateUser(user *cDOM.User) error
 	FindCoordinatorPackages(id uint) (*[]cDOM.Package, error)
+	CreatePackage(pkg *cDOM.Package) error
 }

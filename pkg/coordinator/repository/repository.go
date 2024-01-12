@@ -48,6 +48,13 @@ func (c *CoordinatorRepo) FindCoordinatorPackages(id uint) (*[]cDOM.Package, err
 	return &packages, nil
 }
 
+func (c *CoordinatorRepo) CreatePackage(pkg *cDOM.Package) error {
+	if err := c.db.Create(&pkg).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func NewCoordinatorRepo(db *gorm.DB) inter.CoordinatorRepoInter {
 	return &CoordinatorRepo{
 		db: db,
