@@ -5,10 +5,12 @@ import (
 )
 
 type CoordinatorSVCInter interface {
-	SignupSVC(p *cpb.Signup) (*cpb.SignupResponce,error)
-	VerifySVC(p *cpb.Verify) (*cpb.VerifyResponce, error)
-	UserLogin(p *cpb.CoorinatorLogin)(*cpb.CordinatorLoginResponce,error)
-	AddPackageSVC(p *cpb.AddPackage)(*cpb.AddPackageResponce,error)
-	AddDestinationSVC(p *cpb.AddDestination)(*cpb.AddDestinationResponce,error)
-	AddActivitySVC(p *cpb.AddActivity)(*cpb.AddActivityResponce,error)
+	SignupSVC(p *cpb.CoordinatorSignup) (*cpb.CoordinatorSignupResponce, error)
+	VerifySVC(p *cpb.CoordinatorVerify) (*cpb.CoordinatorVerifyResponce, error)
+	UserLogin(p *cpb.CoordinatorLogin) (*cpb.CoordinatorLoginResponce, error)
+	AddPackageSVC(p *cpb.AddPackage) (*cpb.AddPackageResponce, error)
+	AddDestinationSVC(p *cpb.AddDestination) (*cpb.AddDestinationResponce, error)
+	AddActivitySVC(p *cpb.AddActivity) (*cpb.AddActivityResponce, error)
+	AvailablePackageSvc() (*cpb.PackagesResponce, error)
+	ViewPackageSVC(p *cpb.CoodinatorViewPackage)(*cpb.Package,error)
 }

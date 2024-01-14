@@ -19,24 +19,28 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Coordinator_CoordinatorLoginRequest_FullMethodName        = "/pb.Coordinator/CoordinatorLoginRequest"
 	Coordinator_CoordinatorSignupRequest_FullMethodName       = "/pb.Coordinator/CoordinatorSignupRequest"
 	Coordinator_CoordinatorSignupVerifyRequest_FullMethodName = "/pb.Coordinator/CoordinatorSignupVerifyRequest"
+	Coordinator_CoordinatorLoginRequest_FullMethodName        = "/pb.Coordinator/CoordinatorLoginRequest"
 	Coordinator_CoordinatorAddPackage_FullMethodName          = "/pb.Coordinator/CoordinatorAddPackage"
 	Coordinator_CoordinatorAddDestination_FullMethodName      = "/pb.Coordinator/CoordinatorAddDestination"
 	Coordinator_CoordinatorAddActivity_FullMethodName         = "/pb.Coordinator/CoordinatorAddActivity"
+	Coordinator_AvailablePackages_FullMethodName              = "/pb.Coordinator/AvailablePackages"
+	Coordinator_CoordinatorViewPackage_FullMethodName         = "/pb.Coordinator/CoordinatorViewPackage"
 )
 
 // CoordinatorClient is the client API for Coordinator service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CoordinatorClient interface {
-	CoordinatorLoginRequest(ctx context.Context, in *CoorinatorLogin, opts ...grpc.CallOption) (*CordinatorLoginResponce, error)
-	CoordinatorSignupRequest(ctx context.Context, in *Signup, opts ...grpc.CallOption) (*SignupResponce, error)
-	CoordinatorSignupVerifyRequest(ctx context.Context, in *Verify, opts ...grpc.CallOption) (*VerifyResponce, error)
+	CoordinatorSignupRequest(ctx context.Context, in *CoordinatorSignup, opts ...grpc.CallOption) (*CoordinatorSignupResponce, error)
+	CoordinatorSignupVerifyRequest(ctx context.Context, in *CoordinatorVerify, opts ...grpc.CallOption) (*CoordinatorVerifyResponce, error)
+	CoordinatorLoginRequest(ctx context.Context, in *CoordinatorLogin, opts ...grpc.CallOption) (*CoordinatorLoginResponce, error)
 	CoordinatorAddPackage(ctx context.Context, in *AddPackage, opts ...grpc.CallOption) (*AddPackageResponce, error)
 	CoordinatorAddDestination(ctx context.Context, in *AddDestination, opts ...grpc.CallOption) (*AddDestinationResponce, error)
 	CoordinatorAddActivity(ctx context.Context, in *AddActivity, opts ...grpc.CallOption) (*AddActivityResponce, error)
+	AvailablePackages(ctx context.Context, in *AllPackages, opts ...grpc.CallOption) (*PackagesResponce, error)
+	CoordinatorViewPackage(ctx context.Context, in *CoodinatorViewPackage, opts ...grpc.CallOption) (*Package, error)
 }
 
 type coordinatorClient struct {
@@ -47,17 +51,8 @@ func NewCoordinatorClient(cc grpc.ClientConnInterface) CoordinatorClient {
 	return &coordinatorClient{cc}
 }
 
-func (c *coordinatorClient) CoordinatorLoginRequest(ctx context.Context, in *CoorinatorLogin, opts ...grpc.CallOption) (*CordinatorLoginResponce, error) {
-	out := new(CordinatorLoginResponce)
-	err := c.cc.Invoke(ctx, Coordinator_CoordinatorLoginRequest_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *coordinatorClient) CoordinatorSignupRequest(ctx context.Context, in *Signup, opts ...grpc.CallOption) (*SignupResponce, error) {
-	out := new(SignupResponce)
+func (c *coordinatorClient) CoordinatorSignupRequest(ctx context.Context, in *CoordinatorSignup, opts ...grpc.CallOption) (*CoordinatorSignupResponce, error) {
+	out := new(CoordinatorSignupResponce)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorSignupRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -65,9 +60,18 @@ func (c *coordinatorClient) CoordinatorSignupRequest(ctx context.Context, in *Si
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorSignupVerifyRequest(ctx context.Context, in *Verify, opts ...grpc.CallOption) (*VerifyResponce, error) {
-	out := new(VerifyResponce)
+func (c *coordinatorClient) CoordinatorSignupVerifyRequest(ctx context.Context, in *CoordinatorVerify, opts ...grpc.CallOption) (*CoordinatorVerifyResponce, error) {
+	out := new(CoordinatorVerifyResponce)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorSignupVerifyRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coordinatorClient) CoordinatorLoginRequest(ctx context.Context, in *CoordinatorLogin, opts ...grpc.CallOption) (*CoordinatorLoginResponce, error) {
+	out := new(CoordinatorLoginResponce)
+	err := c.cc.Invoke(ctx, Coordinator_CoordinatorLoginRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,16 +105,36 @@ func (c *coordinatorClient) CoordinatorAddActivity(ctx context.Context, in *AddA
 	return out, nil
 }
 
+func (c *coordinatorClient) AvailablePackages(ctx context.Context, in *AllPackages, opts ...grpc.CallOption) (*PackagesResponce, error) {
+	out := new(PackagesResponce)
+	err := c.cc.Invoke(ctx, Coordinator_AvailablePackages_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coordinatorClient) CoordinatorViewPackage(ctx context.Context, in *CoodinatorViewPackage, opts ...grpc.CallOption) (*Package, error) {
+	out := new(Package)
+	err := c.cc.Invoke(ctx, Coordinator_CoordinatorViewPackage_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoordinatorServer is the server API for Coordinator service.
 // All implementations must embed UnimplementedCoordinatorServer
 // for forward compatibility
 type CoordinatorServer interface {
-	CoordinatorLoginRequest(context.Context, *CoorinatorLogin) (*CordinatorLoginResponce, error)
-	CoordinatorSignupRequest(context.Context, *Signup) (*SignupResponce, error)
-	CoordinatorSignupVerifyRequest(context.Context, *Verify) (*VerifyResponce, error)
+	CoordinatorSignupRequest(context.Context, *CoordinatorSignup) (*CoordinatorSignupResponce, error)
+	CoordinatorSignupVerifyRequest(context.Context, *CoordinatorVerify) (*CoordinatorVerifyResponce, error)
+	CoordinatorLoginRequest(context.Context, *CoordinatorLogin) (*CoordinatorLoginResponce, error)
 	CoordinatorAddPackage(context.Context, *AddPackage) (*AddPackageResponce, error)
 	CoordinatorAddDestination(context.Context, *AddDestination) (*AddDestinationResponce, error)
 	CoordinatorAddActivity(context.Context, *AddActivity) (*AddActivityResponce, error)
+	AvailablePackages(context.Context, *AllPackages) (*PackagesResponce, error)
+	CoordinatorViewPackage(context.Context, *CoodinatorViewPackage) (*Package, error)
 	mustEmbedUnimplementedCoordinatorServer()
 }
 
@@ -118,14 +142,14 @@ type CoordinatorServer interface {
 type UnimplementedCoordinatorServer struct {
 }
 
-func (UnimplementedCoordinatorServer) CoordinatorLoginRequest(context.Context, *CoorinatorLogin) (*CordinatorLoginResponce, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorLoginRequest not implemented")
-}
-func (UnimplementedCoordinatorServer) CoordinatorSignupRequest(context.Context, *Signup) (*SignupResponce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorSignupRequest(context.Context, *CoordinatorSignup) (*CoordinatorSignupResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorSignupRequest not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorSignupVerifyRequest(context.Context, *Verify) (*VerifyResponce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorSignupVerifyRequest(context.Context, *CoordinatorVerify) (*CoordinatorVerifyResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorSignupVerifyRequest not implemented")
+}
+func (UnimplementedCoordinatorServer) CoordinatorLoginRequest(context.Context, *CoordinatorLogin) (*CoordinatorLoginResponce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorLoginRequest not implemented")
 }
 func (UnimplementedCoordinatorServer) CoordinatorAddPackage(context.Context, *AddPackage) (*AddPackageResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorAddPackage not implemented")
@@ -135,6 +159,12 @@ func (UnimplementedCoordinatorServer) CoordinatorAddDestination(context.Context,
 }
 func (UnimplementedCoordinatorServer) CoordinatorAddActivity(context.Context, *AddActivity) (*AddActivityResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorAddActivity not implemented")
+}
+func (UnimplementedCoordinatorServer) AvailablePackages(context.Context, *AllPackages) (*PackagesResponce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AvailablePackages not implemented")
+}
+func (UnimplementedCoordinatorServer) CoordinatorViewPackage(context.Context, *CoodinatorViewPackage) (*Package, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorViewPackage not implemented")
 }
 func (UnimplementedCoordinatorServer) mustEmbedUnimplementedCoordinatorServer() {}
 
@@ -149,26 +179,8 @@ func RegisterCoordinatorServer(s grpc.ServiceRegistrar, srv CoordinatorServer) {
 	s.RegisterService(&Coordinator_ServiceDesc, srv)
 }
 
-func _Coordinator_CoordinatorLoginRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CoorinatorLogin)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CoordinatorServer).CoordinatorLoginRequest(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Coordinator_CoordinatorLoginRequest_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoordinatorServer).CoordinatorLoginRequest(ctx, req.(*CoorinatorLogin))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Coordinator_CoordinatorSignupRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Signup)
+	in := new(CoordinatorSignup)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -180,13 +192,13 @@ func _Coordinator_CoordinatorSignupRequest_Handler(srv interface{}, ctx context.
 		FullMethod: Coordinator_CoordinatorSignupRequest_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoordinatorServer).CoordinatorSignupRequest(ctx, req.(*Signup))
+		return srv.(CoordinatorServer).CoordinatorSignupRequest(ctx, req.(*CoordinatorSignup))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Coordinator_CoordinatorSignupVerifyRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Verify)
+	in := new(CoordinatorVerify)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -198,7 +210,25 @@ func _Coordinator_CoordinatorSignupVerifyRequest_Handler(srv interface{}, ctx co
 		FullMethod: Coordinator_CoordinatorSignupVerifyRequest_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoordinatorServer).CoordinatorSignupVerifyRequest(ctx, req.(*Verify))
+		return srv.(CoordinatorServer).CoordinatorSignupVerifyRequest(ctx, req.(*CoordinatorVerify))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Coordinator_CoordinatorLoginRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CoordinatorLogin)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoordinatorServer).CoordinatorLoginRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Coordinator_CoordinatorLoginRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoordinatorServer).CoordinatorLoginRequest(ctx, req.(*CoordinatorLogin))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -257,6 +287,42 @@ func _Coordinator_CoordinatorAddActivity_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Coordinator_AvailablePackages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AllPackages)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoordinatorServer).AvailablePackages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Coordinator_AvailablePackages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoordinatorServer).AvailablePackages(ctx, req.(*AllPackages))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Coordinator_CoordinatorViewPackage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CoodinatorViewPackage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoordinatorServer).CoordinatorViewPackage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Coordinator_CoordinatorViewPackage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoordinatorServer).CoordinatorViewPackage(ctx, req.(*CoodinatorViewPackage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Coordinator_ServiceDesc is the grpc.ServiceDesc for Coordinator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -265,16 +331,16 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CoordinatorServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CoordinatorLoginRequest",
-			Handler:    _Coordinator_CoordinatorLoginRequest_Handler,
-		},
-		{
 			MethodName: "CoordinatorSignupRequest",
 			Handler:    _Coordinator_CoordinatorSignupRequest_Handler,
 		},
 		{
 			MethodName: "CoordinatorSignupVerifyRequest",
 			Handler:    _Coordinator_CoordinatorSignupVerifyRequest_Handler,
+		},
+		{
+			MethodName: "CoordinatorLoginRequest",
+			Handler:    _Coordinator_CoordinatorLoginRequest_Handler,
 		},
 		{
 			MethodName: "CoordinatorAddPackage",
@@ -287,6 +353,14 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CoordinatorAddActivity",
 			Handler:    _Coordinator_CoordinatorAddActivity_Handler,
+		},
+		{
+			MethodName: "AvailablePackages",
+			Handler:    _Coordinator_AvailablePackages_Handler,
+		},
+		{
+			MethodName: "CoordinatorViewPackage",
+			Handler:    _Coordinator_CoordinatorViewPackage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,16 +1,19 @@
 package interfaces
 
 import (
-	cDOM "github.com/Shakezidin/pkg/DOM/coordinator"
+	cDOM "github.com/Shakezidin/pkg/entities/packages"
 )
 
 type CoordinatorRepoInter interface {
 	SignupRepo(user *cDOM.User) error
 	FindUserByEmail(email string) (*cDOM.User, error)
-	FindUserByPhone(number int)(*cDOM.User,error)
+	FindUserByPhone(number int) (*cDOM.User, error)
 	CreateUser(user *cDOM.User) error
 	FindCoordinatorPackages(id uint) (*[]cDOM.Package, error)
 	CreatePackage(pkg *cDOM.Package) error
-	CreateDestination(dtnt *cDOM.Destination) error 
-	CreateActivity(actvt *cDOM.Activity)error
+	CreateDestination(dtnt *cDOM.Destination) error
+	CreateActivity(actvt *cDOM.Activity) error
+	FetchAllPackages()(*[]cDOM.Package,error)
+	FetchPackage(id uint)(*cDOM.Package,error)
+	FetchPackageDestination(id uint)([]*cDOM.Destination,error)
 }

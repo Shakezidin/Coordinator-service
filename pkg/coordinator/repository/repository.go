@@ -1,8 +1,8 @@
 package repository
 
 import (
-	cDOM "github.com/Shakezidin/pkg/DOM/coordinator"
 	inter "github.com/Shakezidin/pkg/coordinator/repository/interface"
+	cDOM "github.com/Shakezidin/pkg/entities/packages"
 	"gorm.io/gorm"
 )
 
@@ -48,6 +48,14 @@ func (c *CoordinatorRepo) FindCoordinatorPackages(id uint) (*[]cDOM.Package, err
 	return &packages, nil
 }
 
+func (c *CoordinatorRepo) FetchAllPackages() (*[]cDOM.Package, error) {
+	var packages []cDOM.Package
+	if err := c.db.Where("trip_status = ?", true).Find(&packages).Error; err != nil {
+		return nil, err
+	}
+	return &packages, nil
+}
+
 func (c *CoordinatorRepo) CreatePackage(pkg *cDOM.Package) error {
 	if err := c.db.Create(&pkg).Error; err != nil {
 		return err
@@ -62,11 +70,27 @@ func (c *CoordinatorRepo) CreateDestination(dtnt *cDOM.Destination) error {
 	return nil
 }
 
-func (c *CoordinatorRepo)CreateActivity(actvt *cDOM.Activity)error{
+func (c *CoordinatorRepo) CreateActivity(actvt *cDOM.Activity) error {
 	if err := c.db.Create(&actvt).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+func (c *CoordinatorRepo) FetchPackage(id uint) (*cDOM.Package, error) {
+	var pkg cDOM.Package
+	if err := c.db.Preload("Category").Where("id = ?", id).First(&pkg).Error; err != nil {
+		return nil, err
+	}
+	return &pkg, nil
+}
+
+func (c *CoordinatorRepo) FetchPackageDestination(id uint) ([]*cDOM.Destination, error) {
+	var dstn []*cDOM.Destination
+	if err := c.db.Where("package_id = ?", id).Find(&dstn).Error; err != nil {
+		return nil, err
+	}
+	return dstn, nil
 }
 
 func NewCoordinatorRepo(db *gorm.DB) inter.CoordinatorRepoInter {

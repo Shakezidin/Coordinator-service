@@ -1,4 +1,4 @@
-package coordinator
+package packages
 
 import (
 	"database/sql/driver"
@@ -43,7 +43,7 @@ type Package struct {
 	NumOfDestination int       `gorm:"not null"`
 	TripStatus       bool      `gorm:"default:false"`
 	TripCategoryId   uint      `gorm:"not null"`
-	TripCategory     Category  `gorm:"ForeignKey:TripCategoryId"`
+	Category         Category  `gorm:"ForeignKey:TripCategoryId"`
 	Images           string    `gorm:"not null"`
 	CoordinatorId    uint      `gorm:"not null"`
 	Description      string

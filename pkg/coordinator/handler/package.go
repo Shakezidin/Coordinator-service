@@ -16,6 +16,15 @@ func (c *CoordinatorHandler) CoordinatorAddPackage(ctx context.Context, p *cpb.A
 	return respnc, nil
 }
 
+func (c *CoordinatorHandler)CoordinatorViewPackage(ctx context.Context,p *cpb.CoodinatorViewPackage)(*cpb.Package,error){
+	respnc, err := c.SVC.ViewPackageSVC(p)
+	if err != nil {
+		log.Printf("Unable to fetch package. err: %v", err.Error())		
+		return nil, err
+	}
+	return respnc, nil
+}
+
 func (c *CoordinatorHandler) CoordinatorAddDestination(ctx context.Context, p *cpb.AddDestination) (*cpb.AddDestinationResponce, error) {
 	respnc, err := c.SVC.AddDestinationSVC(p)
 	if err != nil {
@@ -33,3 +42,21 @@ func (c *CoordinatorHandler) CoordinatorAddActivity(ctx context.Context, p *cpb.
 	}
 	return respnc, nil
 }
+
+func (c *CoordinatorHandler) AvailablePackages(ctx context.Context, p *cpb.AllPackages) (*cpb.PackagesResponce, error) {
+	respnc, err := c.SVC.AvailablePackageSvc()
+	if err != nil {
+		log.Printf("Unable to fetch packages. err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}
+
+// func (c *CoordinatorHandler) CoordinatorPackages(ctx context.Context, p *cpb.CodPackages) (*cpb.PackagesResponce, error) {
+// 	respnc, err := c.SVC.CoordinatorPackageSvc(p)
+// 	if err != nil {
+// 		log.Printf("Unable to fetch packages. err: %v", err.Error())
+// 		return nil, err
+// 	}
+// 	return respnc, nil
+// }

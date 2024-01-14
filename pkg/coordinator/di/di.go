@@ -13,11 +13,11 @@ import (
 
 func Init() {
 	cnfg := config.LoadConfig()
-	redis:=config.ConnectToRedis(cnfg)
-	twilio:=config.SetupTwilio(cnfg)
+	redis := config.ConnectToRedis(cnfg)
+	twilio := config.SetupTwilio(cnfg)
 	db := db.Database(cnfg)
 	coordinatorepo := repository.NewCoordinatorRepo(db)
-	coordinatorService := service.NewCoordinatorSVC(coordinatorepo,twilio,redis,cnfg)
+	coordinatorService := service.NewCoordinatorSVC(coordinatorepo, twilio, redis, cnfg)
 	coordinatorHandler := handler.NewCoordinatorHandler(coordinatorService)
 	err := server.NewCoordinatorGrpcServer(cnfg, coordinatorHandler)
 	if err != nil {

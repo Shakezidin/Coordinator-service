@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/Shakezidin/config"
-	cDOM "github.com/Shakezidin/pkg/DOM/coordinator"
+	cDOM "github.com/Shakezidin/pkg/entities/packages"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -27,11 +27,11 @@ func Database(config *config.Config) *gorm.DB {
 
 	// AutoMigrate all models
 	err = DB.AutoMigrate(
-		cDOM.User{},
 		cDOM.Package{},
 		cDOM.Category{},
 		cDOM.Activity{},
 		cDOM.Destination{},
+		cDOM.User{},
 	)
 	if err != nil {
 		fmt.Println("error while migrating")

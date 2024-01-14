@@ -10,14 +10,14 @@ import (
 	"time"
 
 	"github.com/Shakezidin/config"
-	cDOM "github.com/Shakezidin/pkg/DOM/coordinator"
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
+	cDOM "github.com/Shakezidin/pkg/entities/packages"
 
 	"github.com/Shakezidin/utils"
 	"gorm.io/gorm"
 )
 
-func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.SignupResponce, error) {
+func (c *CoordinatorSVC) SignupSVC(p *cpb.CoordinatorSignup) (*cpb.CoordinatorSignupResponce, error) {
 	hashPassword, err := utils.HashPassword(p.Password)
 	if err != nil {
 		log.Printf("unable to hash password in CoordinatorSvc() - service, err: %v", err.Error())
@@ -29,6 +29,7 @@ func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.SignupResponce, error) {
 		Email:    p.Email,
 		Password: string(hashPassword),
 		Name:     p.Name,
+		Role:     "coordinator",
 	}
 	// send otp to phone number
 
@@ -50,13 +51,13 @@ func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.SignupResponce, error) {
 
 	registerUser := fmt.Sprintf("register_user_%v", p.Email)
 	c.redis.Set(context.Background(), registerUser, userData, time.Minute*2)
-	return &cpb.SignupResponce{
+	return &cpb.CoordinatorSignupResponce{
 		Status:  "success",
-		Message: "user Creation initiated, check mail for OTP",
+		Message: "user Creation initiated, check message for OTP",
 	}, nil
 }
 
-func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.VerifyResponce, error) {
+func (c *CoordinatorSVC) VerifySVC(p *cpb.CoordinatorVerify) (*cpb.CoordinatorVerifyResponce, error) {
 	registerUser := fmt.Sprintf("register_user_%v", p.Email)
 	redisVal := c.redis.Get(context.Background(), registerUser)
 
@@ -100,14 +101,14 @@ func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.VerifyResponce, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &cpb.VerifyResponce{
+	return &cpb.CoordinatorVerifyResponce{
 		Status:  "Success",
 		Message: "User creation done",
 	}, nil
 
 }
 
-func (c *CoordinatorSVC) UserLogin(p *cpb.CoorinatorLogin) (*cpb.CordinatorLoginResponce, error) {
+func (c *CoordinatorSVC) UserLogin(p *cpb.CoordinatorLogin) (*cpb.CoordinatorLoginResponce, error) {
 	user, err := c.Repo.FindUserByEmail(p.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -125,7 +126,8 @@ func (c *CoordinatorSVC) UserLogin(p *cpb.CoorinatorLogin) (*cpb.CordinatorLogin
 		return nil, fmt.Errorf("password mismatch for user %v", p.Email)
 	}
 
-	token, err := utils.GenerateToken(p.Email, p.Role, config.LoadConfig().SECRETKEY)
+	userid := strconv.Itoa(int(user.ID))
+	token, err := utils.GenerateToken(p.Email, p.Role, userid, config.LoadConfig().SECRETKEY)
 	if err != nil {
 		log.Printf("unable to generate token for user %v, err: %v", p.Email, err.Error())
 		return nil, err
@@ -151,7 +153,7 @@ func (c *CoordinatorSVC) UserLogin(p *cpb.CoorinatorLogin) (*cpb.CordinatorLogin
 		cdpackages = append(cdpackages, pkgs)
 	}
 
-	return &cpb.CordinatorLoginResponce{
+	return &cpb.CoordinatorLoginResponce{
 		Packages: cdpackages,
 		Token:    token,
 	}, nil

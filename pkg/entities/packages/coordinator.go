@@ -1,4 +1,4 @@
-package coordinator
+package packages
 
 import "gorm.io/gorm"
 
