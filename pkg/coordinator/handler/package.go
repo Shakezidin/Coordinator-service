@@ -52,11 +52,20 @@ func (c *CoordinatorHandler) AvailablePackages(ctx context.Context, p *cpb.AllPa
 	return respnc, nil
 }
 
-// func (c *CoordinatorHandler) CoordinatorPackages(ctx context.Context, p *cpb.CodPackages) (*cpb.PackagesResponce, error) {
-// 	respnc, err := c.SVC.CoordinatorPackageSvc(p)
-// 	if err != nil {
-// 		log.Printf("Unable to fetch packages. err: %v", err.Error())
-// 		return nil, err
-// 	}
-// 	return respnc, nil
-// }
+func (c *CoordinatorHandler)CoordinatorViewDestination(ctx context.Context, p *cpb.CoodinatorViewDestination)(*cpb.Destination,error){
+	respnc, err := c.SVC.ViewDestinationSvc(p)
+	if err != nil {
+		log.Printf("Unable to fetch destination. err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}
+
+func (c *CoordinatorHandler)CoordinatorViewActivity(ctx context.Context, p *cpb.ViewActivity)(*cpb.Activity,error){
+	respnc, err := c.SVC.ViewActivitySvc(p)
+	if err != nil {
+		log.Printf("Unable to fetch activity. err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}

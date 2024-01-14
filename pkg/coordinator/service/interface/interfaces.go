@@ -13,4 +13,6 @@ type CoordinatorSVCInter interface {
 	AddActivitySVC(p *cpb.AddActivity) (*cpb.AddActivityResponce, error)
 	AvailablePackageSvc() (*cpb.PackagesResponce, error)
 	ViewPackageSVC(p *cpb.CoodinatorViewPackage)(*cpb.Package,error)
+	ViewDestinationSvc(p *cpb.CoodinatorViewDestination) (*cpb.Destination, error)
+	ViewActivitySvc(p *cpb.ViewActivity)(*cpb.Activity,error)
 }

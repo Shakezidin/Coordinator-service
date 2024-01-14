@@ -93,6 +93,30 @@ func (c *CoordinatorRepo) FetchPackageDestination(id uint) ([]*cDOM.Destination,
 	return dstn, nil
 }
 
+func (c *CoordinatorRepo) FecthDestination(id uint) (*cDOM.Destination, error) {
+	var dstn cDOM.Destination
+	if err := c.db.Where("id = ?", id).First(&dstn).Error; err != nil {
+		return nil, err
+	}
+	return &dstn, nil
+}
+
+func (c *CoordinatorRepo) FecthDestinationActivity(id uint) ([]*cDOM.Activity, error) {
+	var actvty []*cDOM.Activity
+	if err := c.db.Where("destination_id = ?", id).Find(&actvty).Error; err != nil {
+		return nil, err
+	}
+	return actvty, nil
+}
+
+func (c *CoordinatorRepo) FecthActivity(id uint) (*cDOM.Activity, error) {
+	var activity *cDOM.Activity
+	if err := c.db.Where("id = ?", id).First(&activity).Error; err != nil {
+		return nil, err
+	}
+	return activity, nil
+}
+
 func NewCoordinatorRepo(db *gorm.DB) inter.CoordinatorRepoInter {
 	return &CoordinatorRepo{
 		db: db,

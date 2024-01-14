@@ -13,6 +13,37 @@ service Coordinator {
     rpc CoordinatorAddActivity(AddActivity)returns(AddActivityResponce);
     rpc AvailablePackages(AllPackages) returns (PackagesResponce);
     rpc CoordinatorViewPackage(CoodinatorViewPackage)returns(Package);
+    rpc CoordinatorViewDestination(CoodinatorViewDestination)returns(Destination);
+    rpc CoordinatorViewActivity(ViewActivity)returns(Activity);
+}
+
+message ViewActivity{
+    int64 ActivityId = 1;
+}
+
+message CoodinatorViewDestination{
+    int64 DestinationId = 2;
+}
+
+message Activity{
+    int64 activityId = 1;
+    string activityname = 2;
+    string description = 3;
+    string Location = 4;
+    string ActivityType = 5;
+    int64 Amount = 6;
+    string date = 7;
+    string time = 8;
+}
+
+message Destination{
+    int64 destinationId = 1;
+    string DestinationName = 2;
+    string Description = 3;
+    int64 minprice = 4;
+    int64 maxCapacity = 5;
+    string image = 6;
+    repeated Activity activity = 7;
 }
 
 message CoodinatorViewPackage{

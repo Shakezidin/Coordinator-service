@@ -16,4 +16,7 @@ type CoordinatorRepoInter interface {
 	FetchAllPackages()(*[]cDOM.Package,error)
 	FetchPackage(id uint)(*cDOM.Package,error)
 	FetchPackageDestination(id uint)([]*cDOM.Destination,error)
+	FecthDestination(id uint)(*cDOM.Destination,error)
+	FecthDestinationActivity(id uint)([]*cDOM.Activity,error)
+	FecthActivity(id uint) (*cDOM.Activity, error)
 }

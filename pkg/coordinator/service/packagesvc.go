@@ -160,7 +160,7 @@ func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.CoodinatorViewPackage) (*cpb.Pack
 		ds.DestinationName = dsn.DestinationName
 		ds.Image = dsn.Image
 		ds.MaxCapacity = int64(dsn.MaxCapacity)
-		ds.DestinationId = int32(dsn.ID)
+		ds.DestinationId = int32(dsn.Model.ID)
 		ds.MinPrice = int64(dsn.MinPrice)
 
 		dstn = append(dstn, &ds)
@@ -181,4 +181,60 @@ func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.CoodinatorViewPackage) (*cpb.Pack
 		Category:         ctgry,
 		Destinations:     dstn,
 	}, nil
+}
+
+func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.CoodinatorViewDestination) (*cpb.Destination, error) {
+	dstn, err := c.Repo.FecthDestination(uint(p.DestinationId))
+	if err != nil {
+		return &cpb.Destination{}, err
+	}
+
+	activity, err := c.Repo.FecthDestinationActivity(dstn.ID)
+	if err != nil {
+		return &cpb.Destination{}, err
+	}
+
+	actvt := cpb.Activity{}
+	var arr []*cpb.Activity
+	for _, act := range activity {
+		actvt.ActivityType = act.ActivityType
+		actvt.Activityname = act.ActivityName
+		actvt.Amount = int64(act.Amount)
+		actvt.Date = act.Date.Format("2006-01-02")
+		actvt.Description = act.Description
+		actvt.Location = act.Location
+		actvt.Time = act.Time.Format("03:04 PM")
+		actvt.ActivityId=int64(act.Model.ID)
+
+		arr = append(arr, &actvt)
+	}
+
+	return &cpb.Destination{
+		DestinationId:   int64(dstn.ID),
+		DestinationName: dstn.DestinationName,
+		Description:     dstn.Description,
+		Minprice:        int64(dstn.MinPrice),
+		MaxCapacity:     int64(dstn.MaxCapacity),
+		Image:           dstn.Image,
+		Activity:        arr,
+	}, nil
+}
+
+func (c *CoordinatorSVC)ViewActivitySvc(p *cpb.ViewActivity)(*cpb.Activity,error){
+	activity, err := c.Repo.FecthActivity(uint(p.ActivityId))
+	if err != nil {
+		return &cpb.Activity{}, err
+	}
+
+	return &cpb.Activity{
+		ActivityId: int64(activity.ID),
+		Activityname: activity.ActivityName,
+		Description: activity.Description,
+		Location: activity.Location,
+		ActivityType: activity.ActivityType,
+		Amount: int64(activity.Amount),
+		Time: activity.Time.Format("03:04 PM"),
+		Date: activity.Date.Format("2006-01-02"),
+	},nil
+
 }
