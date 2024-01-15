@@ -15,6 +15,36 @@ service Coordinator {
     rpc CoordinatorViewPackage(CoodinatorViewPackage)returns(Package);
     rpc CoordinatorViewDestination(CoodinatorViewDestination)returns(Destination);
     rpc CoordinatorViewActivity(ViewActivity)returns(Activity);
+    rpc CoordinatorForgetPassword(CoordinatorforgetPassword)returns(CoordinatorforgetPasswordResponce);
+    rpc CoordinatorForgetPasswordVerify(CoordinatorforgetPasswordVerify)returns(CoordinatorforgetPasswordVerifyResponce);
+    rpc CoordinatorNewPassword(Coordinatornewpassword)returns(Coordinatornewpasswordresponce);
+}
+
+message Coordinatornewpasswordresponce{
+    string status = 1;
+}
+
+message Coordinatornewpassword{
+    string newpassword = 1;
+    string Id = 2;
+}
+
+message CoordinatorforgetPasswordVerifyResponce{
+    string status = 1;
+    string token = 2;
+}
+
+message CoordinatorforgetPasswordVerify{
+    string otp = 1;
+    string phone = 2;
+}
+
+message CoordinatorforgetPasswordResponce{
+    string Responce = 1;
+}
+
+message CoordinatorforgetPassword{
+    string phone =1;
 }
 
 message ViewActivity{

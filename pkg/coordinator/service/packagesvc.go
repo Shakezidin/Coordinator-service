@@ -129,6 +129,7 @@ func (c *CoordinatorSVC) AvailablePackageSvc() (*cpb.PackagesResponce, error) {
 		pkg.Price = int32(pkges.Price)
 		pkg.Startdatetime = pkges.EndDate.Format("2006-01-02")
 		pkg.Startlocation = pkges.StartLocation
+		pkg.Description = pkges.Description
 
 		pkgs = append(pkgs, &pkg)
 	}
@@ -204,7 +205,7 @@ func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.CoodinatorViewDestination) (*
 		actvt.Description = act.Description
 		actvt.Location = act.Location
 		actvt.Time = act.Time.Format("03:04 PM")
-		actvt.ActivityId=int64(act.Model.ID)
+		actvt.ActivityId = int64(act.Model.ID)
 
 		arr = append(arr, &actvt)
 	}
@@ -220,21 +221,21 @@ func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.CoodinatorViewDestination) (*
 	}, nil
 }
 
-func (c *CoordinatorSVC)ViewActivitySvc(p *cpb.ViewActivity)(*cpb.Activity,error){
+func (c *CoordinatorSVC) ViewActivitySvc(p *cpb.ViewActivity) (*cpb.Activity, error) {
 	activity, err := c.Repo.FecthActivity(uint(p.ActivityId))
 	if err != nil {
 		return &cpb.Activity{}, err
 	}
 
 	return &cpb.Activity{
-		ActivityId: int64(activity.ID),
+		ActivityId:   int64(activity.ID),
 		Activityname: activity.ActivityName,
-		Description: activity.Description,
-		Location: activity.Location,
+		Description:  activity.Description,
+		Location:     activity.Location,
 		ActivityType: activity.ActivityType,
-		Amount: int64(activity.Amount),
-		Time: activity.Time.Format("03:04 PM"),
-		Date: activity.Date.Format("2006-01-02"),
-	},nil
+		Amount:       int64(activity.Amount),
+		Time:         activity.Time.Format("03:04 PM"),
+		Date:         activity.Date.Format("2006-01-02"),
+	}, nil
 
 }

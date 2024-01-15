@@ -19,4 +19,5 @@ type CoordinatorRepoInter interface {
 	FecthDestination(id uint)(*cDOM.Destination,error)
 	FecthDestinationActivity(id uint)([]*cDOM.Activity,error)
 	FecthActivity(id uint) (*cDOM.Activity, error)
+	UpdatePassword(id uint, newpassword string) error
 }

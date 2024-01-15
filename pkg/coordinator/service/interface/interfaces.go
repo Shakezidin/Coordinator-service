@@ -15,4 +15,7 @@ type CoordinatorSVCInter interface {
 	ViewPackageSVC(p *cpb.CoodinatorViewPackage)(*cpb.Package,error)
 	ViewDestinationSvc(p *cpb.CoodinatorViewDestination) (*cpb.Destination, error)
 	ViewActivitySvc(p *cpb.ViewActivity)(*cpb.Activity,error)
+	NewPassword(p *cpb.Coordinatornewpassword) (*cpb.Coordinatornewpasswordresponce, error)
+	ForgetPassword(p *cpb.CoordinatorforgetPassword) (*cpb.CoordinatorforgetPasswordResponce, error)
+	ForgetPasswordVerify(p *cpb.CoordinatorforgetPasswordVerify) (*cpb.CoordinatorforgetPasswordVerifyResponce, error)
 }
