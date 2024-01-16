@@ -1,7 +1,9 @@
 package main
 
-import "github.com/Shakezidin/pkg/admin/di"
+import (
+	coordinatordi "github.com/Shakezidin/pkg/coordinator/di"
+)
 
 func main() {
-	di.Init()
+	coordinatordi.Init()
 }

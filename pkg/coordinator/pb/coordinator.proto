@@ -1,0 +1,127 @@
+syntax ="proto3";
+
+package pb;
+
+option go_package = ".";
+
+service Coordinator {
+    rpc CoordinatorSignupRequest(Signup)returns(Responce);
+    rpc CoordinatorSignupVerifyRequest(Verify)returns(Responce);
+    rpc CoordinatorLoginRequest(Login)returns(LoginResponce);
+    rpc CoordinatorAddPackage(Package)returns(Responce);
+    rpc CoordinatorAddDestination(Destination)returns(Responce);
+    rpc CoordinatorAddActivity(Activity)returns(Responce);
+    rpc CoordinatorViewPackage(View)returns(Package);
+    rpc CoordinatorViewDestination(View)returns(Destination);
+    rpc CoordinatorViewActivity(View)returns(Activity);
+    rpc CoordinatorForgetPassword(forgetPassword)returns(Responce);
+    rpc CoordinatorForgetPasswordVerify(forgetPasswordVerify)returns(Responce);
+    rpc CoordinatorNewPassword(newpassword)returns(Responce);
+    rpc AvailablePackages(Packages) returns (PackagesResponce);
+}
+
+message PackagesResponce{
+    repeated Package Packages = 1;
+}
+
+message Packages{
+
+}
+
+message Verify{
+    int32 OTP =1;
+    string email = 2;
+}
+
+message Responce{
+    string status = 1;
+    string message = 2;
+}
+
+message Signup{
+    string name =1;
+    string email = 2;
+    string phone = 3;
+    string password = 4;
+    string role = 5;
+}
+
+message newpassword{
+    string newpassword = 1;
+    string Id = 2;
+}
+
+message forgetPasswordVerify{
+    string otp = 1;
+    string phone = 2;
+}
+
+message forgetPassword{
+    string phone =1;
+}
+
+message View{
+    int64 Id = 1;
+}
+
+message Login{
+    string email = 1;
+    string password = 2;
+    string role = 3;
+}
+
+message SignupResponce{
+    string status = 1;
+    string message = 2;
+}
+
+message Activity{
+    int64 activityId = 1;
+    string activityname = 2;
+    string description = 3;
+    string Location = 4;
+    string ActivityType = 5;
+    int64 Amount = 6;
+    string date = 7;
+    string time = 8;
+    int64 destinationId = 9;
+}
+
+message Destination{
+    int64 destinationId = 1;
+    string DestinationName = 2;
+    string Description = 3;
+    int64 minprice = 4;
+    int64 maxCapacity = 5;
+    string image = 6;
+    repeated Activity activity = 7;
+    int64 PackageID = 8;
+}
+
+message Package{
+    int64  PackageId = 1;
+    string packagename = 2;
+    int64 CoorinatorId = 3;
+    string startlocation = 4;
+    string endlocation = 5;
+    string startdatetime = 6;
+    string enddatetime = 7;
+    int64  price = 8;
+    string image = 9;
+    int64  destinationCount = 10;
+    string destination = 11;
+    string Description = 12;
+    int64 maxCapacity = 13;
+    int64  categoryId = 14;  
+    Category category = 15;
+    repeated Destination Destinations = 16;
+}
+
+message Category{
+    string categoryName = 1;
+}
+
+message LoginResponce{
+    repeated Package Packages = 1;
+    string            token = 2;
+}
