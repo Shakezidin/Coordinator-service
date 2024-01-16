@@ -9,7 +9,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (c *CoordinatorHandler) CoordinatorSignupRequest(ctx context.Context, p *cpb.CoordinatorSignup) (*cpb.CoordinatorSignupResponce, error) {
+func (c *CoordinatorHandler) CoordinatorSignupRequest(ctx context.Context, p *cpb.Signup) (*cpb.Responce, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
 		log.Println("deadline passed, aborting gRPC call")
@@ -23,7 +23,7 @@ func (c *CoordinatorHandler) CoordinatorSignupRequest(ctx context.Context, p *cp
 	return result, nil
 }
 
-func (c *CoordinatorHandler) CoordinatorSignupVerifyRequest(ctx context.Context, p *cpb.CoordinatorVerify) (*cpb.CoordinatorVerifyResponce, error) {
+func (c *CoordinatorHandler) CoordinatorSignupVerifyRequest(ctx context.Context, p *cpb.Verify) (*cpb.Responce, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
 		log.Println("deadline passed, aborting gRPC call")
@@ -38,7 +38,7 @@ func (c *CoordinatorHandler) CoordinatorSignupVerifyRequest(ctx context.Context,
 	return resp, nil
 }
 
-func (c *CoordinatorHandler) CoordinatorLoginRequest(ctx context.Context, p *cpb.CoordinatorLogin) (*cpb.CoordinatorLoginResponce, error) {
+func (c *CoordinatorHandler) CoordinatorLoginRequest(ctx context.Context, p *cpb.Login) (*cpb.LoginResponce, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
 		log.Println("deadline passed, aborting gRPC call")

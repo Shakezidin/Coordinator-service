@@ -4,17 +4,17 @@ import (
 	"errors"
 	"log"
 	"time"
+
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 	"golang.org/x/net/context"
 )
 
-func (c *CoordinatorHandler) ForgetPassword(ctx context.Context, p *cpb.CoordinatorforgetPassword) (*cpb.CoordinatorforgetPasswordResponce, error) {
+func (c *CoordinatorHandler) CoordinatorForgetPassword(ctx context.Context, p *cpb.ForgetPassword) (*cpb.Responce, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
 		log.Println("deadline passed, aborting gRPC call")
 		return nil, errors.New("deadline passed, aborting gRPC call")
 	}
-
 	resp, err := c.SVC.ForgetPassword(p)
 	if err != nil {
 		log.Printf("Unable to verify sent of otp for phone == %v, err: %v", p.Phone, err.Error())
@@ -23,7 +23,7 @@ func (c *CoordinatorHandler) ForgetPassword(ctx context.Context, p *cpb.Coordina
 	return resp, nil
 }
 
-func (c *CoordinatorHandler) ForgetPasswordVerify(ctx context.Context, p *cpb.CoordinatorforgetPasswordVerify) (*cpb.CoordinatorforgetPasswordVerifyResponce, error) {
+func (c *CoordinatorHandler) CoordinatorForgetPasswordVerify(ctx context.Context, p *cpb.ForgetPasswordVerify) (*cpb.Responce, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
 		log.Println("deadline passed, aborting gRPC call")
@@ -38,7 +38,7 @@ func (c *CoordinatorHandler) ForgetPasswordVerify(ctx context.Context, p *cpb.Co
 	return resp, nil
 }
 
-func (c *CoordinatorHandler) NewPassword(ctx context.Context, p *cpb.Coordinatornewpassword) (*cpb.Coordinatornewpasswordresponce, error) {
+func (c *CoordinatorHandler) CoordinatorNewPassword(ctx context.Context, p *cpb.Newpassword) (*cpb.Responce, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
 		log.Println("deadline passed, aborting gRPC call")

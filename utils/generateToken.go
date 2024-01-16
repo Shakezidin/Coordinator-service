@@ -37,3 +37,7 @@ func GenerateToken(email, role,Id string, cfg string) (string, error) {
 
 	return signedToken,nil
 }
+
+
+
+

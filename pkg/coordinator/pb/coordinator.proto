@@ -5,54 +5,74 @@ package pb;
 option go_package = ".";
 
 service Coordinator {
-    rpc CoordinatorSignupRequest(CoordinatorSignup)returns(CoordinatorSignupResponce);
-    rpc CoordinatorSignupVerifyRequest(CoordinatorVerify)returns(CoordinatorVerifyResponce);
-    rpc CoordinatorLoginRequest(CoordinatorLogin)returns(CoordinatorLoginResponce);
-    rpc CoordinatorAddPackage(AddPackage)returns(AddPackageResponce);
-    rpc CoordinatorAddDestination(AddDestination)returns(AddDestinationResponce);
-    rpc CoordinatorAddActivity(AddActivity)returns(AddActivityResponce);
-    rpc AvailablePackages(AllPackages) returns (PackagesResponce);
-    rpc CoordinatorViewPackage(CoodinatorViewPackage)returns(Package);
-    rpc CoordinatorViewDestination(CoodinatorViewDestination)returns(Destination);
-    rpc CoordinatorViewActivity(ViewActivity)returns(Activity);
-    rpc CoordinatorForgetPassword(CoordinatorforgetPassword)returns(CoordinatorforgetPasswordResponce);
-    rpc CoordinatorForgetPasswordVerify(CoordinatorforgetPasswordVerify)returns(CoordinatorforgetPasswordVerifyResponce);
-    rpc CoordinatorNewPassword(Coordinatornewpassword)returns(Coordinatornewpasswordresponce);
+    rpc CoordinatorSignupRequest(Signup)returns(Responce);
+    rpc CoordinatorSignupVerifyRequest(Verify)returns(Responce);
+    rpc CoordinatorLoginRequest(Login)returns(LoginResponce);
+    rpc CoordinatorAddPackage(Package)returns(Responce);
+    rpc CoordinatorAddDestination(Destination)returns(Responce);
+    rpc CoordinatorAddActivity(Activity)returns(Responce);
+    rpc CoordinatorViewPackage(View)returns(Package);
+    rpc CoordinatorViewDestination(View)returns(Destination);
+    rpc CoordinatorViewActivity(View)returns(Activity);
+    rpc CoordinatorForgetPassword(forgetPassword)returns(Responce);
+    rpc CoordinatorForgetPasswordVerify(forgetPasswordVerify)returns(Responce);
+    rpc CoordinatorNewPassword(newpassword)returns(Responce);
+    rpc AvailablePackages(Packages) returns (PackagesResponce);
 }
 
-message Coordinatornewpasswordresponce{
+message PackagesResponce{
+    repeated Package Packages = 1;
+}
+
+message Packages{
+
+}
+
+message Verify{
+    int32 OTP =1;
+    string email = 2;
+}
+
+message Responce{
     string status = 1;
+    string message = 2;
 }
 
-message Coordinatornewpassword{
+message Signup{
+    string name =1;
+    string email = 2;
+    string phone = 3;
+    string password = 4;
+    string role = 5;
+}
+
+message newpassword{
     string newpassword = 1;
     string Id = 2;
 }
 
-message CoordinatorforgetPasswordVerifyResponce{
-    string status = 1;
-    string token = 2;
-}
-
-message CoordinatorforgetPasswordVerify{
+message forgetPasswordVerify{
     string otp = 1;
     string phone = 2;
 }
 
-message CoordinatorforgetPasswordResponce{
-    string Responce = 1;
-}
-
-message CoordinatorforgetPassword{
+message forgetPassword{
     string phone =1;
 }
 
-message ViewActivity{
-    int64 ActivityId = 1;
+message View{
+    int64 Id = 1;
 }
 
-message CoodinatorViewDestination{
-    int64 DestinationId = 2;
+message Login{
+    string email = 1;
+    string password = 2;
+    string role = 3;
+}
+
+message SignupResponce{
+    string status = 1;
+    string message = 2;
 }
 
 message Activity{
@@ -64,6 +84,7 @@ message Activity{
     int64 Amount = 6;
     string date = 7;
     string time = 8;
+    int64 destinationId = 9;
 }
 
 message Destination{
@@ -74,133 +95,33 @@ message Destination{
     int64 maxCapacity = 5;
     string image = 6;
     repeated Activity activity = 7;
+    int64 PackageID = 8;
 }
 
-message CoodinatorViewPackage{
-    int64 packageId = 1;
-}
-
-message CoordinatorLogin{
-    string email = 1;
-    string password = 2;
-    string role = 3;
-}
-
-
-message CoordinatorVerifyResponce{
-    string status = 1;
-    string message = 2;
-}
-
-message CoordinatorVerify{
-    int32 OTP =1;
-    string email = 2;
-}
-
-message CoordinatorSignupResponce{
-    string status = 1;
-    string message = 2;
-}
-
-
-message CoordinatorSignup{
-    string name =1;
-    string email = 2;
-    string phone = 3;
-    string password = 4;
-    string role = 5;
+message Package{
+    int64  PackageId = 1;
+    string packagename = 2;
+    int64 CoorinatorId = 3;
+    string startlocation = 4;
+    string endlocation = 5;
+    string startdatetime = 6;
+    string enddatetime = 7;
+    int64  price = 8;
+    string image = 9;
+    int64  destinationCount = 10;
+    string destination = 11;
+    string Description = 12;
+    int64 maxCapacity = 13;
+    int64  categoryId = 14;  
+    Category category = 15;
+    repeated Destination Destinations = 16;
 }
 
 message Category{
     string categoryName = 1;
 }
 
-message Destinations{
-    string DestinationName = 1;
-    string Description = 2;
-    int64 PackageID = 3;
-    int64 MinPrice = 4;
-    int64 MaxCapacity = 5;
-    string Image = 6;
-    int32 DestinationId = 7;
-}
-
-message Package{
-    string name = 1;
-    string startlocation = 2;
-    string endlocation = 3;
-    string startdatetime = 4;
-    string enddatetime = 5;
-    int32  price = 6;
-    string image = 7;
-    int32  destinationCount = 8;
-    string destination = 9;
-    int64 PackageId = 10;
-    string Description = 11;
-    Category category = 12;
-    repeated Destinations Destinations = 13;
-}
-
-message CoordinatorLoginResponce{
+message LoginResponce{
     repeated Package Packages = 1;
     string            token = 2;
 }
-
-message AllPackages{
-
-}
-
-message PackagesResponce{
-    repeated Package Packages = 1;
-}
-
-
-message AddActivity{
-    int64  destinationId = 1;
-    string ActivityName = 2;
-    string description = 3;
-    string location = 4;
-    string activitytype = 5;
-    int64  amount = 6;
-    string date = 7;
-    string time = 8;
-}
-
-message AddActivityResponce{
-    string status = 1;
-}
-
-message AddDestination{
-    string destinationName = 1;
-    string Description = 2;
-    int64 PackageId = 3;
-    int64 minprice = 4;
-    string image = 5;
-    int64 MaxCapacity = 6;
-}
-
-message AddDestinationResponce{
-    string status = 1;
-}
-
-message AddPackage{
-    string packagename = 1;
-    string Coorinatoremail = 2;
-    string startdate = 3;
-    string startlocation = 4;
-    string enddate = 5;
-    string endlocation = 6;
-    int64  price = 7;
-    string image = 8;
-    int64  destinationCount = 9;
-    string Destination = 10;
-    int64 categoryId = 11; 
-    string description = 12;
-    int64 MaxCapacity = 13;
-    int64 CoorinatorId = 14;
-}
-
-message AddPackageResponce{
-    string status = 1;
-}
-

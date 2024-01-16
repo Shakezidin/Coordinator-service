@@ -9,16 +9,17 @@ import (
 	dom "github.com/Shakezidin/pkg/entities/packages"
 )
 
-func (c *CoordinatorSVC) AddPackageSVC(p *cpb.AddPackage) (*cpb.AddPackageResponce, error) {
+func (c *CoordinatorSVC) AddPackageSVC(p *cpb.Package) (*cpb.Responce, error) {
 	var pkg dom.Package
 	layout := "2006-01-02"
 
-	startdate, err := time.Parse(layout, p.Startdate)
-	enddate, err := time.Parse(layout, p.Enddate)
+	startdate, err := time.Parse(layout, p.Startdatetime)
+	enddate, err := time.Parse(layout, p.Enddatetime)
 	if err != nil {
 		fmt.Println("date passing error")
-		return &cpb.AddPackageResponce{
-			Status: "date error",
+		return &cpb.Responce{
+			Status:  "fail",
+			Message: "error while passing date",
 		}, errors.New("date passing error")
 	}
 
@@ -38,72 +39,14 @@ func (c *CoordinatorSVC) AddPackageSVC(p *cpb.AddPackage) (*cpb.AddPackageRespon
 
 	err = c.Repo.CreatePackage(&pkg)
 	if err != nil {
-		return &cpb.AddPackageResponce{
-			Status: "package creation error",
+		return &cpb.Responce{
+			Status:  "failure",
+			Message: "error while package creating ",
 		}, err
 	}
-	return &cpb.AddPackageResponce{
-		Status: "Success",
-	}, nil
-}
-
-func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.AddDestination) (*cpb.AddDestinationResponce, error) {
-	var destination dom.Destination
-
-	destination.Description = p.Description
-	destination.DestinationName = p.DestinationName
-	destination.Image = p.Image
-	destination.MaxCapacity = int(p.MaxCapacity)
-	destination.MinPrice = int(p.Minprice)
-	destination.PackageID = uint(p.PackageId)
-
-	err := c.Repo.CreateDestination(&destination)
-	if err != nil {
-		return &cpb.AddDestinationResponce{
-			Status: "destination creation error",
-		}, err
-	}
-	return &cpb.AddDestinationResponce{
-		Status: "Success",
-	}, nil
-}
-
-func (c *CoordinatorSVC) AddActivitySVC(p *cpb.AddActivity) (*cpb.AddActivityResponce, error) {
-	var activity dom.Activity
-	layout := "2006-01-02"
-
-	date, err := time.Parse(layout, p.Date)
-	time, err1 := time.Parse("03:04 PM", p.Time)
-	if err != nil {
-		fmt.Println("date passing error")
-		return &cpb.AddActivityResponce{
-			Status: "date error",
-		}, errors.New("date passing error")
-	}
-	if err1 != nil {
-		fmt.Println("date passing errorrrrrr")
-		return &cpb.AddActivityResponce{
-			Status: "date error",
-		}, errors.New("date passing error")
-	}
-
-	activity.ActivityName = p.ActivityName
-	activity.ActivityType = p.Activitytype
-	activity.Amount = int(p.Amount)
-	activity.Date = date
-	activity.Time = time
-	activity.Description = p.Description
-	activity.DestinationId = uint(p.DestinationId)
-	activity.Location = p.Location
-
-	err = c.Repo.CreateActivity(&activity)
-	if err != nil {
-		return &cpb.AddActivityResponce{
-			Status: "destination creation error",
-		}, err
-	}
-	return &cpb.AddActivityResponce{
-		Status: "Success",
+	return &cpb.Responce{
+		Status:  "failure",
+		Message: "package creation done",
 	}, nil
 }
 
@@ -121,15 +64,16 @@ func (c *CoordinatorSVC) AvailablePackageSvc() (*cpb.PackagesResponce, error) {
 	for _, pkges := range *packages {
 		pkg.PackageId = int64(pkges.ID)
 		pkg.Destination = pkges.Destination
-		pkg.DestinationCount = int32(pkges.NumOfDestination)
+		pkg.DestinationCount = int64(pkges.NumOfDestination)
 		pkg.Enddatetime = pkges.EndDate.Format("2006-01-02")
 		pkg.Endlocation = pkges.EndLoaction
 		pkg.Image = pkges.Images
-		pkg.Name = pkges.Name
-		pkg.Price = int32(pkges.Price)
+		pkg.Packagename = pkges.Name
+		pkg.Price = int64(pkges.Price)
 		pkg.Startdatetime = pkges.EndDate.Format("2006-01-02")
 		pkg.Startlocation = pkges.StartLocation
 		pkg.Description = pkges.Description
+		pkg.MaxCapacity = int64(pkges.MaxCapacity)
 
 		pkgs = append(pkgs, &pkg)
 	}
@@ -139,8 +83,8 @@ func (c *CoordinatorSVC) AvailablePackageSvc() (*cpb.PackagesResponce, error) {
 	}, nil
 }
 
-func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.CoodinatorViewPackage) (*cpb.Package, error) {
-	pkg, err := c.Repo.FetchPackage(uint(p.PackageId))
+func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.View) (*cpb.Package, error) {
+	pkg, err := c.Repo.FetchPackage(uint(p.Id))
 	if err != nil {
 		return &cpb.Package{}, err
 	}
@@ -154,28 +98,28 @@ func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.CoodinatorViewPackage) (*cpb.Pack
 		return &cpb.Package{}, err
 	}
 
-	var ds = cpb.Destinations{}
-	var dstn = []*cpb.Destinations{}
+	var ds = cpb.Destination{}
+	var dstn = []*cpb.Destination{}
 	for _, dsn := range destinations {
 		ds.Description = dsn.Description
 		ds.DestinationName = dsn.DestinationName
 		ds.Image = dsn.Image
 		ds.MaxCapacity = int64(dsn.MaxCapacity)
-		ds.DestinationId = int32(dsn.Model.ID)
-		ds.MinPrice = int64(dsn.MinPrice)
+		ds.DestinationId = int64(dsn.Model.ID)
+		ds.Minprice = int64(dsn.MinPrice)
 
 		dstn = append(dstn, &ds)
 	}
 
 	return &cpb.Package{
-		Name:             pkg.Name,
+		Packagename:      pkg.Name,
 		Startlocation:    pkg.StartLocation,
 		Endlocation:      pkg.EndLoaction,
 		Startdatetime:    pkg.StartDate.Format("2006-01-02"),
 		Enddatetime:      pkg.EndDate.Format("2006-01-02"),
-		Price:            int32(pkg.Price),
+		Price:            int64(pkg.Price),
 		Image:            pkg.Images,
-		DestinationCount: int32(pkg.NumOfDestination),
+		DestinationCount: int64(pkg.NumOfDestination),
 		Destination:      pkg.Destination,
 		PackageId:        int64(pkg.ID),
 		Description:      pkg.Description,
@@ -184,58 +128,6 @@ func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.CoodinatorViewPackage) (*cpb.Pack
 	}, nil
 }
 
-func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.CoodinatorViewDestination) (*cpb.Destination, error) {
-	dstn, err := c.Repo.FecthDestination(uint(p.DestinationId))
-	if err != nil {
-		return &cpb.Destination{}, err
-	}
 
-	activity, err := c.Repo.FecthDestinationActivity(dstn.ID)
-	if err != nil {
-		return &cpb.Destination{}, err
-	}
 
-	actvt := cpb.Activity{}
-	var arr []*cpb.Activity
-	for _, act := range activity {
-		actvt.ActivityType = act.ActivityType
-		actvt.Activityname = act.ActivityName
-		actvt.Amount = int64(act.Amount)
-		actvt.Date = act.Date.Format("2006-01-02")
-		actvt.Description = act.Description
-		actvt.Location = act.Location
-		actvt.Time = act.Time.Format("03:04 PM")
-		actvt.ActivityId = int64(act.Model.ID)
 
-		arr = append(arr, &actvt)
-	}
-
-	return &cpb.Destination{
-		DestinationId:   int64(dstn.ID),
-		DestinationName: dstn.DestinationName,
-		Description:     dstn.Description,
-		Minprice:        int64(dstn.MinPrice),
-		MaxCapacity:     int64(dstn.MaxCapacity),
-		Image:           dstn.Image,
-		Activity:        arr,
-	}, nil
-}
-
-func (c *CoordinatorSVC) ViewActivitySvc(p *cpb.ViewActivity) (*cpb.Activity, error) {
-	activity, err := c.Repo.FecthActivity(uint(p.ActivityId))
-	if err != nil {
-		return &cpb.Activity{}, err
-	}
-
-	return &cpb.Activity{
-		ActivityId:   int64(activity.ID),
-		Activityname: activity.ActivityName,
-		Description:  activity.Description,
-		Location:     activity.Location,
-		ActivityType: activity.ActivityType,
-		Amount:       int64(activity.Amount),
-		Time:         activity.Time.Format("03:04 PM"),
-		Date:         activity.Date.Format("2006-01-02"),
-	}, nil
-
-}

@@ -17,7 +17,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (c *CoordinatorSVC) SignupSVC(p *cpb.CoordinatorSignup) (*cpb.CoordinatorSignupResponce, error) {
+func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.Responce, error) {
 	hashPassword, err := utils.HashPassword(p.Password)
 	if err != nil {
 		log.Printf("unable to hash password in CoordinatorSvc() - service, err: %v", err.Error())
@@ -51,13 +51,13 @@ func (c *CoordinatorSVC) SignupSVC(p *cpb.CoordinatorSignup) (*cpb.CoordinatorSi
 
 	registerUser := fmt.Sprintf("register_user_%v", p.Email)
 	c.redis.Set(context.Background(), registerUser, userData, time.Minute*2)
-	return &cpb.CoordinatorSignupResponce{
+	return &cpb.Responce{
 		Status:  "success",
-		Message: "user Creation initiated, check message for OTP",
+		Message: "user creation initiated, check message for OTP",
 	}, nil
 }
 
-func (c *CoordinatorSVC) VerifySVC(p *cpb.CoordinatorVerify) (*cpb.CoordinatorVerifyResponce, error) {
+func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.Responce, error) {
 	registerUser := fmt.Sprintf("register_user_%v", p.Email)
 	redisVal := c.redis.Get(context.Background(), registerUser)
 
@@ -101,14 +101,14 @@ func (c *CoordinatorSVC) VerifySVC(p *cpb.CoordinatorVerify) (*cpb.CoordinatorVe
 	if err != nil {
 		return nil, err
 	}
-	return &cpb.CoordinatorVerifyResponce{
+	return &cpb.Responce{
 		Status:  "Success",
 		Message: "User creation done",
 	}, nil
 
 }
 
-func (c *CoordinatorSVC) UserLogin(p *cpb.CoordinatorLogin) (*cpb.CoordinatorLoginResponce, error) {
+func (c *CoordinatorSVC) UserLogin(p *cpb.Login) (*cpb.LoginResponce, error) {
 	user, err := c.Repo.FindUserByEmail(p.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -139,21 +139,24 @@ func (c *CoordinatorSVC) UserLogin(p *cpb.CoordinatorLogin) (*cpb.CoordinatorLog
 	for _, packagess := range *packages {
 
 		pkgs := &cpb.Package{
-			DestinationCount: int32(packagess.NumOfDestination),
-			Name:             packagess.Name,
+			PackageId:        int64(packagess.ID),
+			DestinationCount: int64(packagess.NumOfDestination),
+			Packagename:      packagess.Name,
 			Destination:      packagess.Destination,
 			Enddatetime:      packagess.EndDate.Format("2006-01-02"),
 			Endlocation:      packagess.EndLoaction,
 			Image:            packagess.Images,
-			Price:            int32(packagess.Price),
+			Price:            int64(packagess.Price),
 			Startdatetime:    packagess.EndDate.Format("2006-01-02"),
 			Startlocation:    packagess.StartLocation,
+			Description:      packagess.Description,
+			MaxCapacity:      int64(packagess.MaxCapacity),
 		}
 
 		cdpackages = append(cdpackages, pkgs)
 	}
 
-	return &cpb.CoordinatorLoginResponce{
+	return &cpb.LoginResponce{
 		Packages: cdpackages,
 		Token:    token,
 	}, nil
