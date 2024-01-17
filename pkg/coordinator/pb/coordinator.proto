@@ -18,6 +18,9 @@ service Coordinator {
     rpc CoordinatorForgetPasswordVerify(forgetPasswordVerify)returns(Responce);
     rpc CoordinatorNewPassword(newpassword)returns(Responce);
     rpc AvailablePackages(Packages) returns (PackagesResponce);
+    rpc AddCatagory(Category)returns(Responce);
+    rpc AdminAvailablePackages(Packages)returns(PackagesResponce);
+    rpc AdminPacakgeStatus(View)returns(Responce);
 }
 
 message PackagesResponce{
@@ -104,8 +107,8 @@ message Package{
     int64 CoorinatorId = 3;
     string startlocation = 4;
     string endlocation = 5;
-    string startdatetime = 6;
-    string enddatetime = 7;
+    string startdate = 6;
+    string enddate = 7;
     int64  price = 8;
     string image = 9;
     int64  destinationCount = 10;
@@ -118,7 +121,8 @@ message Package{
 }
 
 message Category{
-    string categoryName = 1;
+    int64 CategoryId = 1;
+    string categoryName = 2;
 }
 
 message LoginResponce{

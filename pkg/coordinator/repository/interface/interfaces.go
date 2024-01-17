@@ -5,7 +5,6 @@ import (
 )
 
 type CoordinatorRepoInter interface {
-	SignupRepo(user *cDOM.User) error
 	FindUserByEmail(email string) (*cDOM.User, error)
 	FindUserByPhone(number int) (*cDOM.User, error)
 	CreateUser(user *cDOM.User) error
@@ -20,4 +19,7 @@ type CoordinatorRepoInter interface {
 	FecthDestinationActivity(id uint)([]*cDOM.Activity,error)
 	FecthActivity(id uint) (*cDOM.Activity, error)
 	UpdatePassword(id uint, newpassword string) error
+	CreateCatagory(catagory cDOM.Category) error
+	AdminFetchAllPackages() (*[]cDOM.Package, error)
+	PackageStatusUpdate(id uint) error
 }

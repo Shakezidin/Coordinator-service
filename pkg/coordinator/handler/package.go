@@ -34,4 +34,20 @@ func (c *CoordinatorHandler) AvailablePackages(ctx context.Context, p *cpb.Packa
 	return respnc, nil
 }
 
+func(c *CoordinatorHandler)AdminAvailablePackages(ctx context.Context, p *cpb.Packages) (*cpb.PackagesResponce, error){
+	respnc, err := c.SVC.AdminAvailablePackageSvc()
+	if err != nil {
+		log.Printf("Unable to fetch packages. err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}
 
+func (c *CoordinatorHandler)AdminPacakgeStatus(ctx context.Context, p *cpb.View) (*cpb.Responce, error){
+	respnc, err := c.SVC.AdminPackageStatusSvc(p)
+	if err != nil {
+		log.Printf("Unable to fetch packages. err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}
