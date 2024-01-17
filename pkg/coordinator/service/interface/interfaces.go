@@ -18,4 +18,7 @@ type CoordinatorSVCInter interface {
 	NewPassword(p *cpb.Newpassword) (*cpb.Responce, error)
 	ForgetPassword(p *cpb.ForgetPassword) (*cpb.Responce, error)
 	ForgetPasswordVerify(p *cpb.ForgetPasswordVerify) (*cpb.Responce, error)
+	AddCatagorySVC(p *cpb.Category) (*cpb.Responce, error)
+	AdminAvailablePackageSvc()(*cpb.PackagesResponce, error)
+	AdminPackageStatusSvc(p *cpb.View)(*cpb.Responce,error)
 }

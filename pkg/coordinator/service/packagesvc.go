@@ -13,8 +13,8 @@ func (c *CoordinatorSVC) AddPackageSVC(p *cpb.Package) (*cpb.Responce, error) {
 	var pkg dom.Package
 	layout := "2006-01-02"
 
-	startdate, err := time.Parse(layout, p.Startdatetime)
-	enddate, err := time.Parse(layout, p.Enddatetime)
+	startdate, err := time.Parse(layout, p.Startdate)
+	enddate, err := time.Parse(layout, p.Enddate)
 	if err != nil {
 		fmt.Println("date passing error")
 		return &cpb.Responce{
@@ -65,12 +65,12 @@ func (c *CoordinatorSVC) AvailablePackageSvc() (*cpb.PackagesResponce, error) {
 		pkg.PackageId = int64(pkges.ID)
 		pkg.Destination = pkges.Destination
 		pkg.DestinationCount = int64(pkges.NumOfDestination)
-		pkg.Enddatetime = pkges.EndDate.Format("2006-01-02")
+		pkg.Enddate = pkges.EndDate.Format("2006-01-02")
 		pkg.Endlocation = pkges.EndLoaction
 		pkg.Image = pkges.Images
 		pkg.Packagename = pkges.Name
 		pkg.Price = int64(pkges.Price)
-		pkg.Startdatetime = pkges.EndDate.Format("2006-01-02")
+		pkg.Startdate = pkges.EndDate.Format("2006-01-02")
 		pkg.Startlocation = pkges.StartLocation
 		pkg.Description = pkges.Description
 		pkg.MaxCapacity = int64(pkges.MaxCapacity)
@@ -115,8 +115,8 @@ func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.View) (*cpb.Package, error) {
 		Packagename:      pkg.Name,
 		Startlocation:    pkg.StartLocation,
 		Endlocation:      pkg.EndLoaction,
-		Startdatetime:    pkg.StartDate.Format("2006-01-02"),
-		Enddatetime:      pkg.EndDate.Format("2006-01-02"),
+		Startdate:        pkg.StartDate.Format("2006-01-02"),
+		Enddate:          pkg.EndDate.Format("2006-01-02"),
 		Price:            int64(pkg.Price),
 		Image:            pkg.Images,
 		DestinationCount: int64(pkg.NumOfDestination),
@@ -128,6 +128,66 @@ func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.View) (*cpb.Package, error) {
 	}, nil
 }
 
+func (c *CoordinatorSVC) AddCatagorySVC(p *cpb.Category) (*cpb.Responce, error) {
+	var catagory dom.Category
+	catagory.Category = p.CategoryName
+	err := c.Repo.CreateCatagory(catagory)
+	if err != nil {
+		fmt.Println("error while creating category")
+		return &cpb.Responce{
+			Status:  "fail",
+			Message: "error while creating category",
+		}, err
+	}
+	return &cpb.Responce{
+		Status:  "success",
+		Message: "catagory created successsfully",
+	}, nil
+}
 
+func (c *CoordinatorSVC) AdminAvailablePackageSvc() (*cpb.PackagesResponce, error) {
+	packages, err := c.Repo.AdminFetchAllPackages()
+	if err != nil {
+		return &cpb.PackagesResponce{
+			Packages: nil,
+		}, err
+	}
 
+	var pkg cpb.Package
+	var pkgs []*cpb.Package
 
+	for _, pkges := range *packages {
+		pkg.PackageId = int64(pkges.ID)
+		pkg.Destination = pkges.Destination
+		pkg.DestinationCount = int64(pkges.NumOfDestination)
+		pkg.Enddate = pkges.EndDate.Format("2006-01-02")
+		pkg.Endlocation = pkges.EndLoaction
+		pkg.Image = pkges.Images
+		pkg.Packagename = pkges.Name
+		pkg.Price = int64(pkges.Price)
+		pkg.Startdate = pkges.EndDate.Format("2006-01-02")
+		pkg.Startlocation = pkges.StartLocation
+		pkg.Description = pkges.Description
+		pkg.MaxCapacity = int64(pkges.MaxCapacity)
+
+		pkgs = append(pkgs, &pkg)
+	}
+
+	return &cpb.PackagesResponce{
+		Packages: pkgs,
+	}, nil
+}
+
+func (c *CoordinatorSVC) AdminPackageStatusSvc(p *cpb.View) (*cpb.Responce, error) {
+	err := c.Repo.PackageStatusUpdate(uint(p.Id))
+	if err != nil {
+		return &cpb.Responce{
+			Status:  "fail",
+			Message: "error while updating package status",
+		}, err
+	}
+	return &cpb.Responce{
+		Status:  "success",
+		Message: "package status updated",
+	}, nil
+}

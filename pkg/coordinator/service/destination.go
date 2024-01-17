@@ -1,11 +1,29 @@
 package service
 
 import (
+	"errors"
+	"log"
+
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 	dom "github.com/Shakezidin/pkg/entities/packages"
 )
 
 func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.Destination) (*cpb.Responce, error) {
+	pkg, err := c.Repo.FetchPackage(uint(p.PackageID))
+	if err != nil {
+		log.Print("package not found")
+		return &cpb.Responce{
+			Status:  "fail",
+			Message: "package not found",
+		}, errors.New("pacakge not found")
+	}
+	dstn, _ := c.Repo.FetchPackageDestination(uint(p.PackageID))
+	if len(dstn) >= pkg.NumOfDestination {
+		return &cpb.Responce{
+			Status:  "fail",
+			Message: "number of destination exceeded",
+		}, errors.New("exceeded the destination limit")
+	}
 	var destination dom.Destination
 
 	destination.Description = p.Description
@@ -15,7 +33,7 @@ func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.Destination) (*cpb.Responce, e
 	destination.MinPrice = int(p.Minprice)
 	destination.PackageID = uint(p.PackageID)
 
-	err := c.Repo.CreateDestination(&destination)
+	err = c.Repo.CreateDestination(&destination)
 	if err != nil {
 		return &cpb.Responce{
 			Status:  "failure",
