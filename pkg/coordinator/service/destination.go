@@ -57,9 +57,9 @@ func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.View) (*cpb.Destination, erro
 		return &cpb.Destination{}, err
 	}
 
-	actvt := cpb.Activity{}
 	var arr []*cpb.Activity
 	for _, act := range activity {
+		actvt := cpb.Activity{}
 		actvt.ActivityType = act.ActivityType
 		actvt.Activityname = act.ActivityName
 		actvt.Amount = int64(act.Amount)

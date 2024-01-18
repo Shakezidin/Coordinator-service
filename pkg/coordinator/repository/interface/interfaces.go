@@ -12,7 +12,7 @@ type CoordinatorRepoInter interface {
 	CreatePackage(pkg *cDOM.Package) error
 	CreateDestination(dtnt *cDOM.Destination) error
 	CreateActivity(actvt *cDOM.Activity) error
-	FetchAllPackages()(*[]cDOM.Package,error)
+	FetchPackages(val string)(*[]cDOM.Package,error)
 	FetchPackage(id uint)(*cDOM.Package,error)
 	FetchPackageDestination(id uint)([]*cDOM.Destination,error)
 	FecthDestination(id uint)(*cDOM.Destination,error)
@@ -20,6 +20,7 @@ type CoordinatorRepoInter interface {
 	FecthActivity(id uint) (*cDOM.Activity, error)
 	UpdatePassword(id uint, newpassword string) error
 	CreateCatagory(catagory cDOM.Category) error
-	AdminFetchAllPackages() (*[]cDOM.Package, error)
+	FetchAllPackages() (*[]cDOM.Package, error)
 	PackageStatusUpdate(id uint) error
+	FetchCatagories() ([]*cDOM.Category, error)
 }
