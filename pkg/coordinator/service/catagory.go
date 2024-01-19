@@ -35,7 +35,7 @@ func (c *CoordinatorSVC) ViewCatagoriesSVC(p *cpb.View) (*cpb.Catagories, error)
 	var ctgries []*cpb.Category
 
 	for _, cgry := range catagories {
-		ctgry.CategoryId = int64(cgry.ID)
+		ctgry.CatagoryId = int64(cgry.ID)
 		ctgry.CategoryName = cgry.Category
 		ctgries = append(ctgries, &ctgry)
 	}

@@ -13,11 +13,9 @@ func (c *CoordinatorRepo) FetchPackage(id uint) (*cDOM.Package, error) {
 }
 
 func (c *CoordinatorRepo) CreatePackage(pkg *cDOM.Package) error {
-	if err := c.db.Create(&pkg).Error; err != nil {
-		return err
-	}
-	return nil
+    return c.db.Create(&pkg).Error
 }
+
 
 func (c *CoordinatorRepo) FetchPackages(val string) (*[]cDOM.Package, error) {
 	var packages []cDOM.Package

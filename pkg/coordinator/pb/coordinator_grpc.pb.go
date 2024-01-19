@@ -35,6 +35,7 @@ const (
 	Coordinator_AddCatagory_FullMethodName                     = "/pb.Coordinator/AddCatagory"
 	Coordinator_AdminPacakgeStatus_FullMethodName              = "/pb.Coordinator/AdminPacakgeStatus"
 	Coordinator_ViewCatagories_FullMethodName                  = "/pb.Coordinator/ViewCatagories"
+	Coordinator_PackageSearch_FullMethodName                   = "/pb.Coordinator/PackageSearch"
 )
 
 // CoordinatorClient is the client API for Coordinator service.
@@ -57,6 +58,7 @@ type CoordinatorClient interface {
 	AddCatagory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*Responce, error)
 	AdminPacakgeStatus(ctx context.Context, in *View, opts ...grpc.CallOption) (*Responce, error)
 	ViewCatagories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Catagories, error)
+	PackageSearch(ctx context.Context, in *Search, opts ...grpc.CallOption) (*PackagesResponce, error)
 }
 
 type coordinatorClient struct {
@@ -211,6 +213,15 @@ func (c *coordinatorClient) ViewCatagories(ctx context.Context, in *View, opts .
 	return out, nil
 }
 
+func (c *coordinatorClient) PackageSearch(ctx context.Context, in *Search, opts ...grpc.CallOption) (*PackagesResponce, error) {
+	out := new(PackagesResponce)
+	err := c.cc.Invoke(ctx, Coordinator_PackageSearch_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoordinatorServer is the server API for Coordinator service.
 // All implementations must embed UnimplementedCoordinatorServer
 // for forward compatibility
@@ -231,6 +242,7 @@ type CoordinatorServer interface {
 	AddCatagory(context.Context, *Category) (*Responce, error)
 	AdminPacakgeStatus(context.Context, *View) (*Responce, error)
 	ViewCatagories(context.Context, *View) (*Catagories, error)
+	PackageSearch(context.Context, *Search) (*PackagesResponce, error)
 	mustEmbedUnimplementedCoordinatorServer()
 }
 
@@ -285,6 +297,9 @@ func (UnimplementedCoordinatorServer) AdminPacakgeStatus(context.Context, *View)
 }
 func (UnimplementedCoordinatorServer) ViewCatagories(context.Context, *View) (*Catagories, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewCatagories not implemented")
+}
+func (UnimplementedCoordinatorServer) PackageSearch(context.Context, *Search) (*PackagesResponce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PackageSearch not implemented")
 }
 func (UnimplementedCoordinatorServer) mustEmbedUnimplementedCoordinatorServer() {}
 
@@ -587,6 +602,24 @@ func _Coordinator_ViewCatagories_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Coordinator_PackageSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Search)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoordinatorServer).PackageSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Coordinator_PackageSearch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoordinatorServer).PackageSearch(ctx, req.(*Search))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Coordinator_ServiceDesc is the grpc.ServiceDesc for Coordinator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -657,6 +690,10 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ViewCatagories",
 			Handler:    _Coordinator_ViewCatagories_Handler,
+		},
+		{
+			MethodName: "PackageSearch",
+			Handler:    _Coordinator_PackageSearch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

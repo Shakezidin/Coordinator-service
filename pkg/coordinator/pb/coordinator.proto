@@ -21,6 +21,19 @@ service Coordinator {
     rpc AddCatagory(Category)returns(Responce);
     rpc AdminPacakgeStatus(View)returns(Responce);
     rpc ViewCatagories(View)returns(Catagories);
+    rpc PackageSearch(Search)returns(PackagesResponce);
+}
+
+message Search{
+    int64 catagoryId = 1;
+    int64 travelercount = 2;
+    string pickup_place = 3;
+    string finaldestination = 4;
+    string date = 5;
+    int64 page = 6;
+    string enddate = 7;
+    int64 maxDestination = 8;
+    repeated string destination = 9;
 }
 
 message Catagories{
@@ -122,7 +135,7 @@ message Package{
 }
 
 message Category{
-    int64 CategoryId = 1;
+    int64 CatagoryId = 1;
     string categoryName = 2;
 }
 
