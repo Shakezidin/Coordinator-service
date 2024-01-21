@@ -29,8 +29,6 @@ func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.Destination) (*cpb.Responce, e
 	destination.Description = p.Description
 	destination.DestinationName = p.DestinationName
 	destination.Image = p.Image
-	destination.MaxCapacity = int(p.MaxCapacity)
-	destination.MinPrice = int(p.Minprice)
 	destination.PackageID = uint(p.PackageID)
 
 	err = c.Repo.CreateDestination(&destination)
@@ -57,13 +55,13 @@ func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.View) (*cpb.Destination, erro
 		return &cpb.Destination{}, err
 	}
 
-	actvt := cpb.Activity{}
 	var arr []*cpb.Activity
 	for _, act := range activity {
+		actvt := cpb.Activity{}
 		actvt.ActivityType = act.ActivityType
 		actvt.Activityname = act.ActivityName
 		actvt.Amount = int64(act.Amount)
-		actvt.Date = act.Date.Format("2006-01-02")
+		actvt.Date = act.Date.Format("02-01-2006")
 		actvt.Description = act.Description
 		actvt.Location = act.Location
 		actvt.Time = act.Time.Format("03:04 PM")
@@ -76,8 +74,6 @@ func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.View) (*cpb.Destination, erro
 		DestinationId:   int64(dstn.ID),
 		DestinationName: dstn.DestinationName,
 		Description:     dstn.Description,
-		Minprice:        int64(dstn.MinPrice),
-		MaxCapacity:     int64(dstn.MaxCapacity),
 		Image:           dstn.Image,
 		Activity:        arr,
 	}, nil

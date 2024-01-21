@@ -10,7 +10,7 @@ import (
 
 func (c *CoordinatorSVC) AddActivitySVC(p *cpb.Activity) (*cpb.Responce, error) {
 	var activity dom.Activity
-	layout := "2006-01-02"
+	layout := "02-01-2006"
 
 	date, err := time.Parse(layout, p.Date)
 	time, err1 := time.Parse("03:04 PM", p.Time)
@@ -62,7 +62,7 @@ func (c *CoordinatorSVC) ViewActivitySvc(p *cpb.View) (*cpb.Activity, error) {
 		ActivityType: activity.ActivityType,
 		Amount:       int64(activity.Amount),
 		Time:         activity.Time.Format("03:04 PM"),
-		Date:         activity.Date.Format("2006-01-02"),
+		Date:         activity.Date.Format("02-01-2006"),
 	}, nil
 
 }

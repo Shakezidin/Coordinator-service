@@ -17,18 +17,31 @@ service Coordinator {
     rpc CoordinatorForgetPassword(forgetPassword)returns(Responce);
     rpc CoordinatorForgetPasswordVerify(forgetPasswordVerify)returns(Responce);
     rpc CoordinatorNewPassword(newpassword)returns(Responce);
-    rpc AvailablePackages(Packages) returns (PackagesResponce);
+    rpc AvailablePackages(View) returns (PackagesResponce);
     rpc AddCatagory(Category)returns(Responce);
-    rpc AdminAvailablePackages(Packages)returns(PackagesResponce);
     rpc AdminPacakgeStatus(View)returns(Responce);
+    rpc ViewCatagories(View)returns(Catagories);
+    rpc PackageSearch(Search)returns(PackagesResponce);
+}
+
+message Search{
+    int64 catagoryId = 1;
+    int64 travelercount = 2;
+    string pickup_place = 3;
+    string finaldestination = 4;
+    string date = 5;
+    int64 page = 6;
+    string enddate = 7;
+    int64 maxDestination = 8;
+    repeated string destination = 9;
+}
+
+message Catagories{
+    repeated Category Catagories = 1;
 }
 
 message PackagesResponce{
     repeated Package Packages = 1;
-}
-
-message Packages{
-
 }
 
 message Verify{
@@ -65,6 +78,7 @@ message forgetPassword{
 
 message View{
     int64 Id = 1;
+    string status = 2;
 }
 
 message Login{
@@ -121,7 +135,7 @@ message Package{
 }
 
 message Category{
-    int64 CategoryId = 1;
+    int64 CatagoryId = 1;
     string categoryName = 2;
 }
 
