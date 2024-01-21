@@ -7,7 +7,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (c *CoordinatorHandler)PackageSearch(ctx context.Context,p *cpb.Search)(*cpb.PackagesResponce,error){
+func (c *CoordinatorHandler) PackageSearch(ctx context.Context, p *cpb.Search) (*cpb.PackagesResponce, error) {
 	respnc, err := c.SVC.SearchPackageSVC(p)
 	if err != nil {
 		log.Printf("Unable to fetch packages. err: %v", err.Error())

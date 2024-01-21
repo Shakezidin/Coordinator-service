@@ -31,10 +31,10 @@ func (c *CoordinatorSVC) ViewCatagoriesSVC(p *cpb.View) (*cpb.Catagories, error)
 		return nil, errors.New("error while fetching catagories")
 	}
 
-	var ctgry cpb.Category
 	var ctgries []*cpb.Category
-
+	
 	for _, cgry := range catagories {
+		var ctgry cpb.Category
 		ctgry.CatagoryId = int64(cgry.ID)
 		ctgry.CategoryName = cgry.Category
 		ctgries = append(ctgries, &ctgry)

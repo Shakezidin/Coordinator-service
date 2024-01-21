@@ -37,8 +37,7 @@ type Package struct {
 	StartDate        time.Time `gorm:"not null"`
 	StartLocation    string    `gorm:"not null"`
 	EndDate          time.Time `gorm:"not null"`
-	EndLoaction      string    `gorm:"not null"`
-	Price            int       `gorm:"not null"`
+	MinPrice         int       `gorm:"not null"`
 	MaxCapacity      int       `gorm:"not null"`
 	NumOfDestination int       `gorm:"not null"`
 	TripStatus       bool      `gorm:"default:false"`
@@ -55,8 +54,6 @@ type Destination struct {
 	Description     string  `gorm:"not null"`
 	PackageID       uint    `gorm:"not null"`
 	Package         Package `gorm:"ForeignKey:PackageID"`
-	MinPrice        int     `gorm:"not null"`
-	MaxCapacity     int     `gorm:"not null"`
 	Image           string
 }
 
