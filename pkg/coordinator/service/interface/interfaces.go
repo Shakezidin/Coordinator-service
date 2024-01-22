@@ -22,4 +22,5 @@ type CoordinatorSVCInter interface {
 	ViewCatagoriesSVC(p *cpb.View) (*cpb.Catagories, error)
 	AdminPackageStatusSvc(p *cpb.View) (*cpb.Responce, error)
 	SearchPackageSVC(p *cpb.Search)(*cpb.PackagesResponce,error)
+	TravellerDetails(p *cpb.TravellerRequest)(*cpb.TravellerResponse,error)
 }

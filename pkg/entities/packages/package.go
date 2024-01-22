@@ -69,3 +69,32 @@ type Activity struct {
 	Date          time.Time
 	Time          time.Time
 }
+
+type ActivityBooking struct {
+	gorm.Model
+	TravellerId uint
+	Traveller   Traveller `gorm:"foreignKey:TravellerId"`
+	ActivityId  uint
+	Activity    Activity `gorm:"foreignKey:ActivityId"`
+}
+
+type Traveller struct {
+	ID        uint `gorm:"primaryKey"`
+	Name      string
+	Age       string
+	Gender    string
+	UserId    uint
+	PackageId uint
+	Package   Package `gorm:"foreignKey:PackageId"`
+}
+
+type Booking struct {
+	gorm.Model
+	PaymentId        string `gorm:"unique"`
+	BookingReference string `gorm:"unique;not null"`
+	BookingStatus    string `gorm:"default:PENDING"`
+	CancelledStatus  string `gorm:"default:false"`
+	TotalFare        string
+	UserId           uint
+	Bookings         []Traveller `gorm:"many2many:traveller_booking;"`
+}
