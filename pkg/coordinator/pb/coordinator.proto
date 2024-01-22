@@ -22,7 +22,28 @@ service Coordinator {
     rpc AdminPacakgeStatus(View)returns(Responce);
     rpc ViewCatagories(View)returns(Catagories);
     rpc PackageSearch(Search)returns(PackagesResponce);
+    rpc TravellerDetails(TravellerRequest)returns(TravellerResponse);
 }
+
+message TravellerResponse {
+    string status = 1;
+    int64 package_price = 2;
+    int64 activityTotalPrice = 3;
+    int64 totalPrice = 4;
+}
+
+message TravellerDetails {
+    string name = 1;
+    string age = 2;
+    string gender = 3;
+    repeated string activityId = 4;
+}
+  
+message TravellerRequest {
+    repeated TravellerDetails traveller_details = 1;
+    string UserId = 2;
+    string packageId = 3;
+}   
 
 message Search{
     int64 catagoryId = 1;

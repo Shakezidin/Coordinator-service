@@ -25,4 +25,7 @@ type CoordinatorRepoInter interface {
 	FetchAllPackages() (*[]cDOM.Package, error)
 	PackageStatusUpdate(id uint) error
 	FetchCatagories() ([]*cDOM.Category, error)
-	FindUnboundedPackages(PickupPlace, Finaldestination string, MaxDestination int64,startDate, endDate time.Time) ([]*cDOM.Package, error)}
+	FindUnboundedPackages(PickupPlace, Finaldestination string, MaxDestination int64,startDate, endDate time.Time) ([]*cDOM.Package, error)
+	CreateTraveller(traveller cDOM.Traveller) error
+	CreateActivityBooking(activity cDOM.ActivityBooking) error
+}
