@@ -18,11 +18,12 @@ func (c *CoordinatorSVC) AddActivitySVC(p *cpb.Activity) (*cpb.Responce, error) 
 		return &cpb.Responce{
 			Status:  "filure",
 			Message: "error while passig date",
-		}, errors.New("date passing error")
+		}, errors.New("error while passig date")
 	}
 	if err1 != nil {
 		return &cpb.Responce{
-			Status: "failure",
+			Status:  "failure",
+			Message: "error while passing time",
 		}, errors.New("error while passing time")
 	}
 
@@ -40,18 +41,19 @@ func (c *CoordinatorSVC) AddActivitySVC(p *cpb.Activity) (*cpb.Responce, error) 
 		return &cpb.Responce{
 			Status:  "failure",
 			Message: "error while destination creation",
-		}, err
+		}, errors.New("error while destination creation")
 	}
 	return &cpb.Responce{
 		Status:  "Success",
 		Message: "destination creation done",
+		Id:      int64(activity.ID),
 	}, nil
 }
 
 func (c *CoordinatorSVC) ViewActivitySvc(p *cpb.View) (*cpb.Activity, error) {
 	activity, err := c.Repo.FecthActivity(uint(p.Id))
 	if err != nil {
-		return &cpb.Activity{}, err
+		return &cpb.Activity{}, errors.New("error while fetching activity")
 	}
 
 	return &cpb.Activity{

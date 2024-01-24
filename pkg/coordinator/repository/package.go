@@ -13,16 +13,15 @@ func (c *CoordinatorRepo) FetchPackage(id uint) (*cDOM.Package, error) {
 }
 
 func (c *CoordinatorRepo) CreatePackage(pkg *cDOM.Package) error {
-    return c.db.Create(&pkg).Error
+	return c.db.Create(&pkg).Error
 }
 
-
-func (c *CoordinatorRepo) FetchPackages(val string) (*[]cDOM.Package, error) {
+func (c *CoordinatorRepo) FetchPackages(offset, limit int, val string) ([]cDOM.Package, error) {
 	var packages []cDOM.Package
-	if err := c.db.Where("trip_status = ?", val).Find(&packages).Error; err != nil {
+	if err := c.db.Offset(offset).Limit(limit).Where("trip_status = ?", val).Find(&packages).Error; err != nil {
 		return nil, err
 	}
-	return &packages, nil
+	return packages, nil
 }
 
 func (c *CoordinatorRepo) FindCoordinatorPackages(id uint) (*[]cDOM.Package, error) {
@@ -40,9 +39,9 @@ func (c *CoordinatorRepo) CreateCatagory(catagory cDOM.Category) error {
 	return nil
 }
 
-func (c *CoordinatorRepo) FetchAllPackages() (*[]cDOM.Package, error) {
+func (c *CoordinatorRepo) FetchAllPackages(offset, limit int) (*[]cDOM.Package, error) {
 	var packages []cDOM.Package
-	if err := c.db.Find(&packages).Error; err != nil {
+	if err := c.db.Offset(offset).Limit(limit).Find(&packages).Error; err != nil {
 		return nil, err
 	}
 	return &packages, nil
@@ -64,10 +63,25 @@ func (c *CoordinatorRepo) PackageStatusUpdate(id uint) error {
 	return nil
 }
 
-func (c CoordinatorRepo) FetchCatagories() ([]*cDOM.Category, error) {
-	var catagories []*cDOM.Category
-	if err := c.db.Find(&catagories).Error; err != nil {
+func (c *CoordinatorRepo) FetchCatagories(offset, limit int) ([]*cDOM.Category, error) {
+	var categories []*cDOM.Category
+	if err := c.db.Offset(offset).Limit(limit).Find(&categories).Error; err != nil {
+		return nil, err
+	}
+	return categories, nil
+}
+
+func (c *CoordinatorRepo) FetchCatagory(catagory string) (*cDOM.Category, error) {
+	var catagories *cDOM.Category
+	if err := c.db.First(&catagories).Error; err != nil {
 		return nil, err
 	}
 	return catagories, nil
+}
+
+func (c *CoordinatorRepo) UpdatePackage(pkg *cDOM.Package) error {
+	if err := c.db.Save(&pkg).Error; err != nil {
+		return err
+	}
+	return nil
 }

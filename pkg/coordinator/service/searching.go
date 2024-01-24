@@ -48,6 +48,7 @@ func UnboundedPackages(PickupPlace, Finaldestination, date, enddate string, MaxD
 		pkg.Enddate = pkges.EndDate.Format("02-01-2006")
 		pkg.Image = pkges.Images
 		pkg.Packagename = pkges.Name
+		pkg.AvailableSpace = int64(pkges.Availablespace)
 		pkg.Price = int64(pkges.MinPrice)
 		pkg.Startdate = pkges.EndDate.Format("02-01-2006")
 		pkg.Startlocation = pkges.StartLocation
@@ -98,6 +99,7 @@ func BoundedPackages(svc *CoordinatorSVC, p *cpb.Search) (*cpb.PackagesResponce,
 		pkg.Enddate = pkges.EndDate.Format("02-01-2006")
 		pkg.Image = pkges.Images
 		pkg.Packagename = pkges.Name
+		pkg.AvailableSpace = int64(pkges.Availablespace)
 		pkg.Price = int64(pkges.MinPrice)
 		pkg.Startdate = pkges.EndDate.Format("02-01-2006")
 		pkg.Startlocation = pkges.StartLocation
@@ -112,23 +114,23 @@ func BoundedPackages(svc *CoordinatorSVC, p *cpb.Search) (*cpb.PackagesResponce,
 }
 
 func hasAllDestinations(packageDestinations, searchDestinations []string) bool {
-    for _, dest := range searchDestinations {
-        if dest == "" {
-            continue
-        }
+	for _, dest := range searchDestinations {
+		if dest == "" {
+			continue
+		}
 
-        found := false
-        for _, pkgDest := range packageDestinations {
-            log.Printf("Comparing: dest=%s, pkgDest=%s", dest, pkgDest)
+		found := false
+		for _, pkgDest := range packageDestinations {
+			log.Printf("Comparing: dest=%s, pkgDest=%s", dest, pkgDest)
 
-            if strings.EqualFold(strings.TrimSpace(dest), strings.TrimSpace(pkgDest)) {
-                found = true
-                break
-            }
-        }
-        if !found {
-            return false
-        }
-    }
-    return true
+			if strings.EqualFold(strings.TrimSpace(dest), strings.TrimSpace(pkgDest)) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	return true
 }
