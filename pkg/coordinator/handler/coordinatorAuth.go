@@ -32,7 +32,7 @@ func (c *CoordinatorHandler) CoordinatorSignupVerifyRequest(ctx context.Context,
 
 	resp, err := c.SVC.VerifySVC(p)
 	if err != nil {
-		log.Printf("Unable to verify %v of email == %v, err: %v", p.Email, err.Error())
+		log.Printf("Unable to verify %v of email == %v, err: %v", p.OTP, p.Email, err.Error())
 		return nil, err
 	}
 	return resp, nil

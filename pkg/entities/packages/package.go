@@ -45,6 +45,7 @@ type Package struct {
 	Category         Category  `gorm:"ForeignKey:TripCategoryId"`
 	Images           string    `gorm:"not null"`
 	CoordinatorId    uint      `gorm:"not null"`
+	Availablespace   int       `grom:"not null"`
 	Description      string
 }
 
@@ -90,11 +91,11 @@ type Traveller struct {
 
 type Booking struct {
 	gorm.Model
-	PaymentId        string `gorm:"unique"`
-	BookingReference string `gorm:"unique;not null"`
-	BookingStatus    string `gorm:"default:PENDING"`
-	CancelledStatus  string `gorm:"default:false"`
-	TotalFare        string
-	UserId           uint
-	Bookings         []Traveller `gorm:"many2many:traveller_booking;"`
+	PaymentMode     string `gorm:"not null"`
+	BookingStatus   string `gorm:"default:PENDING"`
+	CancelledStatus string `gorm:"default:false"`
+	TotalPrice      int
+	UserId          uint
+	BookingId       string
+	Bookings        []Traveller `gorm:"many2many:traveller_booking;"`
 }

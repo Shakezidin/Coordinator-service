@@ -3,15 +3,18 @@ package handler
 import (
 	"log"
 
-	"golang.org/x/net/context"
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
+	"golang.org/x/net/context"
 )
 
 func (c *CoordinatorHandler) CoordinatorAddActivity(ctx context.Context, p *cpb.Activity) (*cpb.Responce, error) {
 	respnc, err := c.SVC.AddActivitySVC(p)
 	if err != nil {
 		log.Printf("Unable to create %v activity. err: %v", p.Activityname, err.Error())
-		return nil, err
+		return &cpb.Responce{
+			Status:  respnc.Status,
+			Message: respnc.Message,
+		}, err
 	}
 	return respnc, nil
 }

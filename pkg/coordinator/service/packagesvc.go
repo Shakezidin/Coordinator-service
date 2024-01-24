@@ -30,6 +30,7 @@ func (c *CoordinatorSVC) AddPackageSVC(p *cpb.Package) (*cpb.Responce, error) {
 	pkg.Images = p.Image
 	pkg.MaxCapacity = int(p.MaxCapacity)
 	pkg.Name = p.Packagename
+	pkg.Availablespace = int(p.MaxCapacity)
 	pkg.NumOfDestination = int(p.DestinationCount)
 	pkg.MinPrice = int(p.Price)
 	pkg.StartDate = startdate
@@ -52,11 +53,13 @@ func (c *CoordinatorSVC) AddPackageSVC(p *cpb.Package) (*cpb.Responce, error) {
 func (c *CoordinatorSVC) AvailablePackageSvc(p *cpb.View) (*cpb.PackagesResponce, error) {
 	var pkgs []*cpb.Package
 	if p.Status == "" {
-		packages, err := c.Repo.FetchAllPackages()
+		offset := 10 * (p.Page - 1)
+		limit := 10
+		packages, err := c.Repo.FetchAllPackages(int(offset), limit)
 		if err != nil {
 			return &cpb.PackagesResponce{
 				Packages: nil,
-			}, err
+			}, errors.New("error while fetching all packages")
 		}
 
 		for _, pkges := range *packages {
@@ -68,6 +71,7 @@ func (c *CoordinatorSVC) AvailablePackageSvc(p *cpb.View) (*cpb.PackagesResponce
 			pkg.Enddate = pkges.EndDate.Format("02-01-2006")
 			pkg.Image = pkges.Images
 			pkg.Packagename = pkges.Name
+			pkg.AvailableSpace = int64(pkges.Availablespace)
 			pkg.Price = int64(pkges.MinPrice)
 			pkg.Startdate = pkges.EndDate.Format("02-01-2006")
 			pkg.Startlocation = pkges.StartLocation
@@ -77,14 +81,16 @@ func (c *CoordinatorSVC) AvailablePackageSvc(p *cpb.View) (*cpb.PackagesResponce
 			pkgs = append(pkgs, &pkg)
 		}
 	} else {
-		packages, err := c.Repo.FetchPackages(p.Status)
+		offset := 10 * (p.Page - 1)
+		limit := 10
+		packages, err := c.Repo.FetchPackages(int(offset), limit, p.Status)
 		if err != nil {
 			return &cpb.PackagesResponce{
 				Packages: nil,
-			}, err
+			}, errors.New("error while fetching active packages")
 		}
 
-		for _, pkges := range *packages {
+		for _, pkges := range packages {
 			var pkg cpb.Package
 
 			pkg.PackageId = int64(pkges.ID)
@@ -93,6 +99,7 @@ func (c *CoordinatorSVC) AvailablePackageSvc(p *cpb.View) (*cpb.PackagesResponce
 			pkg.Enddate = pkges.EndDate.Format("02-01-2006")
 			pkg.Image = pkges.Images
 			pkg.Packagename = pkges.Name
+			pkg.AvailableSpace = int64(pkges.Availablespace)
 			pkg.Price = int64(pkges.MinPrice)
 			pkg.Startdate = pkges.EndDate.Format("02-01-2006")
 			pkg.Startlocation = pkges.StartLocation
@@ -110,7 +117,7 @@ func (c *CoordinatorSVC) AvailablePackageSvc(p *cpb.View) (*cpb.PackagesResponce
 func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.View) (*cpb.Package, error) {
 	pkg, err := c.Repo.FetchPackage(uint(p.Id))
 	if err != nil {
-		return &cpb.Package{}, err
+		return &cpb.Package{}, errors.New("error while fetching package")
 	}
 
 	ctgry := &cpb.Category{
@@ -119,7 +126,7 @@ func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.View) (*cpb.Package, error) {
 
 	destinations, err := c.Repo.FetchPackageDestination(pkg.ID)
 	if err != nil {
-		return &cpb.Package{}, err
+		return &cpb.Package{}, errors.New("error while fetching package destination")
 	}
 
 	var dstn = []*cpb.Destination{}
@@ -142,7 +149,9 @@ func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.View) (*cpb.Package, error) {
 		DestinationCount: int64(pkg.NumOfDestination),
 		Destination:      pkg.Destination,
 		PackageId:        int64(pkg.ID),
+		AvailableSpace:   int64(pkg.Availablespace),
 		Description:      pkg.Description,
+		MaxCapacity:      int64(pkg.MaxCapacity),
 		Category:         ctgry,
 		Destinations:     dstn,
 	}, nil
@@ -154,7 +163,7 @@ func (c *CoordinatorSVC) AdminPackageStatusSvc(p *cpb.View) (*cpb.Responce, erro
 		return &cpb.Responce{
 			Status:  "fail",
 			Message: "error while updating package status",
-		}, err
+		}, errors.New("error while updating package status")
 	}
 	return &cpb.Responce{
 		Status:  "success",

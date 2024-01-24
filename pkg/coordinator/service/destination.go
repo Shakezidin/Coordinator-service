@@ -47,12 +47,12 @@ func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.Destination) (*cpb.Responce, e
 func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.View) (*cpb.Destination, error) {
 	dstn, err := c.Repo.FecthDestination(uint(p.Id))
 	if err != nil {
-		return &cpb.Destination{}, err
+		return &cpb.Destination{}, errors.New("error while fetching destination")
 	}
 
 	activity, err := c.Repo.FecthDestinationActivity(dstn.ID)
 	if err != nil {
-		return &cpb.Destination{}, err
+		return &cpb.Destination{}, errors.New("error while fetching activities")
 	}
 
 	var arr []*cpb.Activity

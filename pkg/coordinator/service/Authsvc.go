@@ -21,7 +21,7 @@ func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.Responce, error) {
 	hashPassword, err := utils.HashPassword(p.Password)
 	if err != nil {
 		log.Printf("unable to hash password in CoordinatorSvc() - service, err: %v", err.Error())
-		return nil, err
+		return nil, errors.New("unable to hash password in CoordinatorSvc")
 	}
 	phone, _ := strconv.Atoi(p.Phone)
 	user := &cDOM.User{
@@ -31,11 +31,10 @@ func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.Responce, error) {
 		Name:     p.Name,
 		Role:     "coordinator",
 	}
-	// send otp to phone number
 
 	resp, err := c.twilio.SentTwilioOTP(p.Phone)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error while senting OTP")
 	} else {
 		if resp.Status != nil {
 			log.Println(*resp.Status)
@@ -46,7 +45,7 @@ func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.Responce, error) {
 	userData, err := json.Marshal(&user)
 	if err != nil {
 		log.Printf("error parsing JSON, err: %v", err.Error())
-		return nil, err
+		return nil, errors.New("error while passing in JSON for marshal")
 	}
 
 	registerUser := fmt.Sprintf("register_user_%v", p.Email)
@@ -63,21 +62,27 @@ func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.Responce, error) {
 
 	if redisVal.Err() != nil {
 		log.Printf("unable to get value from redis err: %v", redisVal.Err().Error())
-		return nil, redisVal.Err()
+		return &cpb.Responce{
+			Status: "failed",
+		}, errors.New("unable to get value from redis")
 	}
 
 	var userData cDOM.User
 	err := json.Unmarshal([]byte(redisVal.Val()), &userData)
 	if err != nil {
 		log.Println("unable to unmarshal json")
-		return nil, err
+		return &cpb.Responce{
+			Status: "failed",
+		}, errors.New("error while unmarshalling data")
 	}
 
 	code := fmt.Sprintf("%v", p.OTP)
 	phone := strconv.Itoa(userData.Phone)
 	resp, err := c.twilio.VerifyTwilioOTP(phone, code)
 	if err != nil {
-		return nil, err
+		return &cpb.Responce{
+			Status: "failed",
+		}, errors.New("otp verification failed")
 	} else {
 		if resp.Status != nil {
 			log.Println(*resp.Status)
@@ -89,17 +94,23 @@ func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.Responce, error) {
 	_, err = c.Repo.FindUserByEmail(userData.Email)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Printf("Existing email found  of a user %v", p.Email)
-		return nil, errors.New("user already exists")
+		return &cpb.Responce{
+			Status: "failed",
+		}, errors.New("email already exists")
 	}
 	_, err = c.Repo.FindUserByPhone(userData.Phone)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Printf("Existing phone found  of a user %v", p.Email)
-		return nil, errors.New("number already exists")
+		return &cpb.Responce{
+			Status: "failed",
+		}, errors.New("number already exists")
 	}
 
 	err = c.Repo.CreateUser(&userData)
 	if err != nil {
-		return nil, err
+		return &cpb.Responce{
+			Status: "failed",
+		}, errors.New("error while creating user")
 	}
 	return &cpb.Responce{
 		Status:  "Success",
@@ -113,10 +124,10 @@ func (c *CoordinatorSVC) UserLogin(p *cpb.Login) (*cpb.LoginResponce, error) {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Printf("No existing record found og %v", p.Email)
-			return nil, err
+			return nil, errors.New("user not found")
 		} else {
 			log.Printf("unable to login %v, err: %v", p.Email, err.Error())
-			return nil, err
+			return nil, errors.New("error while logging in")
 		}
 	}
 
@@ -130,33 +141,10 @@ func (c *CoordinatorSVC) UserLogin(p *cpb.Login) (*cpb.LoginResponce, error) {
 	token, err := utils.GenerateToken(p.Email, p.Role, userid, config.LoadConfig().SECRETKEY)
 	if err != nil {
 		log.Printf("unable to generate token for user %v, err: %v", p.Email, err.Error())
-		return nil, err
-	}
-
-	packages, _ := c.Repo.FindCoordinatorPackages(user.ID)
-
-	var cdpackages []*cpb.Package
-	for _, packagess := range *packages {
-
-		pkgs := &cpb.Package{
-			PackageId:        int64(packagess.ID),
-			DestinationCount: int64(packagess.NumOfDestination),
-			Packagename:      packagess.Name,
-			Destination:      packagess.Destination,
-			Enddate:          packagess.EndDate.Format("2006-01-02"),
-			Image:            packagess.Images,
-			Price:            int64(packagess.MinPrice),
-			Startdate:        packagess.EndDate.Format("2006-01-02"),
-			Startlocation:    packagess.StartLocation,
-			Description:      packagess.Description,
-			MaxCapacity:      int64(packagess.MaxCapacity),
-		}
-
-		cdpackages = append(cdpackages, pkgs)
+		return nil, errors.New("error while generating JWT")
 	}
 
 	return &cpb.LoginResponce{
-		Packages: cdpackages,
-		Token:    token,
+		Token: token,
 	}, nil
 }

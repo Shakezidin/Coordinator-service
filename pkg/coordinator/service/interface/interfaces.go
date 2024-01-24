@@ -1,6 +1,8 @@
 package interfaces
 
 import (
+	"context"
+
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 )
 
@@ -21,6 +23,7 @@ type CoordinatorSVCInter interface {
 	AddCatagorySVC(p *cpb.Category) (*cpb.Responce, error)
 	ViewCatagoriesSVC(p *cpb.View) (*cpb.Catagories, error)
 	AdminPackageStatusSvc(p *cpb.View) (*cpb.Responce, error)
-	SearchPackageSVC(p *cpb.Search)(*cpb.PackagesResponce,error)
-	TravellerDetails(p *cpb.TravellerRequest)(*cpb.TravellerResponse,error)
+	SearchPackageSVC(p *cpb.Search) (*cpb.PackagesResponce, error)
+	TravellerDetails(p *cpb.TravellerRequest) (*cpb.TravellerResponse, error)
+	OfflineBooking(ctx context.Context, p *cpb.Booking) (*cpb.BookingResponce, error)
 }

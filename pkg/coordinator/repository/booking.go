@@ -17,3 +17,10 @@ func (c *CoordinatorRepo) CreateActivityBooking(activity cDOM.ActivityBooking) e
 	}
 	return nil
 }
+
+func (c *CoordinatorRepo) CreateBooking(booking cDOM.Booking) error {
+	if err := c.db.Create(&booking).Error; err != nil {
+		return err
+	}
+	return nil
+}

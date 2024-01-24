@@ -23,6 +23,17 @@ service Coordinator {
     rpc ViewCatagories(View)returns(Catagories);
     rpc PackageSearch(Search)returns(PackagesResponce);
     rpc TravellerDetails(TravellerRequest)returns(TravellerResponse);
+    rpc OfflineBooking(Booking)returns(BookingResponce);
+}
+
+message BookingResponce{
+    string status = 1;
+    string booking_Id = 2;
+}
+
+message Booking{
+    string refId = 1;
+    int64 userId = 2;
 }
 
 message TravellerResponse {
@@ -30,6 +41,7 @@ message TravellerResponse {
     int64 package_price = 2;
     int64 activityTotalPrice = 3;
     int64 totalPrice = 4;
+    string refId = 5;
 }
 
 message TravellerDetails {
@@ -73,6 +85,7 @@ message Verify{
 message Responce{
     string status = 1;
     string message = 2;
+    int64 Id = 3;
 }
 
 message Signup{
@@ -100,6 +113,7 @@ message forgetPassword{
 message View{
     int64 Id = 1;
     string status = 2;
+    int64 page = 3;
 }
 
 message Login{
@@ -139,9 +153,9 @@ message Destination{
 message Package{
     int64  PackageId = 1;
     string packagename = 2;
-    int64 CoorinatorId = 3;
+    int64  CoorinatorId = 3;
     string startlocation = 4;
-    string endlocation = 5;
+    int64  availableSpace = 5;
     string startdate = 6;
     string enddate = 7;
     int64  price = 8;
@@ -149,7 +163,7 @@ message Package{
     int64  destinationCount = 10;
     string destination = 11;
     string Description = 12;
-    int64 maxCapacity = 13;
+    int64  maxCapacity = 13;
     int64  categoryId = 14;  
     Category category = 15;
     repeated Destination Destinations = 16;
@@ -161,6 +175,5 @@ message Category{
 }
 
 message LoginResponce{
-    repeated Package Packages = 1;
-    string            token = 2;
+    string            token = 1;
 }
