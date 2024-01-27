@@ -29,7 +29,7 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 	pkg, err := c.Repo.FetchPackage(uint(pkgId))
 	if err != nil {
 		log.Print("package not found")
-		return nil, err
+		return nil, errors.New("package not found")
 	}
 
 	if pkg.Availablespace < len(p.TravellerDetails) {
@@ -71,29 +71,34 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 	activity_key := fmt.Sprintf("activity_bookings%d", refId)
 	amount_key := fmt.Sprintf("amount%d", refId)
 	pkg_key := fmt.Sprintf("package%d", refId)
+	UserId_Key := fmt.Sprintf("userId%d", refId)
+
+	err = c.storeInRedis(ctx, UserId_Key, p.UserId)
+	if err != nil {
+		return nil, errors.New("error while storing to redis")
+	}
 
 	err = c.storeInRedis(ctx, pkg_key, pkg)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error while storing to redis")
 	}
 
 	err = c.storeInRedis(ctx, traveller_key, travellers)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error while storing to redis")
 	}
 
 	err = c.storeInRedis(ctx, activity_key, activityBookings)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error while storing to redis")
 	}
 
 	err = c.storeInRedis(ctx, amount_key, pkg.MinPrice+activityTotal)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error while storing to redis")
 	}
 
 	return &cpb.TravellerResponse{
-		Status:             "success",
 		PackagePrice:       int64(pkg.MinPrice),
 		ActivityTotalPrice: int64(activityTotal),
 		TotalPrice:         int64(pkg.MinPrice + activityTotal),
@@ -139,6 +144,20 @@ func generateBookingReference() string {
 }
 
 func (c *CoordinatorSVC) OfflineBooking(ctx context.Context, p *cpb.Booking) (*cpb.BookingResponce, error) {
+	// Start a new database transaction
+	db := c.Repo.GetDB()
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			// If there's a panic, rollback the transaction
+			tx.Rollback()
+			panic(r)
+		} else if err := recover(); err != nil {
+			// If there's an error, rollback the transaction
+			tx.Rollback()
+			panic(err)
+		}
+	}()
 
 	traveller_key := fmt.Sprintf("traveller%d", p.RefId)
 	activity_key := fmt.Sprintf("activity_bookings%d", p.RefId)
@@ -149,7 +168,10 @@ func (c *CoordinatorSVC) OfflineBooking(ctx context.Context, p *cpb.Booking) (*c
 	pkgData := c.redis.Get(ctx, pkg_key).Val()
 	err := json.Unmarshal([]byte(pkgData), &pkg)
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling json err: %v", err.Error())
+		tx.Rollback()
+		return &cpb.BookingResponce{
+			Status: "fail",
+		}, fmt.Errorf("error unmarshaling json err: %v", err.Error())
 	}
 
 	var activityBooking []dom.ActivityBooking
@@ -157,7 +179,10 @@ func (c *CoordinatorSVC) OfflineBooking(ctx context.Context, p *cpb.Booking) (*c
 
 	err = json.Unmarshal([]byte(activityData), &activityBooking)
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling json err: %v", err.Error())
+		tx.Rollback()
+		return &cpb.BookingResponce{
+			Status: "fail",
+		}, fmt.Errorf("error unmarshaling json err: %v", err.Error())
 	}
 
 	amoundata, err := c.redis.Get(ctx, amount_key).Int()
@@ -166,29 +191,45 @@ func (c *CoordinatorSVC) OfflineBooking(ctx context.Context, p *cpb.Booking) (*c
 	travellerData := c.redis.Get(ctx, traveller_key).Val()
 	err = json.Unmarshal([]byte(travellerData), &travellers)
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling json err: %v", err.Error())
+		tx.Rollback()
+		return &cpb.BookingResponce{
+			Status: "fail",
+		}, fmt.Errorf("error unmarshaling json err: %v", err.Error())
 	}
 
-	err = c.Repo.UpdatePackage(&pkg)
+	// Update the package within the transaction
+	err = tx.Model(&dom.Package{}).Where("id = ?", pkg.ID).Updates(&pkg).Error
 	if err != nil {
-		return nil, errors.New("error while package updating")
+		tx.Rollback()
+		return &cpb.BookingResponce{
+			Status: "fail",
+		}, fmt.Errorf("error updating package: %v", err.Error())
 	}
+
+	// Create travellers within the transaction
 	for _, traveller := range travellers {
-		err := c.Repo.CreateTraveller(traveller)
+		err := tx.Create(&traveller).Error
 		if err != nil {
-			return nil, err
+			tx.Rollback()
+			return &cpb.BookingResponce{
+				Status: "fail",
+			}, fmt.Errorf("error creating traveller: %v", err.Error())
 		}
 	}
 
+	// Create activity bookings within the transaction
 	for _, activity := range activityBooking {
-		err := c.Repo.CreateActivityBooking(activity)
+		err := tx.Create(&activity).Error
 		if err != nil {
-			return nil, err
+			tx.Rollback()
+			return &cpb.BookingResponce{
+				Status: "fail",
+			}, fmt.Errorf("error creating activity: %v", err.Error())
 		}
 	}
 
+	// Create the booking within the transaction
 	var bookingID = uuid.New().String()
-
 	var booking dom.Booking
 	booking.BookingStatus = "success"
 	booking.Bookings = travellers
@@ -196,13 +237,22 @@ func (c *CoordinatorSVC) OfflineBooking(ctx context.Context, p *cpb.Booking) (*c
 	booking.TotalPrice = amoundata
 	booking.UserId = uint(p.UserId)
 	booking.BookingId = bookingID
+	booking.Bookings = travellers
+	booking.PackageId = pkg.ID
+	booking.Activities = activityBooking
 
-	err = c.Repo.CreateBooking(booking)
+	err = tx.Create(&booking).Error
 	if err != nil {
-		return nil, err
+		tx.Rollback()
+		return &cpb.BookingResponce{
+			Status: "fail",
+		}, fmt.Errorf("error creating booking: %v", err.Error())
 	}
+
+	// Commit the transaction if everything is successful
+	tx.Commit()
+
 	return &cpb.BookingResponce{
-		Status:     "Success",
 		Booking_Id: bookingID,
 	}, nil
 }

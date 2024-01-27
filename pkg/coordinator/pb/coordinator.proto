@@ -24,6 +24,27 @@ service Coordinator {
     rpc PackageSearch(Search)returns(PackagesResponce);
     rpc TravellerDetails(TravellerRequest)returns(TravellerResponse);
     rpc OfflineBooking(Booking)returns(BookingResponce);
+    rpc OnlinePayment(Booking)returns(OnlinePaymentResponse);
+    rpc FilterPackage(Filter)returns(PackagesResponce);
+}
+
+message Filter {
+    int64 page = 1;
+    string departurtime = 2;
+    int64 minPrice = 3;
+    int64 maxPrice = 4;
+    int64 categoryId = 5;
+    string OrderBy = 6;
+    bool status = 7;
+}
+
+
+message OnlinePaymentResponse {
+    int32 user_id = 1;
+    float total_fare = 2;
+    string booking_reference = 3;
+    string email = 4;
+    string order_id = 5;
 }
 
 message BookingResponce{

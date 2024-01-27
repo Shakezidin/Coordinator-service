@@ -45,7 +45,6 @@ func (c *CoordinatorSVC) AddActivitySVC(p *cpb.Activity) (*cpb.Responce, error) 
 	}
 	return &cpb.Responce{
 		Status:  "Success",
-		Message: "destination creation done",
 		Id:      int64(activity.ID),
 	}, nil
 }

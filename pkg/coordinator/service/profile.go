@@ -17,9 +17,8 @@ func (c *CoordinatorSVC) ForgetPassword(p *cpb.ForgetPassword) (*cpb.Responce, e
 	resp, err := c.twilio.SentTwilioOTP(p.Phone)
 	if err != nil {
 		return &cpb.Responce{
-			Status:  "failure",
-			Message: "error while senting otp",
-		}, err
+			Status: "failure",
+		}, errors.New("error while senting otp")
 	} else {
 		if resp.Status != nil {
 			log.Println(*resp.Status)
@@ -56,15 +55,14 @@ func (c *CoordinatorSVC) ForgetPasswordVerify(p *cpb.ForgetPasswordVerify) (*cpb
 		return &cpb.Responce{
 			Status:  "failure",
 			Message: "phone number mis-match",
-		}, err
+		}, errors.New("Provided phone number does not match the saved phone number.")
 	}
 
 	resp, err := c.twilio.VerifyTwilioOTP(p.Phone, p.Otp)
 	if err != nil {
 		return &cpb.Responce{
-			Status:  "failure",
-			Message: "otp verification failed",
-		}, err
+			Status: "failure",
+		}, errors.New("otp verification failed")
 	} else {
 		if resp.Status != nil {
 			log.Println(*resp.Status)
@@ -79,8 +77,7 @@ func (c *CoordinatorSVC) ForgetPasswordVerify(p *cpb.ForgetPasswordVerify) (*cpb
 	if err != nil {
 		fmt.Println("user not found in this number")
 		return &cpb.Responce{
-			Status:  "failure",
-			Message: "user not found in this number",
+			Status: "failure",
 		}, errors.New("user not found in this number")
 	}
 
@@ -88,7 +85,7 @@ func (c *CoordinatorSVC) ForgetPasswordVerify(p *cpb.ForgetPasswordVerify) (*cpb
 	token, err := utils.GenerateToken(user.Email, user.Role, userid, config.LoadConfig().SECRETKEY)
 	if err != nil {
 		log.Printf("unable to generate token for user %v, err: %v", user.Email, err.Error())
-		return nil, err
+		return nil, errors.New("unable to generate token for user")
 	}
 
 	return &cpb.Responce{
@@ -101,17 +98,22 @@ func (c *CoordinatorSVC) NewPassword(p *cpb.Newpassword) (*cpb.Responce, error) 
 	hashPassword, err := utils.HashPassword(p.Newpassword)
 	if err != nil {
 		log.Printf("unable to hash password in CoordinatorSvc() - service, err: %v", err.Error())
-		return nil, err
+		return &cpb.Responce{
+			Status: "fail",
+		}, errors.New("error while hashing password")
 	}
 	id, _ := strconv.Atoi(p.Id)
 	err = c.Repo.UpdatePassword(uint(id), string(hashPassword))
 	if err != nil {
 		fmt.Println("password updating error")
-		return nil, errors.New("password updating error")
+		return &cpb.Responce{
+			Status: "fail",
+		}, errors.New("password updating error")
 	}
 
 	return &cpb.Responce{
-		Status: "success",
+		Status:  "success",
 		Message: "password updated",
+		Id:      int64(id),
 	}, nil
 }

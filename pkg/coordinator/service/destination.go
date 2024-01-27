@@ -41,6 +41,7 @@ func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.Destination) (*cpb.Responce, e
 	return &cpb.Responce{
 		Status:  "Success",
 		Message: "destination creation done",
+		Id:      int64(destination.ID),
 	}, nil
 }
 

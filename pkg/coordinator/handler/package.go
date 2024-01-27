@@ -42,3 +42,12 @@ func (c *CoordinatorHandler) AdminPacakgeStatus(ctx context.Context, p *cpb.View
 	}
 	return respnc, nil
 }
+
+func (c *CoordinatorHandler)FilterPackage(ctx context.Context,p *cpb.Filter)(*cpb.PackagesResponce,error){
+	respnc, err := c.SVC.FilterPackageSvc(p)
+	if err != nil {
+		log.Printf("Unable to fetch packages. err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}

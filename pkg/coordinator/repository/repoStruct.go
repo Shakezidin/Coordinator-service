@@ -6,11 +6,15 @@ import (
 )
 
 type CoordinatorRepo struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func NewCoordinatorRepo(db *gorm.DB) inter.CoordinatorRepoInter {
 	return &CoordinatorRepo{
-		db: db,
+		DB: db,
 	}
+}
+
+func (c *CoordinatorRepo) GetDB() *gorm.DB {
+    return c.DB
 }

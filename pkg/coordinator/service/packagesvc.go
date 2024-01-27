@@ -18,8 +18,7 @@ func (c *CoordinatorSVC) AddPackageSVC(p *cpb.Package) (*cpb.Responce, error) {
 	if err != nil {
 		fmt.Println("date passing error")
 		return &cpb.Responce{
-			Status:  "fail",
-			Message: "error while passing date",
+			Status: "fail",
 		}, errors.New("date passing error")
 	}
 
@@ -40,13 +39,13 @@ func (c *CoordinatorSVC) AddPackageSVC(p *cpb.Package) (*cpb.Responce, error) {
 	err = c.Repo.CreatePackage(&pkg)
 	if err != nil {
 		return &cpb.Responce{
-			Status:  "failure",
-			Message: "error while package creating ",
-		}, err
+			Status: "failure",
+		}, errors.New("error while creating package")
 	}
 	return &cpb.Responce{
 		Status:  "success",
 		Message: "package creation done",
+		Id:      int64(pkg.ID),
 	}, nil
 }
 
@@ -161,12 +160,83 @@ func (c *CoordinatorSVC) AdminPackageStatusSvc(p *cpb.View) (*cpb.Responce, erro
 	err := c.Repo.PackageStatusUpdate(uint(p.Id))
 	if err != nil {
 		return &cpb.Responce{
-			Status:  "fail",
-			Message: "error while updating package status",
+			Status: "fail",
 		}, errors.New("error while updating package status")
 	}
 	return &cpb.Responce{
 		Status:  "success",
 		Message: "package status updated",
+	}, nil
+}
+
+func (c *CoordinatorSVC) FilterPackageSvc(p *cpb.Filter) (*cpb.PackagesResponce, error) {
+	query := "SELECT * FROM packages WHERE 1 = 1"
+	var args []interface{}
+
+	if p.Departurtime != "" {
+		query += " AND start_time = ?"
+		args = append(args, p.Departurtime)
+	}
+	if p.MinPrice > 0 {
+		query += " AND min_price >= ?"
+		args = append(args, p.MinPrice)
+	}
+	if p.MaxPrice > 0 {
+		query += " AND min_price <= ?"
+		args = append(args, p.MaxPrice)
+	}
+	if p.CategoryId != 0 {
+		query += " AND trip_category_id = ?"
+		args = append(args, p.CategoryId)
+	}
+
+	// Add ORDER BY clause
+	if p.OrderBy != "" {
+		query += " ORDER BY " + p.OrderBy
+	}
+
+	// Add LIMIT and OFFSET clauses for paging
+	offset := 10 * (p.Page - 1)
+	limit := 10
+	query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
+
+	db := c.Repo.GetDB()
+	rows, err := db.Raw(query, args...).Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var packages []*dom.Package
+	for rows.Next() {
+		var p dom.Package
+		if err := rows.Scan(&p.ID, &p.Name, &p.StartTime, &p.MinPrice, &p.TripCategoryId); err != nil {
+			return nil, err
+		}
+		packages = append(packages, &p)
+	}
+
+	// Convert packages to protobuf format
+	var pkgs []*cpb.Package
+	for _, pkge := range packages {
+		pkg := &cpb.Package{
+			PackageId:        int64(pkge.ID),
+			Destination:      pkge.Destination,
+			DestinationCount: int64(pkge.NumOfDestination),
+			Enddate:          pkge.EndDate.Format("02-01-2006"),
+			Image:            pkge.Images,
+			Packagename:      pkge.Name,
+			AvailableSpace:   int64(pkge.Availablespace),
+			Price:            int64(pkge.MinPrice),
+			Startdate:        pkge.StartDate.Format("02-01-2006"),
+			Startlocation:    pkge.StartLocation,
+			Description:      pkge.Description,
+			MaxCapacity:      int64(pkge.MaxCapacity),
+		}
+		pkgs = append(pkgs, pkg)
+	}
+
+	return &cpb.PackagesResponce{
+		Packages: pkgs,
 	}, nil
 }
