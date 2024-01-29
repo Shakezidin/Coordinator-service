@@ -36,10 +36,11 @@ const (
 	Coordinator_AdminPacakgeStatus_FullMethodName              = "/pb.Coordinator/AdminPacakgeStatus"
 	Coordinator_ViewCatagories_FullMethodName                  = "/pb.Coordinator/ViewCatagories"
 	Coordinator_PackageSearch_FullMethodName                   = "/pb.Coordinator/PackageSearch"
+	Coordinator_FilterPackage_FullMethodName                   = "/pb.Coordinator/FilterPackage"
 	Coordinator_TravellerDetails_FullMethodName                = "/pb.Coordinator/TravellerDetails"
 	Coordinator_OfflineBooking_FullMethodName                  = "/pb.Coordinator/OfflineBooking"
 	Coordinator_OnlinePayment_FullMethodName                   = "/pb.Coordinator/OnlinePayment"
-	Coordinator_FilterPackage_FullMethodName                   = "/pb.Coordinator/FilterPackage"
+	Coordinator_PaymentConfirmed_FullMethodName                = "/pb.Coordinator/PaymentConfirmed"
 )
 
 // CoordinatorClient is the client API for Coordinator service.
@@ -63,10 +64,11 @@ type CoordinatorClient interface {
 	AdminPacakgeStatus(ctx context.Context, in *View, opts ...grpc.CallOption) (*Responce, error)
 	ViewCatagories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Catagories, error)
 	PackageSearch(ctx context.Context, in *Search, opts ...grpc.CallOption) (*PackagesResponce, error)
+	FilterPackage(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*PackagesResponce, error)
 	TravellerDetails(ctx context.Context, in *TravellerRequest, opts ...grpc.CallOption) (*TravellerResponse, error)
 	OfflineBooking(ctx context.Context, in *Booking, opts ...grpc.CallOption) (*BookingResponce, error)
 	OnlinePayment(ctx context.Context, in *Booking, opts ...grpc.CallOption) (*OnlinePaymentResponse, error)
-	FilterPackage(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*PackagesResponce, error)
+	PaymentConfirmed(ctx context.Context, in *PaymentConfirmedRequest, opts ...grpc.CallOption) (*BookingResponce, error)
 }
 
 type coordinatorClient struct {
@@ -230,6 +232,15 @@ func (c *coordinatorClient) PackageSearch(ctx context.Context, in *Search, opts 
 	return out, nil
 }
 
+func (c *coordinatorClient) FilterPackage(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*PackagesResponce, error) {
+	out := new(PackagesResponce)
+	err := c.cc.Invoke(ctx, Coordinator_FilterPackage_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *coordinatorClient) TravellerDetails(ctx context.Context, in *TravellerRequest, opts ...grpc.CallOption) (*TravellerResponse, error) {
 	out := new(TravellerResponse)
 	err := c.cc.Invoke(ctx, Coordinator_TravellerDetails_FullMethodName, in, out, opts...)
@@ -257,9 +268,9 @@ func (c *coordinatorClient) OnlinePayment(ctx context.Context, in *Booking, opts
 	return out, nil
 }
 
-func (c *coordinatorClient) FilterPackage(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*PackagesResponce, error) {
-	out := new(PackagesResponce)
-	err := c.cc.Invoke(ctx, Coordinator_FilterPackage_FullMethodName, in, out, opts...)
+func (c *coordinatorClient) PaymentConfirmed(ctx context.Context, in *PaymentConfirmedRequest, opts ...grpc.CallOption) (*BookingResponce, error) {
+	out := new(BookingResponce)
+	err := c.cc.Invoke(ctx, Coordinator_PaymentConfirmed_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -287,10 +298,11 @@ type CoordinatorServer interface {
 	AdminPacakgeStatus(context.Context, *View) (*Responce, error)
 	ViewCatagories(context.Context, *View) (*Catagories, error)
 	PackageSearch(context.Context, *Search) (*PackagesResponce, error)
+	FilterPackage(context.Context, *Filter) (*PackagesResponce, error)
 	TravellerDetails(context.Context, *TravellerRequest) (*TravellerResponse, error)
 	OfflineBooking(context.Context, *Booking) (*BookingResponce, error)
 	OnlinePayment(context.Context, *Booking) (*OnlinePaymentResponse, error)
-	FilterPackage(context.Context, *Filter) (*PackagesResponce, error)
+	PaymentConfirmed(context.Context, *PaymentConfirmedRequest) (*BookingResponce, error)
 	mustEmbedUnimplementedCoordinatorServer()
 }
 
@@ -349,6 +361,9 @@ func (UnimplementedCoordinatorServer) ViewCatagories(context.Context, *View) (*C
 func (UnimplementedCoordinatorServer) PackageSearch(context.Context, *Search) (*PackagesResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PackageSearch not implemented")
 }
+func (UnimplementedCoordinatorServer) FilterPackage(context.Context, *Filter) (*PackagesResponce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FilterPackage not implemented")
+}
 func (UnimplementedCoordinatorServer) TravellerDetails(context.Context, *TravellerRequest) (*TravellerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TravellerDetails not implemented")
 }
@@ -358,8 +373,8 @@ func (UnimplementedCoordinatorServer) OfflineBooking(context.Context, *Booking) 
 func (UnimplementedCoordinatorServer) OnlinePayment(context.Context, *Booking) (*OnlinePaymentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OnlinePayment not implemented")
 }
-func (UnimplementedCoordinatorServer) FilterPackage(context.Context, *Filter) (*PackagesResponce, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FilterPackage not implemented")
+func (UnimplementedCoordinatorServer) PaymentConfirmed(context.Context, *PaymentConfirmedRequest) (*BookingResponce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PaymentConfirmed not implemented")
 }
 func (UnimplementedCoordinatorServer) mustEmbedUnimplementedCoordinatorServer() {}
 
@@ -680,6 +695,24 @@ func _Coordinator_PackageSearch_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Coordinator_FilterPackage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Filter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoordinatorServer).FilterPackage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Coordinator_FilterPackage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoordinatorServer).FilterPackage(ctx, req.(*Filter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Coordinator_TravellerDetails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TravellerRequest)
 	if err := dec(in); err != nil {
@@ -734,20 +767,20 @@ func _Coordinator_OnlinePayment_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Coordinator_FilterPackage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Filter)
+func _Coordinator_PaymentConfirmed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PaymentConfirmedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CoordinatorServer).FilterPackage(ctx, in)
+		return srv.(CoordinatorServer).PaymentConfirmed(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Coordinator_FilterPackage_FullMethodName,
+		FullMethod: Coordinator_PaymentConfirmed_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoordinatorServer).FilterPackage(ctx, req.(*Filter))
+		return srv.(CoordinatorServer).PaymentConfirmed(ctx, req.(*PaymentConfirmedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -828,6 +861,10 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Coordinator_PackageSearch_Handler,
 		},
 		{
+			MethodName: "FilterPackage",
+			Handler:    _Coordinator_FilterPackage_Handler,
+		},
+		{
 			MethodName: "TravellerDetails",
 			Handler:    _Coordinator_TravellerDetails_Handler,
 		},
@@ -840,8 +877,8 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Coordinator_OnlinePayment_Handler,
 		},
 		{
-			MethodName: "FilterPackage",
-			Handler:    _Coordinator_FilterPackage_Handler,
+			MethodName: "PaymentConfirmed",
+			Handler:    _Coordinator_PaymentConfirmed_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -126,7 +126,6 @@ func hasAllDestinations(packageDestinations, searchDestinations []string) bool {
 
 		found := false
 		for _, pkgDest := range packageDestinations {
-			log.Printf("Comparing: dest=%s, pkgDest=%s", dest, pkgDest)
 
 			if strings.EqualFold(strings.TrimSpace(dest), strings.TrimSpace(pkgDest)) {
 				found = true

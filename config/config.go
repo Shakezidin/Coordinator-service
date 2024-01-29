@@ -21,6 +21,7 @@ type Config struct {
 	REDISHOST           string `mapstructure:"REDISHOST"`
 	RAZORPAYKEYID       string `mapstructure:"RAZORPAYKEYID"`
 	RAZORPAYSECRETKEY   string `mapstructure:"RAZORPAYSECRETKEY"`
+	GRPCADMINPORT       string `mapstructure:"GRPCADMINPORT"`
 }
 
 func LoadConfig() *Config {

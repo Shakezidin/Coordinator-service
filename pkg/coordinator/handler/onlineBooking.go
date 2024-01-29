@@ -15,3 +15,12 @@ func (c *CoordinatorHandler) OnlinePayment(ctx context.Context, p *cpb.Booking) 
 	}
 	return respnc, nil
 }
+
+func (c *CoordinatorHandler)PaymentConfirmed(ctx context.Context,p *cpb.PaymentConfirmedRequest)(*cpb.BookingResponce,error){
+	respnc, err := c.SVC.PaymentConfirmedSVC(ctx, p)
+	if err != nil {
+		log.Printf("error while adding payment details err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}

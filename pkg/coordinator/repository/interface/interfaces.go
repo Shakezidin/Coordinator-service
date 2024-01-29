@@ -33,4 +33,5 @@ type CoordinatorRepoInter interface {
 	FetchCatagory(catagory string) (*cDOM.Category, error)
 	UpdatePackage(pkg *cDOM.Package) error
 	GetDB() *gorm.DB
+	FetchUserById(id uint)(*cDOM.User,error)
 }

@@ -210,7 +210,7 @@ func (c *CoordinatorSVC) FilterPackageSvc(p *cpb.Filter) (*cpb.PackagesResponce,
 	var packages []*dom.Package
 	for rows.Next() {
 		var p dom.Package
-		if err := rows.Scan(&p.ID, &p.Name, &p.StartTime, &p.MinPrice, &p.TripCategoryId); err != nil {
+		if err := rows.Scan(&p.ID, &p.Name, &p.MinPrice, &p.TripCategoryId); err != nil {
 			return nil, err
 		}
 		packages = append(packages, &p)

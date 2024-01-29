@@ -35,19 +35,17 @@ type Package struct {
 	Name             string    `gorm:"not null"`
 	Destination      string    `gorm:"not null"`
 	StartDate        time.Time `gorm:"not null"`
-	StartTime        time.Time `gorm:"type:time without time zone"`
 	StartLocation    string    `gorm:"not null"`
 	EndDate          time.Time `gorm:"not null"`
-	EndTime          time.Time `gorm:"type:time without time zone"`
-	MinPrice         int      `gorm:"not null"`
-	MaxCapacity      int      `gorm:"not null"`
-	NumOfDestination int      `gorm:"not null"`
-	TripStatus       bool     `gorm:"default:false"`
-	TripCategoryId   uint     `gorm:"not null"`
-	Category         Category `gorm:"ForeignKey:TripCategoryId"`
-	Images           string   `gorm:"not null"`
-	CoordinatorId    uint     `gorm:"not null"`
-	Availablespace   int      `grom:"not null"`
+	MinPrice         int       `gorm:"not null"`
+	MaxCapacity      int       `gorm:"not null"`
+	NumOfDestination int       `gorm:"not null"`
+	TripStatus       bool      `gorm:"default:false"`
+	TripCategoryId   uint      `gorm:"not null"`
+	Category         Category  `gorm:"ForeignKey:TripCategoryId"`
+	Images           string    `gorm:"not null"`
+	CoordinatorId    uint      `gorm:"not null"`
+	Availablespace   int       `grom:"not null"`
 	Description      string
 }
 
@@ -103,4 +101,12 @@ type Booking struct {
 	PackageId       uint
 	Package         Package           `gorm:"foreignKey:PackageId"`
 	Activities      []ActivityBooking `gorm:"many2many:booking_activities;"`
+}
+
+type RazorPay struct {
+	UserID          uint
+	RazorPaymentID  string
+	RazorPayOrderID string
+	Signature       string
+	AmountPaid      float64
 }

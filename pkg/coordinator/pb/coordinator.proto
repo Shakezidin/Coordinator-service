@@ -22,11 +22,23 @@ service Coordinator {
     rpc AdminPacakgeStatus(View)returns(Responce);
     rpc ViewCatagories(View)returns(Catagories);
     rpc PackageSearch(Search)returns(PackagesResponce);
+    rpc FilterPackage(Filter)returns(PackagesResponce);
     rpc TravellerDetails(TravellerRequest)returns(TravellerResponse);
     rpc OfflineBooking(Booking)returns(BookingResponce);
     rpc OnlinePayment(Booking)returns(OnlinePaymentResponse);
-    rpc FilterPackage(Filter)returns(PackagesResponce);
+    rpc PaymentConfirmed(PaymentConfirmedRequest)returns(BookingResponce);
 }
+
+message PaymentConfirmedRequest{
+    string email = 1;
+    string ReferenceID = 2;
+    string PaymentId = 3;
+    string UserID = 4;
+    string OrderID = 5;
+    string signature = 6;
+    string total = 7;
+}
+
 
 message Filter {
     int64 page = 1;
@@ -55,6 +67,7 @@ message BookingResponce{
 message Booking{
     string refId = 1;
     int64 userId = 2;
+    string Typ = 3;
 }
 
 message TravellerResponse {
@@ -62,7 +75,8 @@ message TravellerResponse {
     int64 package_price = 2;
     int64 activityTotalPrice = 3;
     int64 totalPrice = 4;
-    string refId = 5;
+    int64 advanceAmount = 5;
+    string refId = 6;
 }
 
 message TravellerDetails {

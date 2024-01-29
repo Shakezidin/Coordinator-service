@@ -67,13 +67,14 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 	}
 	activityTotal := c.calculateActivityTotal(p.TravellerDetails)
 	refId := generateBookingReference()
-	traveller_key := fmt.Sprintf("traveller%d", refId)
-	activity_key := fmt.Sprintf("activity_bookings%d", refId)
-	amount_key := fmt.Sprintf("amount%d", refId)
-	pkg_key := fmt.Sprintf("package%d", refId)
-	UserId_Key := fmt.Sprintf("userId%d", refId)
+	traveller_key := fmt.Sprintf("traveller:%s", refId)
+	activity_key := fmt.Sprintf("activity_bookings:%s", refId)
+	amount_key := fmt.Sprintf("amount:%s", refId)
+	pkg_key := fmt.Sprint("package:", refId)
+	UserId_Key := fmt.Sprintf("userId:%s", refId)
 
-	err = c.storeInRedis(ctx, UserId_Key, p.UserId)
+	userid, _ := strconv.Atoi(p.UserId)
+	err = c.storeInRedis(ctx, UserId_Key, userid)
 	if err != nil {
 		return nil, errors.New("error while storing to redis")
 	}
@@ -98,10 +99,14 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 		return nil, errors.New("error while storing to redis")
 	}
 
+	totalAmount := pkg.MinPrice + activityTotal
+	advanceAmount := float64(totalAmount) * 0.3
+
 	return &cpb.TravellerResponse{
 		PackagePrice:       int64(pkg.MinPrice),
 		ActivityTotalPrice: int64(activityTotal),
-		TotalPrice:         int64(pkg.MinPrice + activityTotal),
+		TotalPrice:         int64(totalAmount),
+		AdvanceAmount:      int64(advanceAmount),
 		RefId:              refId,
 	}, nil
 }
@@ -143,116 +148,3 @@ func generateBookingReference() string {
 	return ref.String()
 }
 
-func (c *CoordinatorSVC) OfflineBooking(ctx context.Context, p *cpb.Booking) (*cpb.BookingResponce, error) {
-	// Start a new database transaction
-	db := c.Repo.GetDB()
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			// If there's a panic, rollback the transaction
-			tx.Rollback()
-			panic(r)
-		} else if err := recover(); err != nil {
-			// If there's an error, rollback the transaction
-			tx.Rollback()
-			panic(err)
-		}
-	}()
-
-	traveller_key := fmt.Sprintf("traveller%d", p.RefId)
-	activity_key := fmt.Sprintf("activity_bookings%d", p.RefId)
-	amount_key := fmt.Sprintf("amount%d", p.RefId)
-	pkg_key := fmt.Sprintf("package%d", p.RefId)
-
-	var pkg dom.Package
-	pkgData := c.redis.Get(ctx, pkg_key).Val()
-	err := json.Unmarshal([]byte(pkgData), &pkg)
-	if err != nil {
-		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error unmarshaling json err: %v", err.Error())
-	}
-
-	var activityBooking []dom.ActivityBooking
-	activityData := c.redis.Get(ctx, activity_key).Val()
-
-	err = json.Unmarshal([]byte(activityData), &activityBooking)
-	if err != nil {
-		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error unmarshaling json err: %v", err.Error())
-	}
-
-	amoundata, err := c.redis.Get(ctx, amount_key).Int()
-
-	var travellers []dom.Traveller
-	travellerData := c.redis.Get(ctx, traveller_key).Val()
-	err = json.Unmarshal([]byte(travellerData), &travellers)
-	if err != nil {
-		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error unmarshaling json err: %v", err.Error())
-	}
-
-	// Update the package within the transaction
-	err = tx.Model(&dom.Package{}).Where("id = ?", pkg.ID).Updates(&pkg).Error
-	if err != nil {
-		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error updating package: %v", err.Error())
-	}
-
-	// Create travellers within the transaction
-	for _, traveller := range travellers {
-		err := tx.Create(&traveller).Error
-		if err != nil {
-			tx.Rollback()
-			return &cpb.BookingResponce{
-				Status: "fail",
-			}, fmt.Errorf("error creating traveller: %v", err.Error())
-		}
-	}
-
-	// Create activity bookings within the transaction
-	for _, activity := range activityBooking {
-		err := tx.Create(&activity).Error
-		if err != nil {
-			tx.Rollback()
-			return &cpb.BookingResponce{
-				Status: "fail",
-			}, fmt.Errorf("error creating activity: %v", err.Error())
-		}
-	}
-
-	// Create the booking within the transaction
-	var bookingID = uuid.New().String()
-	var booking dom.Booking
-	booking.BookingStatus = "success"
-	booking.Bookings = travellers
-	booking.PaymentMode = "offline"
-	booking.TotalPrice = amoundata
-	booking.UserId = uint(p.UserId)
-	booking.BookingId = bookingID
-	booking.Bookings = travellers
-	booking.PackageId = pkg.ID
-	booking.Activities = activityBooking
-
-	err = tx.Create(&booking).Error
-	if err != nil {
-		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error creating booking: %v", err.Error())
-	}
-
-	// Commit the transaction if everything is successful
-	tx.Commit()
-
-	return &cpb.BookingResponce{
-		Booking_Id: bookingID,
-	}, nil
-}
