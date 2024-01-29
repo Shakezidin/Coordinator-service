@@ -98,4 +98,15 @@ type Booking struct {
 	UserId          uint
 	BookingId       string
 	Bookings        []Traveller `gorm:"many2many:traveller_booking;"`
+	PackageId       uint
+	Package         Package           `gorm:"foreignKey:PackageId"`
+	Activities      []ActivityBooking `gorm:"many2many:booking_activities;"`
+}
+
+type RazorPay struct {
+	UserID          uint
+	RazorPaymentID  string
+	RazorPayOrderID string
+	Signature       string
+	AmountPaid      float64
 }

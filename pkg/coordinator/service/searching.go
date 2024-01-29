@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -13,7 +14,7 @@ import (
 func (c *CoordinatorSVC) SearchPackageSVC(p *cpb.Search) (*cpb.PackagesResponce, error) {
 	if len(p.Destination) <= 1 {
 		log.Println("no destination condition")
-		packages, err := UnboundedPackages(p.PickupPlace, p.Finaldestination, p.Date, p.Enddate, p.MaxDestination, c)
+		packages, err := UnboundedPackages(p.PickupPlace, p.Finaldestination, p.Date, p.Enddate, p.MaxDestination, c, p.Page)
 		if err != nil {
 			return nil, err
 		}
@@ -27,16 +28,18 @@ func (c *CoordinatorSVC) SearchPackageSVC(p *cpb.Search) (*cpb.PackagesResponce,
 	return pkgs, nil
 }
 
-func UnboundedPackages(PickupPlace, Finaldestination, date, enddate string, MaxDestination int64, svc *CoordinatorSVC) (*cpb.PackagesResponce, error) {
+func UnboundedPackages(PickupPlace, Finaldestination, date, enddate string, MaxDestination int64, svc *CoordinatorSVC, page int64) (*cpb.PackagesResponce, error) {
 	startDate, err := time.Parse("02-01-2006", date)
 	endDate, _ := time.Parse("02-01-2006", enddate)
+	offset := 10 * (page - 1)
+	limit := 10
 	if err != nil {
 		log.Print("error while date parsing")
-		return nil, err
+		return nil, errors.New("error while date parsing")
 	}
-	packages, err := svc.Repo.FindUnboundedPackages(PickupPlace, Finaldestination, MaxDestination, startDate, endDate)
+	packages, err := svc.Repo.FindUnboundedPackages(int(offset), limit, PickupPlace, Finaldestination, MaxDestination, startDate, endDate)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error while finding packages")
 	}
 
 	var pkgs []*cpb.Package
@@ -65,14 +68,16 @@ func UnboundedPackages(PickupPlace, Finaldestination, date, enddate string, MaxD
 func BoundedPackages(svc *CoordinatorSVC, p *cpb.Search) (*cpb.PackagesResponce, error) {
 	startDate, err := time.Parse("02-01-2006", p.Date)
 	endDate, _ := time.Parse("02-01-2006", p.Enddate)
+	offset := 10 * (p.Page - 1)
+	limit := 10
 	if err != nil {
 		log.Print("error while date parsing")
-		return nil, err
+		return nil, errors.New("error while date parsing")
 	}
 
-	packages, err := svc.Repo.FindUnboundedPackages(p.PickupPlace, p.Finaldestination, p.MaxDestination, startDate, endDate)
+	packages, err := svc.Repo.FindUnboundedPackages(int(offset), limit, p.PickupPlace, p.Finaldestination, p.MaxDestination, startDate, endDate)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error while finding packages")
 	}
 
 	var filteredPackages []*dom.Package
@@ -121,7 +126,6 @@ func hasAllDestinations(packageDestinations, searchDestinations []string) bool {
 
 		found := false
 		for _, pkgDest := range packageDestinations {
-			log.Printf("Comparing: dest=%s, pkgDest=%s", dest, pkgDest)
 
 			if strings.EqualFold(strings.TrimSpace(dest), strings.TrimSpace(pkgDest)) {
 				found = true

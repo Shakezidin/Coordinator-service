@@ -25,5 +25,8 @@ type CoordinatorSVCInter interface {
 	AdminPackageStatusSvc(p *cpb.View) (*cpb.Responce, error)
 	SearchPackageSVC(p *cpb.Search) (*cpb.PackagesResponce, error)
 	TravellerDetails(p *cpb.TravellerRequest) (*cpb.TravellerResponse, error)
-	OfflineBooking(ctx context.Context, p *cpb.Booking) (*cpb.BookingResponce, error)
+	// OfflineBooking(ctx context.Context, p *cpb.Booking) (*cpb.BookingResponce, error)
+	OnlinePaymentSVC(ctx context.Context,p *cpb.Booking)(*cpb.OnlinePaymentResponse,error)
+	FilterPackageSvc(p *cpb.Filter)(*cpb.PackagesResponce,error)
+	PaymentConfirmedSVC(ctx context.Context,p *cpb.PaymentConfirmedRequest)(*cpb.BookingResponce,error)
 }

@@ -19,6 +19,9 @@ type Config struct {
 	SERVICETOKEN        string `mapstructure:"SERVICETOKEN"`
 	SECRETKEY           string `mapstructure:"SECRETKEY"`
 	REDISHOST           string `mapstructure:"REDISHOST"`
+	RAZORPAYKEYID       string `mapstructure:"RAZORPAYKEYID"`
+	RAZORPAYSECRETKEY   string `mapstructure:"RAZORPAYSECRETKEY"`
+	GRPCADMINPORT       string `mapstructure:"GRPCADMINPORT"`
 }
 
 func LoadConfig() *Config {

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	cDOM "github.com/Shakezidin/pkg/entities/packages"
+	"gorm.io/gorm"
 )
 
 type CoordinatorRepoInter interface {
@@ -22,13 +23,15 @@ type CoordinatorRepoInter interface {
 	FecthActivity(id uint) (*cDOM.Activity, error)
 	UpdatePassword(id uint, newpassword string) error
 	CreateCatagory(catagory cDOM.Category) error
-	FetchAllPackages(offset,limit int) (*[]cDOM.Package, error)
+	FetchAllPackages(offset, limit int) (*[]cDOM.Package, error)
 	PackageStatusUpdate(id uint) error
-	FetchCatagories(offset,limit int) ([]*cDOM.Category, error) 
-	FindUnboundedPackages(PickupPlace, Finaldestination string, MaxDestination int64,startDate, endDate time.Time) ([]*cDOM.Package, error)
+	FetchCatagories(offset, limit int) ([]*cDOM.Category, error)
+	FindUnboundedPackages(offset, limit int, PickupPlace, Finaldestination string, MaxDestination int64, startDate, endDate time.Time) ([]*cDOM.Package, error)
 	CreateTraveller(traveller cDOM.Traveller) error
 	CreateActivityBooking(activity cDOM.ActivityBooking) error
 	CreateBooking(booking cDOM.Booking) error
 	FetchCatagory(catagory string) (*cDOM.Category, error)
-	UpdatePackage(pkg *cDOM.Package)error
+	UpdatePackage(pkg *cDOM.Package) error
+	GetDB() *gorm.DB
+	FetchUserById(id uint)(*cDOM.User,error)
 }
