@@ -67,12 +67,22 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 	}
 	activityTotal := c.calculateActivityTotal(p.TravellerDetails)
 	refId := generateBookingReference()
+	email_key := fmt.Sprintf("email:%s", refId)
+	username_key := fmt.Sprintf("username:%s", refId)
 	traveller_key := fmt.Sprintf("traveller:%s", refId)
 	activity_key := fmt.Sprintf("activity_bookings:%s", refId)
 	amount_key := fmt.Sprintf("amount:%s", refId)
 	pkg_key := fmt.Sprint("package:", refId)
 	UserId_Key := fmt.Sprintf("userId:%s", refId)
 
+	err = c.storeInRedis(ctx, email_key, p.Email)
+	if err != nil {
+		return nil, errors.New("error while storing to redis")
+	}
+	err = c.storeInRedis(ctx, username_key, p.Username)
+	if err != nil {
+		return nil, errors.New("error while storing to redis")
+	}
 	userid, _ := strconv.Atoi(p.UserId)
 	err = c.storeInRedis(ctx, UserId_Key, userid)
 	if err != nil {
@@ -147,4 +157,3 @@ func generateBookingReference() string {
 	ref := uuid.New()
 	return ref.String()
 }
-

@@ -90,7 +90,9 @@ message TravellerRequest {
     repeated TravellerDetails traveller_details = 1;
     string UserId = 2;
     string packageId = 3;
-}   
+    string email = 4;
+    string username = 5;
+}
 
 message Search{
     int64 catagoryId = 1;
@@ -192,16 +194,17 @@ message Package{
     string startlocation = 4;
     int64  availableSpace = 5;
     string startdate = 6;
-    string enddate = 7;
-    int64  price = 8;
-    string image = 9;
-    int64  destinationCount = 10;
-    string destination = 11;
-    string Description = 12;
-    int64  maxCapacity = 13;
-    int64  categoryId = 14;  
-    Category category = 15;
-    repeated Destination Destinations = 16;
+    string starttime = 7;
+    string enddate = 8;
+    int64  price = 9;
+    string image = 10;
+    int64  destinationCount = 11;
+    string destination = 12;
+    string Description = 13;
+    int64  maxCapacity = 14;
+    int64  categoryId = 15;  
+    Category category = 16;
+    repeated Destination Destinations = 17;
 }
 
 message Category{

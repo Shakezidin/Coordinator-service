@@ -54,6 +54,7 @@ func UnboundedPackages(PickupPlace, Finaldestination, date, enddate string, MaxD
 		pkg.AvailableSpace = int64(pkges.Availablespace)
 		pkg.Price = int64(pkges.MinPrice)
 		pkg.Startdate = pkges.EndDate.Format("02-01-2006")
+		pkg.Starttime = pkges.StartTime
 		pkg.Startlocation = pkges.StartLocation
 		pkg.Description = pkges.Description
 		pkg.MaxCapacity = int64(pkges.MaxCapacity)
@@ -107,6 +108,7 @@ func BoundedPackages(svc *CoordinatorSVC, p *cpb.Search) (*cpb.PackagesResponce,
 		pkg.AvailableSpace = int64(pkges.Availablespace)
 		pkg.Price = int64(pkges.MinPrice)
 		pkg.Startdate = pkges.EndDate.Format("02-01-2006")
+		pkg.Starttime = pkges.StartTime
 		pkg.Startlocation = pkges.StartLocation
 		pkg.Description = pkges.Description
 		pkg.MaxCapacity = int64(pkges.MaxCapacity)

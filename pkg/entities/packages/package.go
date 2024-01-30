@@ -35,6 +35,7 @@ type Package struct {
 	Name             string    `gorm:"not null"`
 	Destination      string    `gorm:"not null"`
 	StartDate        time.Time `gorm:"not null"`
+	StartTime        string    `gorm:"not null"`
 	StartLocation    string    `gorm:"not null"`
 	EndDate          time.Time `gorm:"not null"`
 	MinPrice         int       `gorm:"not null"`

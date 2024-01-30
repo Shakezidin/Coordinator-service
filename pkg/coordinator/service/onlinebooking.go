@@ -10,6 +10,7 @@ import (
 	pb "github.com/Shakezidin/pkg/coordinator/client/pb"
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 	dom "github.com/Shakezidin/pkg/entities/packages"
+	msg "github.com/Shakezidin/pkg/rabbitmq"
 	"github.com/google/uuid"
 	"github.com/razorpay/razorpay-go"
 )
@@ -94,6 +95,8 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 			panic(err)
 		}
 	}()
+	email_key := fmt.Sprintf("email:%s", p.ReferenceID)
+	username_key := fmt.Sprintf("username:%s", p.ReferenceID)
 	traveller_key := fmt.Sprintf("traveller:%s", p.ReferenceID)
 	activity_key := fmt.Sprintf("activity_bookings:%s", p.ReferenceID)
 	amount_key := fmt.Sprintf("amount:%s", p.ReferenceID)
@@ -105,6 +108,8 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 		return nil, err
 	}
 
+	email := c.redis.Get(ctx, email_key).Val()
+	name := c.redis.Get(ctx, username_key).Val()
 	total, _ := strconv.Atoi(p.Total)
 	amoundata, err := c.redis.Get(ctx, amount_key).Int()
 	rPay := dom.RazorPay{
@@ -243,6 +248,13 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 
 	// Commit the transaction if everything is successful
 	tx.Commit()
+
+	var message msg.Messages
+	message.Amount = amoundata
+	message.Email = email
+	message.Username = name
+
+	msg.PublishConfirmationMessage(message)
 
 	return &cpb.BookingResponce{
 		Status:     "true",
