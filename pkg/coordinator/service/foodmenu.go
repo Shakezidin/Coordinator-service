@@ -38,3 +38,27 @@ func (c *CoordinatorSVC) AddFoodMenuSVC(p *cpb.FoodMenu) (*cpb.Responce, error) 
 		Id:      int64(foodmenu.ID),
 	}, nil
 }
+
+func (c *CoordinatorSVC) ViewFoodMenuSVC(p *cpb.View) (*cpb.FoodMenus, error) {
+	offset := 10 * (p.Page - 1)
+	limit := 10
+	reslt, err := c.Repo.FetchFoodMenus(int(offset), limit, uint(p.Id))
+	if err != nil {
+		return &cpb.FoodMenus{}, errors.New("error while fetching package")
+	}
+	var foodmenus []*cpb.FoodMenu
+	for _, menu := range *reslt {
+		foodmenus = append(foodmenus, &cpb.FoodMenu{
+			FoodMenuId: int64(menu.ID),
+			PackageID:  int64(menu.PackageId),
+			Breakfast:  menu.Breakfast,
+			Lunch:      menu.Lunch,
+			Dinner:     menu.Dinner,
+			Date:       menu.Date,
+		})
+	}
+
+	return &cpb.FoodMenus{
+		Foodmenu: foodmenus,
+	}, nil
+}

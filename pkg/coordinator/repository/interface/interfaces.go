@@ -35,4 +35,5 @@ type CoordinatorRepoInter interface {
 	GetDB() *gorm.DB
 	FetchUserById(id uint)(*cDOM.User,error)
 	CreateFoodMenu(foodmenu *cDOM.FoodMenu) error
+	FetchFoodMenus(offset, limit int, id uint) (*[]cDOM.FoodMenu, error)
 }

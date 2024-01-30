@@ -10,6 +10,7 @@ service Coordinator {
     rpc CoordinatorLoginRequest(Login)returns(LoginResponce);
     rpc CoordinatorAddPackage(Package)returns(Responce);
     rpc CoordinatorAddFoodMenu(FoodMenu)returns(Responce);
+    rpc CoordinatorViewFoodMenu(View)returns(FoodMenus);
     rpc CoordinatorAddDestination(Destination)returns(Responce);
     rpc CoordinatorAddActivity(Activity)returns(Responce);
     rpc CoordinatorViewPackage(View)returns(Package);
@@ -175,6 +176,10 @@ message Activity{
     string date = 7;
     string time = 8;
     int64 destinationId = 9;
+}
+
+message FoodMenus{
+    repeated FoodMenu Foodmenu= 1;
 }
 
 message    FoodMenu {

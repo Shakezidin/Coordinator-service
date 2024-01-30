@@ -26,6 +26,7 @@ type CoordinatorSVCInter interface {
 	SearchPackageSVC(p *cpb.Search) (*cpb.PackagesResponce, error)
 	TravellerDetails(p *cpb.TravellerRequest) (*cpb.TravellerResponse, error)
 	AddFoodMenuSVC(p *cpb.FoodMenu)(*cpb.Responce,error)
+	ViewFoodMenuSVC(p *cpb.View)(*cpb.FoodMenus,error)
 	OnlinePaymentSVC(ctx context.Context,p *cpb.Booking)(*cpb.OnlinePaymentResponse,error)
 	FilterPackageSvc(p *cpb.Filter)(*cpb.PackagesResponce,error)
 	PaymentConfirmedSVC(ctx context.Context,p *cpb.PaymentConfirmedRequest)(*cpb.BookingResponce,error)
