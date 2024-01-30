@@ -34,4 +34,5 @@ type CoordinatorRepoInter interface {
 	UpdatePackage(pkg *cDOM.Package) error
 	GetDB() *gorm.DB
 	FetchUserById(id uint)(*cDOM.User,error)
+	CreateFoodMenu(foodmenu *cDOM.FoodMenu) error
 }

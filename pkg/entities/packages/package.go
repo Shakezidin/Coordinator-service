@@ -111,3 +111,13 @@ type RazorPay struct {
 	Signature       string
 	AmountPaid      float64
 }
+
+type FoodMenu struct {
+	gorm.Model
+	PackageId uint
+	Package   Package `gorm:"foreignKey:PackageId"`
+	Breakfast string  
+	Lunch     string
+	Dinner    string
+	Date      string
+}
