@@ -6,6 +6,7 @@ option go_package = ".";
 
 service Coordinator {
     rpc CoordinatorSignupRequest(Signup)returns(Responce);
+    rpc CoordinatorViewPackages(View)returns(PackagesResponce);
     rpc CoordinatorSignupVerifyRequest(Verify)returns(Responce);
     rpc CoordinatorLoginRequest(Login)returns(LoginResponce);
     rpc CoordinatorAddPackage(Package)returns(Responce);

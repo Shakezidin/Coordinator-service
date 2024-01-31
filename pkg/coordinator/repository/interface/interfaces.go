@@ -11,7 +11,7 @@ type CoordinatorRepoInter interface {
 	FindUserByEmail(email string) (*cDOM.User, error)
 	FindUserByPhone(number int) (*cDOM.User, error)
 	CreateUser(user *cDOM.User) error
-	FindCoordinatorPackages(id uint) (*[]cDOM.Package, error)
+	FindCoordinatorPackages(offset, limit int,id uint) (*[]cDOM.Package, error) 
 	CreatePackage(pkg *cDOM.Package) error
 	CreateDestination(dtnt *cDOM.Destination) error
 	CreateActivity(actvt *cDOM.Activity) error

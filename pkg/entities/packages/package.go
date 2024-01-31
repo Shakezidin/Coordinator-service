@@ -52,11 +52,13 @@ type Package struct {
 
 type Destination struct {
 	gorm.Model
-	DestinationName string  `gorm:"not null"`
-	Description     string  `gorm:"not null"`
-	PackageID       uint    `gorm:"not null"`
-	Package         Package `gorm:"ForeignKey:PackageID"`
-	Image           string
+	DestinationName    string  `gorm:"not null"`
+	Description        string  `gorm:"not null"`
+	PackageID          uint    `gorm:"not null"`
+	Package            Package `gorm:"ForeignKey:PackageID"`
+	Image              string
+	TransportationMode string `gorm:"not null"`
+	ArrivalLocation    string `gorm:"not null"`
 }
 
 type Activity struct {
@@ -116,7 +118,7 @@ type FoodMenu struct {
 	gorm.Model
 	PackageId uint
 	Package   Package `gorm:"foreignKey:PackageId"`
-	Breakfast string  
+	Breakfast string
 	Lunch     string
 	Dinner    string
 	Date      string

@@ -30,6 +30,8 @@ func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.Destination) (*cpb.Responce, e
 	destination.DestinationName = p.DestinationName
 	destination.Image = p.Image
 	destination.PackageID = uint(p.PackageID)
+	destination.TransportationMode = p.TransportationMode
+	destination.ArrivalLocation = p.ArrivalLocation
 
 	err = c.Repo.CreateDestination(&destination)
 	if err != nil {
@@ -72,10 +74,12 @@ func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.View) (*cpb.Destination, erro
 	}
 
 	return &cpb.Destination{
-		DestinationId:   int64(dstn.ID),
-		DestinationName: dstn.DestinationName,
-		Description:     dstn.Description,
-		Image:           dstn.Image,
-		Activity:        arr,
+		DestinationId:      int64(dstn.ID),
+		DestinationName:    dstn.DestinationName,
+		Description:        dstn.Description,
+		Image:              dstn.Image,
+		TransportationMode: dstn.TransportationMode,
+		ArrivalLocation:    dstn.ArrivalLocation,
+		Activity:           arr,
 	}, nil
 }

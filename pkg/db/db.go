@@ -36,6 +36,7 @@ func Database(config *config.Config) *gorm.DB {
 		cDOM.Traveller{},
 		cDOM.Booking{},
 		cDOM.RazorPay{},
+		cDOM.FoodMenu{},
 	)
 	if err != nil {
 		fmt.Println("error while migrating")

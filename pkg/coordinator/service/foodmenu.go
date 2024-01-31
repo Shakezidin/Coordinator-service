@@ -34,7 +34,6 @@ func (c *CoordinatorSVC) AddFoodMenuSVC(p *cpb.FoodMenu) (*cpb.Responce, error) 
 	}
 	return &cpb.Responce{
 		Status:  "Success",
-		Message: "foodmeny creation done",
 		Id:      int64(foodmenu.ID),
 	}, nil
 }

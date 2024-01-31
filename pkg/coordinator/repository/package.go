@@ -24,9 +24,9 @@ func (c *CoordinatorRepo) FetchPackages(offset, limit int, val string) ([]cDOM.P
 	return packages, nil
 }
 
-func (c *CoordinatorRepo) FindCoordinatorPackages(id uint) (*[]cDOM.Package, error) {
+func (c *CoordinatorRepo) FindCoordinatorPackages(offset, limit int, id uint) (*[]cDOM.Package, error) {
 	var packages []cDOM.Package
-	if err := c.DB.Where("coordinator_id = ?", id).Find(&packages).Error; err != nil {
+	if err := c.DB.Offset(offset).Limit(limit).Where("coordinator_id = ?", id).Find(&packages).Error; err != nil {
 		return nil, err
 	}
 	return &packages, nil

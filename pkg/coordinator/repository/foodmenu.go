@@ -11,7 +11,7 @@ func (c *CoordinatorRepo) CreateFoodMenu(foodmenu *cDOM.FoodMenu) error {
 
 func (c *CoordinatorRepo) FetchFoodMenus(offset, limit int, id uint) (*[]cDOM.FoodMenu, error) {
 	var foodmenu []cDOM.FoodMenu
-	if err := c.DB.Offset(offset).Limit(limit).Where("id = ?", id).Find(&foodmenu).Error; err != nil {
+	if err := c.DB.Offset(offset).Limit(limit).Where("package_id = ?", id).Find(&foodmenu).Error; err != nil {
 		return nil, err
 	}
 	return &foodmenu, nil

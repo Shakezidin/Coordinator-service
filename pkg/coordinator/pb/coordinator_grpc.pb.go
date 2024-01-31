@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Coordinator_CoordinatorSignupRequest_FullMethodName        = "/pb.Coordinator/CoordinatorSignupRequest"
+	Coordinator_CoordinatorViewPackages_FullMethodName         = "/pb.Coordinator/CoordinatorViewPackages"
 	Coordinator_CoordinatorSignupVerifyRequest_FullMethodName  = "/pb.Coordinator/CoordinatorSignupVerifyRequest"
 	Coordinator_CoordinatorLoginRequest_FullMethodName         = "/pb.Coordinator/CoordinatorLoginRequest"
 	Coordinator_CoordinatorAddPackage_FullMethodName           = "/pb.Coordinator/CoordinatorAddPackage"
@@ -50,6 +51,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CoordinatorClient interface {
 	CoordinatorSignupRequest(ctx context.Context, in *Signup, opts ...grpc.CallOption) (*Responce, error)
+	CoordinatorViewPackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponce, error)
 	CoordinatorSignupVerifyRequest(ctx context.Context, in *Verify, opts ...grpc.CallOption) (*Responce, error)
 	CoordinatorLoginRequest(ctx context.Context, in *Login, opts ...grpc.CallOption) (*LoginResponce, error)
 	CoordinatorAddPackage(ctx context.Context, in *Package, opts ...grpc.CallOption) (*Responce, error)
@@ -86,6 +88,15 @@ func NewCoordinatorClient(cc grpc.ClientConnInterface) CoordinatorClient {
 func (c *coordinatorClient) CoordinatorSignupRequest(ctx context.Context, in *Signup, opts ...grpc.CallOption) (*Responce, error) {
 	out := new(Responce)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorSignupRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coordinatorClient) CoordinatorViewPackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponce, error) {
+	out := new(PackagesResponce)
+	err := c.cc.Invoke(ctx, Coordinator_CoordinatorViewPackages_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -304,6 +315,7 @@ func (c *coordinatorClient) PaymentConfirmed(ctx context.Context, in *PaymentCon
 // for forward compatibility
 type CoordinatorServer interface {
 	CoordinatorSignupRequest(context.Context, *Signup) (*Responce, error)
+	CoordinatorViewPackages(context.Context, *View) (*PackagesResponce, error)
 	CoordinatorSignupVerifyRequest(context.Context, *Verify) (*Responce, error)
 	CoordinatorLoginRequest(context.Context, *Login) (*LoginResponce, error)
 	CoordinatorAddPackage(context.Context, *Package) (*Responce, error)
@@ -336,6 +348,9 @@ type UnimplementedCoordinatorServer struct {
 
 func (UnimplementedCoordinatorServer) CoordinatorSignupRequest(context.Context, *Signup) (*Responce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorSignupRequest not implemented")
+}
+func (UnimplementedCoordinatorServer) CoordinatorViewPackages(context.Context, *View) (*PackagesResponce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorViewPackages not implemented")
 }
 func (UnimplementedCoordinatorServer) CoordinatorSignupVerifyRequest(context.Context, *Verify) (*Responce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorSignupVerifyRequest not implemented")
@@ -433,6 +448,24 @@ func _Coordinator_CoordinatorSignupRequest_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoordinatorServer).CoordinatorSignupRequest(ctx, req.(*Signup))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Coordinator_CoordinatorViewPackages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(View)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoordinatorServer).CoordinatorViewPackages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Coordinator_CoordinatorViewPackages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoordinatorServer).CoordinatorViewPackages(ctx, req.(*View))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -861,6 +894,10 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CoordinatorSignupRequest",
 			Handler:    _Coordinator_CoordinatorSignupRequest_Handler,
+		},
+		{
+			MethodName: "CoordinatorViewPackages",
+			Handler:    _Coordinator_CoordinatorViewPackages_Handler,
 		},
 		{
 			MethodName: "CoordinatorSignupVerifyRequest",

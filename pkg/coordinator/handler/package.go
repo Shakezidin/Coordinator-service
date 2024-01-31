@@ -51,3 +51,12 @@ func (c *CoordinatorHandler)FilterPackage(ctx context.Context,p *cpb.Filter)(*cp
 	}
 	return respnc, nil
 }
+
+func (c *CoordinatorHandler)CoordinatorViewPackages(ctx context.Context,p *cpb.View)(*cpb.PackagesResponce,error){
+	respnc, err := c.SVC.ViewPackagesSvc(p)
+	if err != nil {
+		log.Printf("Unable to fetch packages. err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}

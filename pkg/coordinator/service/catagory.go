@@ -7,14 +7,13 @@ import (
 
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 	dom "github.com/Shakezidin/pkg/entities/packages"
-	"gorm.io/gorm"
 )
 
 func (c *CoordinatorSVC) AddCatagorySVC(p *cpb.Category) (*cpb.Responce, error) {
 	var catagory dom.Category
 	_, err := c.Repo.FetchCatagory(p.CategoryName)
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Printf("Existing catagory found of %v", p.CategoryName)
+	if err == nil {
+		log.Printf("Existing category found: %v", p.CategoryName)
 		return nil, errors.New("category already exists")
 	}
 
