@@ -30,6 +30,26 @@ service Coordinator {
     rpc OfflineBooking(Booking)returns(BookingResponce);
     rpc OnlinePayment(Booking)returns(OnlinePaymentResponse);
     rpc PaymentConfirmed(PaymentConfirmedRequest)returns(BookingResponce);
+    rpc VeiwHistory(View)returns(Histories);
+    rpc ViewBooking(View)returns(History);
+    rpc CancelBooking(View)returns(Responce);
+}
+
+message Histories{
+    repeated History history = 1;
+}
+
+message History{
+    int64 Id = 1;
+    string paymentMode = 2;
+    string BookingStatus = 3;
+    string CancelledStatus = 4;
+    int64  TotalPrice = 5;
+    int64  UserId = 6;
+    string bookingId = 7;
+    string BookDate = 8;
+    string StartDate = 9;
+    repeated TravellerDetails travellers = 10;
 }
 
 message PaymentConfirmedRequest{
@@ -126,7 +146,9 @@ message Responce{
     string status = 1;
     string message = 2;
     int64 Id = 3;
+    int64 amount = 4;
 }
+
 
 message Signup{
     string name =1;

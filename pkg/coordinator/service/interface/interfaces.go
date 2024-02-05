@@ -31,4 +31,7 @@ type CoordinatorSVCInter interface {
 	FilterPackageSvc(p *cpb.Filter)(*cpb.PackagesResponce,error)
 	PaymentConfirmedSVC(ctx context.Context,p *cpb.PaymentConfirmedRequest)(*cpb.BookingResponce,error)
 	ViewPackagesSvc(p *cpb.View)(*cpb.PackagesResponce,error)
+	ViewhistorySVC(p *cpb.View) (*cpb.Histories, error) 
+	ViewBookingSVC(p *cpb.View)(*cpb.History,error)
+	CancelBookingSVC(p *cpb.View)(*cpb.Responce,error)
 }

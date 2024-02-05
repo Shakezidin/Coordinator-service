@@ -6,6 +6,7 @@ option go_package = ".";
 
 service Admin {
     rpc AdminAddWalletRequest(AdminAddWallet)returns(AdminResponce);
+    rpc AdminReduseWalletRequesr(AdminAddWallet)returns(AdminResponce);
 }
 
 message AdminAddWallet{

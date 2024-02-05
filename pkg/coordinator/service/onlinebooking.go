@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 
 	pb "github.com/Shakezidin/pkg/coordinator/client/pb"
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
@@ -195,7 +196,8 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 	var booking dom.Booking
 	booking.BookingStatus = "success"
 	booking.Bookings = travellers
-	if float64(total) == float64(amoundata)*0.3 {
+	fmt.Println(total, "hhhhhh", float64(amoundata)*0.3)
+	if float64(total) <= (float64(amoundata)*0.3)+5 {
 		booking.PaymentMode = "advance"
 	} else {
 		booking.PaymentMode = "full amount"
@@ -205,7 +207,8 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 	booking.BookingId = bookingID
 	booking.Bookings = travellers
 	booking.PackageId = pkg.ID
-	booking.Activities = activityBooking
+	booking.BookDate = time.Now()
+	booking.StartDate = pkg.StartDate
 
 	err = tx.Create(&booking).Error
 	if err != nil {
@@ -253,6 +256,8 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 	message.Amount = amoundata
 	message.Email = email
 	message.Username = name
+	message.Messages = "Your booking is confirmed. Amount: "
+	message.Subject = "Booking confirmed"
 
 	msg.PublishConfirmationMessage(message)
 

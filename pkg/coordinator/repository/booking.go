@@ -24,3 +24,11 @@ func (c *CoordinatorRepo) CreateBooking(booking cDOM.Booking) error {
 	}
 	return nil
 }
+
+
+func (c *CoordinatorRepo)UpdateBooking(booking cDOM.Booking)error{
+	if err := c.DB.Save(&booking).Error; err != nil {
+		return err
+	}
+	return nil
+}

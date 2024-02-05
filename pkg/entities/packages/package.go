@@ -103,7 +103,8 @@ type Booking struct {
 	Bookings        []Traveller `gorm:"many2many:traveller_booking;"`
 	PackageId       uint
 	Package         Package           `gorm:"foreignKey:PackageId"`
-	Activities      []ActivityBooking `gorm:"many2many:booking_activities;"`
+	BookDate        time.Time
+	StartDate       time.Time
 }
 
 type RazorPay struct {

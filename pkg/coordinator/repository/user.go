@@ -38,10 +38,17 @@ func (c *CoordinatorRepo) UpdatePassword(id uint, newpassword string) error {
 	return nil
 }
 
-func (c *CoordinatorRepo)FetchUserById(id uint)(*cDOM.User,error){
+func (c *CoordinatorRepo) FetchUserById(id uint) (*cDOM.User, error) {
 	var user cDOM.User
 	if err := c.DB.Where("id = ?", id).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (c *CoordinatorRepo) UpdateUser(user *cDOM.User) error {
+	if err := c.DB.Save(&user).Error; err != nil {
+		return err
+	}
+	return nil
 }

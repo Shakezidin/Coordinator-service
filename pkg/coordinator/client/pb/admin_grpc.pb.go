@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Admin_AdminAddWalletRequest_FullMethodName = "/pb.Admin/AdminAddWalletRequest"
+	Admin_AdminAddWalletRequest_FullMethodName    = "/pb.Admin/AdminAddWalletRequest"
+	Admin_AdminReduseWalletRequesr_FullMethodName = "/pb.Admin/AdminReduseWalletRequesr"
 )
 
 // AdminClient is the client API for Admin service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdminClient interface {
 	AdminAddWalletRequest(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponce, error)
+	AdminReduseWalletRequesr(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponce, error)
 }
 
 type adminClient struct {
@@ -46,11 +48,21 @@ func (c *adminClient) AdminAddWalletRequest(ctx context.Context, in *AdminAddWal
 	return out, nil
 }
 
+func (c *adminClient) AdminReduseWalletRequesr(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponce, error) {
+	out := new(AdminResponce)
+	err := c.cc.Invoke(ctx, Admin_AdminReduseWalletRequesr_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServer is the server API for Admin service.
 // All implementations must embed UnimplementedAdminServer
 // for forward compatibility
 type AdminServer interface {
 	AdminAddWalletRequest(context.Context, *AdminAddWallet) (*AdminResponce, error)
+	AdminReduseWalletRequesr(context.Context, *AdminAddWallet) (*AdminResponce, error)
 	mustEmbedUnimplementedAdminServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedAdminServer struct {
 
 func (UnimplementedAdminServer) AdminAddWalletRequest(context.Context, *AdminAddWallet) (*AdminResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminAddWalletRequest not implemented")
+}
+func (UnimplementedAdminServer) AdminReduseWalletRequesr(context.Context, *AdminAddWallet) (*AdminResponce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminReduseWalletRequesr not implemented")
 }
 func (UnimplementedAdminServer) mustEmbedUnimplementedAdminServer() {}
 
@@ -92,6 +107,24 @@ func _Admin_AdminAddWalletRequest_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Admin_AdminReduseWalletRequesr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminAddWallet)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServer).AdminReduseWalletRequesr(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Admin_AdminReduseWalletRequesr_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServer).AdminReduseWalletRequesr(ctx, req.(*AdminAddWallet))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Admin_ServiceDesc is the grpc.ServiceDesc for Admin service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var Admin_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminAddWalletRequest",
 			Handler:    _Admin_AdminAddWalletRequest_Handler,
+		},
+		{
+			MethodName: "AdminReduseWalletRequesr",
+			Handler:    _Admin_AdminReduseWalletRequesr_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

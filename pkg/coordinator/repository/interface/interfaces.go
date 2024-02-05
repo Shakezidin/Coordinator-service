@@ -36,4 +36,8 @@ type CoordinatorRepoInter interface {
 	FetchUserById(id uint)(*cDOM.User,error)
 	CreateFoodMenu(foodmenu *cDOM.FoodMenu) error
 	FetchFoodMenus(offset, limit int, id uint) (*[]cDOM.FoodMenu, error)
+	FetchHistory(offset, limit int, id uint) (*[]cDOM.Booking, error)
+	FetchBooking(id uint) (*cDOM.Booking, error)
+	UpdateBooking(booking cDOM.Booking)error
+	UpdateUser(user *cDOM.User) error
 }

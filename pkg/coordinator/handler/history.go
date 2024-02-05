@@ -1,0 +1,35 @@
+package handler
+
+import (
+	"context"
+	"log"
+
+	cpb "github.com/Shakezidin/pkg/coordinator/pb"
+)
+
+func (c *CoordinatorHandler) VeiwHistory(ctx context.Context, p *cpb.View) (*cpb.Histories, error) {
+	respnc, err := c.SVC.ViewhistorySVC(p)
+	if err != nil {
+		log.Printf("error while fetching history details err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}
+
+func (c *CoordinatorHandler) ViewBooking(ctx context.Context, p *cpb.View) (*cpb.History, error) {
+	respnc, err := c.SVC.ViewBookingSVC(p)
+	if err != nil {
+		log.Printf("error while fetching history details err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}
+
+func (c *CoordinatorHandler)CancelBooking(ctx context.Context,p *cpb.View)(*cpb.Responce,error){
+	respnc, err := c.SVC.CancelBookingSVC(p)
+	if err != nil {
+		log.Printf("error while fetching history details err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}
