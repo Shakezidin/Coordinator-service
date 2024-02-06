@@ -42,4 +42,7 @@ type CoordinatorRepoInter interface {
 	UpdateUser(user *cDOM.User) error
 	FetchBookings(offset, limit int, id uint) (*[]cDOM.Booking, error)
 	FetchTraveller(id uint) (*cDOM.Traveller, error)
+	CalculateDailyIncome(id uint, todayStart, todayEnd time.Time)int
+	CalculateMonthlyIncome(id uint, currentMonthStart, currentMonthEnd time.Time) int
+	FetchActivityBookingofUser(id uint)([]*cDOM.ActivityBooking,error)
 }

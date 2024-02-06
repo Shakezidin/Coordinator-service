@@ -117,3 +117,23 @@ func (c *CoordinatorSVC) NewPassword(p *cpb.Newpassword) (*cpb.Responce, error) 
 		Id:      int64(id),
 	}, nil
 }
+
+func (c *CoordinatorSVC) ViewDashBordSVC(p *cpb.View) (*cpb.DashBord, error) {
+	todayStart := time.Now().Truncate(24 * time.Hour)
+	todayEnd := time.Now()
+
+	dailyIncome := c.Repo.CalculateDailyIncome(uint(p.Id), todayStart, todayEnd)
+	currentMonthStart := time.Date(2024, time.Now().Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	currentMonthEnd := time.Now()
+
+	monthlyIncome := c.Repo.CalculateMonthlyIncome(uint(p.Id), currentMonthStart, currentMonthEnd)
+
+	user, _ := c.Repo.FetchUserById(uint(p.Id))
+
+	return &cpb.DashBord{
+		Wallet:  int64(user.Wallet),
+		Today:   int64(float64(dailyIncome)*0.70),
+		Monthly: int64(float64(monthlyIncome)*0.70),
+	}, nil
+}

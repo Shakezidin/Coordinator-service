@@ -34,6 +34,13 @@ service Coordinator {
     rpc ViewBooking(View)returns(History);
     rpc CancelBooking(View)returns(Responce);
     rpc ViewTraveller(View)returns(TravellerDetails);
+    rpc ViewDashBord(View)returns(DashBord);
+}
+
+message DashBord{
+    int64 wallet = 1;
+    int64 today = 2;
+    int64 monthly = 3;
 }
 
 message Histories{
@@ -51,6 +58,7 @@ message History{
     string BookDate = 8;
     string StartDate = 9;
     repeated TravellerDetails travellers = 10;
+    int64 PaidAmount = 11;
 }
 
 message PaymentConfirmedRequest{

@@ -111,7 +111,13 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 
 	email := c.redis.Get(ctx, email_key).Val()
 	name := c.redis.Get(ctx, username_key).Val()
-	total, _ := strconv.Atoi(p.Total)
+	totalInt, _ := strconv.Atoi(p.Total)
+	total := float64(totalInt)
+
+	if total == 0 {
+		total, _ = strconv.ParseFloat(p.Total, 64)
+	}
+
 	amoundata, err := c.redis.Get(ctx, amount_key).Int()
 	rPay := dom.RazorPay{
 		UserID:          uint(userId),
@@ -141,7 +147,6 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 			Status: "fail",
 		}, fmt.Errorf("error unmarshaling json err: %v", err.Error())
 	}
-
 	var travellers []dom.Traveller
 	travellerData := c.redis.Get(ctx, traveller_key).Val()
 	err = json.Unmarshal([]byte(travellerData), &travellers)
@@ -196,8 +201,7 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 	var booking dom.Booking
 	booking.BookingStatus = "success"
 	booking.Bookings = travellers
-	fmt.Println(total, "hhhhhh", float64(amoundata)*0.3)
-	if float64(total) <= (float64(amoundata)*0.3)+5 {
+	if amoundata != int(total) {
 		booking.PaymentMode = "advance"
 	} else {
 		booking.PaymentMode = "full amount"
@@ -234,7 +238,8 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 			}, fmt.Errorf("error creating booking: %v", err.Error())
 		}
 	}
-	booking.TotalPrice = amoundata
+	booking.PaidPrice = int(total)
+	booking.PackagePrice = amoundata
 	booking.UserId = uint(userId)
 	booking.BookingId = bookingID
 	booking.Bookings = travellers

@@ -1,6 +1,8 @@
 package repository
 
-import cDOM "github.com/Shakezidin/pkg/entities/packages"
+import (
+	cDOM "github.com/Shakezidin/pkg/entities/packages"
+)
 
 func (c *CoordinatorRepo) FetchHistory(offset, limit int, id uint) (*[]cDOM.Booking, error) {
 	var booking *[]cDOM.Booking
@@ -27,9 +29,9 @@ func (c *CoordinatorRepo) FetchBookings(offset, limit int, id uint) (*[]cDOM.Boo
 }
 
 func (c *CoordinatorRepo) FetchTraveller(id uint) (*cDOM.Traveller, error) {
-	traveller := &cDOM.Traveller{}
-	if err := c.DB.Where("id = ?", id).Preload("Activity").First(traveller).Error; err != nil {
+	var traveller cDOM.Traveller
+	if err := c.DB.Preload("Activities").First(&traveller, id).Error; err != nil {
 		return nil, err
 	}
-	return traveller, nil
+	return &traveller, nil
 }

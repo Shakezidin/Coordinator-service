@@ -48,6 +48,7 @@ const (
 	Coordinator_ViewBooking_FullMethodName                     = "/pb.Coordinator/ViewBooking"
 	Coordinator_CancelBooking_FullMethodName                   = "/pb.Coordinator/CancelBooking"
 	Coordinator_ViewTraveller_FullMethodName                   = "/pb.Coordinator/ViewTraveller"
+	Coordinator_ViewDashBord_FullMethodName                    = "/pb.Coordinator/ViewDashBord"
 )
 
 // CoordinatorClient is the client API for Coordinator service.
@@ -83,6 +84,7 @@ type CoordinatorClient interface {
 	ViewBooking(ctx context.Context, in *View, opts ...grpc.CallOption) (*History, error)
 	CancelBooking(ctx context.Context, in *View, opts ...grpc.CallOption) (*Responce, error)
 	ViewTraveller(ctx context.Context, in *View, opts ...grpc.CallOption) (*TravellerDetails, error)
+	ViewDashBord(ctx context.Context, in *View, opts ...grpc.CallOption) (*DashBord, error)
 }
 
 type coordinatorClient struct {
@@ -354,6 +356,15 @@ func (c *coordinatorClient) ViewTraveller(ctx context.Context, in *View, opts ..
 	return out, nil
 }
 
+func (c *coordinatorClient) ViewDashBord(ctx context.Context, in *View, opts ...grpc.CallOption) (*DashBord, error) {
+	out := new(DashBord)
+	err := c.cc.Invoke(ctx, Coordinator_ViewDashBord_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoordinatorServer is the server API for Coordinator service.
 // All implementations must embed UnimplementedCoordinatorServer
 // for forward compatibility
@@ -387,6 +398,7 @@ type CoordinatorServer interface {
 	ViewBooking(context.Context, *View) (*History, error)
 	CancelBooking(context.Context, *View) (*Responce, error)
 	ViewTraveller(context.Context, *View) (*TravellerDetails, error)
+	ViewDashBord(context.Context, *View) (*DashBord, error)
 	mustEmbedUnimplementedCoordinatorServer()
 }
 
@@ -480,6 +492,9 @@ func (UnimplementedCoordinatorServer) CancelBooking(context.Context, *View) (*Re
 }
 func (UnimplementedCoordinatorServer) ViewTraveller(context.Context, *View) (*TravellerDetails, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewTraveller not implemented")
+}
+func (UnimplementedCoordinatorServer) ViewDashBord(context.Context, *View) (*DashBord, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ViewDashBord not implemented")
 }
 func (UnimplementedCoordinatorServer) mustEmbedUnimplementedCoordinatorServer() {}
 
@@ -1016,6 +1031,24 @@ func _Coordinator_ViewTraveller_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Coordinator_ViewDashBord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(View)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoordinatorServer).ViewDashBord(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Coordinator_ViewDashBord_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoordinatorServer).ViewDashBord(ctx, req.(*View))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Coordinator_ServiceDesc is the grpc.ServiceDesc for Coordinator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1138,6 +1171,10 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ViewTraveller",
 			Handler:    _Coordinator_ViewTraveller_Handler,
+		},
+		{
+			MethodName: "ViewDashBord",
+			Handler:    _Coordinator_ViewDashBord_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

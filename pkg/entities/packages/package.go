@@ -62,35 +62,35 @@ type Destination struct {
 }
 
 type Activity struct {
-	gorm.Model
-	DestinationId uint        `gorm:"not null"`
-	Destination   Destination `gorm:"ForeignKey:DestinationId"`
-	ActivityName  string      `gorm:"not null"`
-	Description   string      `gorm:"not null"`
-	Location      string      `gorm:"not null"`
-	ActivityType  string      `gorm:"not null"`
-	Amount        int         `gorm:"not null"`
-	Date          time.Time
-	Time          time.Time
+    gorm.Model
+    DestinationId uint        `gorm:"not null"`
+    Destination   Destination `gorm:"ForeignKey:DestinationId"`
+    ActivityName  string      `gorm:"not null"`
+    Description   string      `gorm:"not null"`
+    Location      string      `gorm:"not null"`
+    ActivityType  string      `gorm:"not null"`
+    Amount        int         `gorm:"not null"`
+    Date          time.Time
+    Time          time.Time
 }
 
 type ActivityBooking struct {
-	gorm.Model
-	TravellerId uint
-	Traveller   Traveller `gorm:"foreignKey:TravellerId"`
-	ActivityId  uint
-	Activity    Activity `gorm:"foreignKey:ActivityId"`
+    gorm.Model
+    TravellerId uint
+    Traveller   Traveller `gorm:"foreignKey:TravellerId"`
+    ActivityId  uint
+    Activity    Activity `gorm:"foreignKey:ActivityId"`
 }
 
 type Traveller struct {
-	ID        uint `gorm:"primaryKey"`
-	Name      string
-	Age       string
-	Gender    string
-	UserId    uint
-	PackageId uint
-	Package   Package    `gorm:"foreignKey:PackageId"`
-	Activity  []Activity `gorm:"many2many:activity_booking;"`
+    ID        uint `gorm:"primaryKey"`
+    Name      string
+    Age       string
+    Gender    string
+    UserId    uint
+    PackageId uint
+    Package   Package    `gorm:"foreignKey:PackageId"`
+    Activities []Activity `gorm:"many2many:activity_bookings;"`
 }
 
 type Booking struct {
@@ -98,7 +98,8 @@ type Booking struct {
 	PaymentMode     string `gorm:"not null"`
 	BookingStatus   string `gorm:"default:PENDING"`
 	CancelledStatus string `gorm:"default:false"`
-	TotalPrice      int
+	PackagePrice    int
+	PaidPrice       int
 	UserId          uint
 	BookingId       string
 	Bookings        []Traveller `gorm:"many2many:traveller_booking;"`

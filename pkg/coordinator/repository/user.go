@@ -1,6 +1,10 @@
 package repository
 
-import cDOM "github.com/Shakezidin/pkg/entities/packages"
+import (
+	"time"
+
+	cDOM "github.com/Shakezidin/pkg/entities/packages"
+)
 
 func (c *CoordinatorRepo) FindUserByEmail(email string) (*cDOM.User, error) {
 	var user cDOM.User
@@ -51,4 +55,16 @@ func (c *CoordinatorRepo) UpdateUser(user *cDOM.User) error {
 		return err
 	}
 	return nil
+}
+
+func (c *CoordinatorRepo) CalculateDailyIncome(id uint, todayStart, todayEnd time.Time) int {
+	var todayIncome int
+	c.DB.Model(&cDOM.Booking{}).Where("coordinator_id = ? AND book_date >= ? AND book_date <= ?", id, todayStart, todayEnd).Select("SUM(paid_price)").Scan(&todayIncome)
+	return todayIncome
+}
+
+func (c *CoordinatorRepo) CalculateMonthlyIncome(id uint, currentMonthStart, currentMonthEnd time.Time) int {
+	var MonthlyIncome int
+	c.DB.Model(&cDOM.Booking{}).Where("coordinator_id = ? AND book_date >= ? AND book_date <= ?", id, currentMonthStart, currentMonthEnd).Select("SUM(paid_price)").Scan(&MonthlyIncome)
+	return MonthlyIncome
 }

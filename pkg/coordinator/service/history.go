@@ -25,10 +25,12 @@ func (c *CoordinatorSVC) ViewhistorySVC(p *cpb.View) (*cpb.Histories, error) {
 				PaymentMode:     hstry.PaymentMode,
 				BookingStatus:   hstry.BookingStatus,
 				CancelledStatus: hstry.CancelledStatus,
-				TotalPrice:      int64(hstry.TotalPrice),
+				TotalPrice:      int64(hstry.PackagePrice),
 				UserId:          int64(hstry.UserId),
-				BookingId:       hstry.BookDate.Format("02-01-2006"),
+				BookingId:       hstry.BookingId,
+				BookDate:        hstry.BookDate.Format("02-01-2006"),
 				StartDate:       hstry.StartDate.Format("02-01-2006"),
+				PaidAmount:      int64(hstry.PaidPrice),
 			})
 		}
 
@@ -48,10 +50,12 @@ func (c *CoordinatorSVC) ViewhistorySVC(p *cpb.View) (*cpb.Histories, error) {
 			PaymentMode:     hstry.PaymentMode,
 			BookingStatus:   hstry.BookingStatus,
 			CancelledStatus: hstry.CancelledStatus,
-			TotalPrice:      int64(hstry.TotalPrice),
+			TotalPrice:      int64(hstry.PackagePrice),
 			UserId:          int64(hstry.UserId),
-			BookingId:       hstry.BookDate.Format("02-01-2006"),
+			BookingId:       hstry.BookingId,
+			BookDate:        hstry.BookDate.Format("02-01-2006"),
 			StartDate:       hstry.StartDate.Format("02-01-2006"),
+			PaidAmount:      int64(hstry.PaidPrice),
 		})
 	}
 
@@ -80,11 +84,13 @@ func (c *CoordinatorSVC) ViewBookingSVC(p *cpb.View) (*cpb.History, error) {
 		PaymentMode:     booking.PaymentMode,
 		BookingStatus:   booking.BookingStatus,
 		CancelledStatus: booking.CancelledStatus,
-		TotalPrice:      int64(booking.TotalPrice),
+		TotalPrice:      int64(booking.PackagePrice),
 		UserId:          int64(booking.UserId),
-		BookingId:       booking.BookDate.Format("02-01-2006"),
+		BookingId:       booking.BookingId,
+		BookDate:        booking.BookDate.Format("02-01-2006"),
 		StartDate:       booking.StartDate.Format("02-01-2006"),
 		Travellers:      traveller,
+		PaidAmount:      int64(booking.PaidPrice),
 	}, nil
 
 }
@@ -122,14 +128,14 @@ func (c *CoordinatorSVC) CancelBookingSVC(p *cpb.View) (*cpb.Responce, error) {
 		}, errors.New("error while fetching coordinator")
 	}
 	if booking.PaymentMode == "full amount" {
-		coordinator.Wallet -= float64(booking.TotalPrice) * 0.70
+		coordinator.Wallet -= float64(booking.PackagePrice) * 0.70
 		err = c.Repo.UpdateUser(coordinator)
 	}
 	err = c.Repo.UpdateBooking(*booking)
 	err = c.Repo.UpdatePackage(pkg)
 	var ctx = context.Background()
 	_, err = c.client.AdminReduseWalletRequesr(ctx, &pb.AdminAddWallet{
-		Amount: float32(booking.TotalPrice) * 0.30,
+		Amount: float32(booking.PackagePrice) * 0.30,
 	})
 
 	if err != nil {
@@ -151,17 +157,20 @@ func (c *CoordinatorSVC) ViewTravellerSVC(p *cpb.View) (*cpb.TravellerDetails, e
 	if err != nil {
 		return nil, err
 	}
+
+	activitBooking, _ := c.Repo.FetchActivityBookingofUser(uint(p.Id))
+
 	var activity []*cpb.Activity
-	for _, acvty := range traveller.Activity {
+	for _, actvty := range activitBooking {
 		activity = append(activity, &cpb.Activity{
-			ActivityId:   int64(acvty.ID),
-			Activityname: acvty.ActivityName,
-			Description:  acvty.Description,
-			Location:     acvty.Location,
-			ActivityType: acvty.ActivityType,
-			Amount:       int64(acvty.Amount),
-			Date:         acvty.Date.Format("02-01-2006"),
-			Time:         acvty.Time.Format("03:04 PM"),
+			ActivityId:   int64(actvty.Activity.ID),
+			Activityname: actvty.Activity.ActivityName,
+			Description:  actvty.Activity.Description,
+			Location:     actvty.Activity.Location,
+			ActivityType: actvty.Activity.ActivityType,
+			Amount:       int64(actvty.Activity.Amount),
+			Date:         actvty.Activity.Date.Format("02-01-2006"),
+			Time:         actvty.Activity.Time.Format("03:04 PM"),
 		})
 	}
 
@@ -171,5 +180,4 @@ func (c *CoordinatorSVC) ViewTravellerSVC(p *cpb.View) (*cpb.TravellerDetails, e
 		Gender:   traveller.Gender,
 		Activity: activity,
 	}, nil
-
 }
