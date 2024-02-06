@@ -89,7 +89,8 @@ type Traveller struct {
 	Gender    string
 	UserId    uint
 	PackageId uint
-	Package   Package `gorm:"foreignKey:PackageId"`
+	Package   Package    `gorm:"foreignKey:PackageId"`
+	Activity  []Activity `gorm:"many2many:activity_booking;"`
 }
 
 type Booking struct {
@@ -102,9 +103,10 @@ type Booking struct {
 	BookingId       string
 	Bookings        []Traveller `gorm:"many2many:traveller_booking;"`
 	PackageId       uint
-	Package         Package           `gorm:"foreignKey:PackageId"`
+	Package         Package `gorm:"foreignKey:PackageId"`
 	BookDate        time.Time
 	StartDate       time.Time
+	CoordinatorID   uint
 }
 
 type RazorPay struct {

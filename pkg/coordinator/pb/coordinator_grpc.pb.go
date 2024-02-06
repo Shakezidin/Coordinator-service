@@ -40,13 +40,14 @@ const (
 	Coordinator_ViewCatagories_FullMethodName                  = "/pb.Coordinator/ViewCatagories"
 	Coordinator_PackageSearch_FullMethodName                   = "/pb.Coordinator/PackageSearch"
 	Coordinator_FilterPackage_FullMethodName                   = "/pb.Coordinator/FilterPackage"
-	Coordinator_TravellerDetails_FullMethodName                = "/pb.Coordinator/TravellerDetails"
+	Coordinator_UserTravellerDetails_FullMethodName            = "/pb.Coordinator/UserTravellerDetails"
 	Coordinator_OfflineBooking_FullMethodName                  = "/pb.Coordinator/OfflineBooking"
 	Coordinator_OnlinePayment_FullMethodName                   = "/pb.Coordinator/OnlinePayment"
 	Coordinator_PaymentConfirmed_FullMethodName                = "/pb.Coordinator/PaymentConfirmed"
 	Coordinator_VeiwHistory_FullMethodName                     = "/pb.Coordinator/VeiwHistory"
 	Coordinator_ViewBooking_FullMethodName                     = "/pb.Coordinator/ViewBooking"
 	Coordinator_CancelBooking_FullMethodName                   = "/pb.Coordinator/CancelBooking"
+	Coordinator_ViewTraveller_FullMethodName                   = "/pb.Coordinator/ViewTraveller"
 )
 
 // CoordinatorClient is the client API for Coordinator service.
@@ -74,13 +75,14 @@ type CoordinatorClient interface {
 	ViewCatagories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Catagories, error)
 	PackageSearch(ctx context.Context, in *Search, opts ...grpc.CallOption) (*PackagesResponce, error)
 	FilterPackage(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*PackagesResponce, error)
-	TravellerDetails(ctx context.Context, in *TravellerRequest, opts ...grpc.CallOption) (*TravellerResponse, error)
+	UserTravellerDetails(ctx context.Context, in *TravellerRequest, opts ...grpc.CallOption) (*TravellerResponse, error)
 	OfflineBooking(ctx context.Context, in *Booking, opts ...grpc.CallOption) (*BookingResponce, error)
 	OnlinePayment(ctx context.Context, in *Booking, opts ...grpc.CallOption) (*OnlinePaymentResponse, error)
 	PaymentConfirmed(ctx context.Context, in *PaymentConfirmedRequest, opts ...grpc.CallOption) (*BookingResponce, error)
 	VeiwHistory(ctx context.Context, in *View, opts ...grpc.CallOption) (*Histories, error)
 	ViewBooking(ctx context.Context, in *View, opts ...grpc.CallOption) (*History, error)
 	CancelBooking(ctx context.Context, in *View, opts ...grpc.CallOption) (*Responce, error)
+	ViewTraveller(ctx context.Context, in *View, opts ...grpc.CallOption) (*TravellerDetails, error)
 }
 
 type coordinatorClient struct {
@@ -280,9 +282,9 @@ func (c *coordinatorClient) FilterPackage(ctx context.Context, in *Filter, opts 
 	return out, nil
 }
 
-func (c *coordinatorClient) TravellerDetails(ctx context.Context, in *TravellerRequest, opts ...grpc.CallOption) (*TravellerResponse, error) {
+func (c *coordinatorClient) UserTravellerDetails(ctx context.Context, in *TravellerRequest, opts ...grpc.CallOption) (*TravellerResponse, error) {
 	out := new(TravellerResponse)
-	err := c.cc.Invoke(ctx, Coordinator_TravellerDetails_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Coordinator_UserTravellerDetails_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -343,6 +345,15 @@ func (c *coordinatorClient) CancelBooking(ctx context.Context, in *View, opts ..
 	return out, nil
 }
 
+func (c *coordinatorClient) ViewTraveller(ctx context.Context, in *View, opts ...grpc.CallOption) (*TravellerDetails, error) {
+	out := new(TravellerDetails)
+	err := c.cc.Invoke(ctx, Coordinator_ViewTraveller_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoordinatorServer is the server API for Coordinator service.
 // All implementations must embed UnimplementedCoordinatorServer
 // for forward compatibility
@@ -368,13 +379,14 @@ type CoordinatorServer interface {
 	ViewCatagories(context.Context, *View) (*Catagories, error)
 	PackageSearch(context.Context, *Search) (*PackagesResponce, error)
 	FilterPackage(context.Context, *Filter) (*PackagesResponce, error)
-	TravellerDetails(context.Context, *TravellerRequest) (*TravellerResponse, error)
+	UserTravellerDetails(context.Context, *TravellerRequest) (*TravellerResponse, error)
 	OfflineBooking(context.Context, *Booking) (*BookingResponce, error)
 	OnlinePayment(context.Context, *Booking) (*OnlinePaymentResponse, error)
 	PaymentConfirmed(context.Context, *PaymentConfirmedRequest) (*BookingResponce, error)
 	VeiwHistory(context.Context, *View) (*Histories, error)
 	ViewBooking(context.Context, *View) (*History, error)
 	CancelBooking(context.Context, *View) (*Responce, error)
+	ViewTraveller(context.Context, *View) (*TravellerDetails, error)
 	mustEmbedUnimplementedCoordinatorServer()
 }
 
@@ -445,8 +457,8 @@ func (UnimplementedCoordinatorServer) PackageSearch(context.Context, *Search) (*
 func (UnimplementedCoordinatorServer) FilterPackage(context.Context, *Filter) (*PackagesResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FilterPackage not implemented")
 }
-func (UnimplementedCoordinatorServer) TravellerDetails(context.Context, *TravellerRequest) (*TravellerResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TravellerDetails not implemented")
+func (UnimplementedCoordinatorServer) UserTravellerDetails(context.Context, *TravellerRequest) (*TravellerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserTravellerDetails not implemented")
 }
 func (UnimplementedCoordinatorServer) OfflineBooking(context.Context, *Booking) (*BookingResponce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OfflineBooking not implemented")
@@ -465,6 +477,9 @@ func (UnimplementedCoordinatorServer) ViewBooking(context.Context, *View) (*Hist
 }
 func (UnimplementedCoordinatorServer) CancelBooking(context.Context, *View) (*Responce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelBooking not implemented")
+}
+func (UnimplementedCoordinatorServer) ViewTraveller(context.Context, *View) (*TravellerDetails, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ViewTraveller not implemented")
 }
 func (UnimplementedCoordinatorServer) mustEmbedUnimplementedCoordinatorServer() {}
 
@@ -857,20 +872,20 @@ func _Coordinator_FilterPackage_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Coordinator_TravellerDetails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Coordinator_UserTravellerDetails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TravellerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CoordinatorServer).TravellerDetails(ctx, in)
+		return srv.(CoordinatorServer).UserTravellerDetails(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Coordinator_TravellerDetails_FullMethodName,
+		FullMethod: Coordinator_UserTravellerDetails_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoordinatorServer).TravellerDetails(ctx, req.(*TravellerRequest))
+		return srv.(CoordinatorServer).UserTravellerDetails(ctx, req.(*TravellerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -983,6 +998,24 @@ func _Coordinator_CancelBooking_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Coordinator_ViewTraveller_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(View)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoordinatorServer).ViewTraveller(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Coordinator_ViewTraveller_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoordinatorServer).ViewTraveller(ctx, req.(*View))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Coordinator_ServiceDesc is the grpc.ServiceDesc for Coordinator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1075,8 +1108,8 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Coordinator_FilterPackage_Handler,
 		},
 		{
-			MethodName: "TravellerDetails",
-			Handler:    _Coordinator_TravellerDetails_Handler,
+			MethodName: "UserTravellerDetails",
+			Handler:    _Coordinator_UserTravellerDetails_Handler,
 		},
 		{
 			MethodName: "OfflineBooking",
@@ -1101,6 +1134,10 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelBooking",
 			Handler:    _Coordinator_CancelBooking_Handler,
+		},
+		{
+			MethodName: "ViewTraveller",
+			Handler:    _Coordinator_ViewTraveller_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

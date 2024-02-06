@@ -40,4 +40,6 @@ type CoordinatorRepoInter interface {
 	FetchBooking(id uint) (*cDOM.Booking, error)
 	UpdateBooking(booking cDOM.Booking)error
 	UpdateUser(user *cDOM.User) error
+	FetchBookings(offset, limit int, id uint) (*[]cDOM.Booking, error)
+	FetchTraveller(id uint) (*cDOM.Traveller, error)
 }

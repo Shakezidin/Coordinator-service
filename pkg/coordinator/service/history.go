@@ -12,8 +12,31 @@ import (
 func (c *CoordinatorSVC) ViewhistorySVC(p *cpb.View) (*cpb.Histories, error) {
 	offset := 10 * (p.Page - 1)
 	limit := 10
+	if p.Status == "false" {
+		history, err := c.Repo.FetchHistory(int(offset), limit, uint(p.Id))
+		if err != nil {
+			return nil, err
+		}
 
-	history, err := c.Repo.FetchHistory(int(offset), limit, uint(p.Id))
+		var histoy []*cpb.History
+		for _, hstry := range *history {
+			histoy = append(histoy, &cpb.History{
+				Id:              int64(hstry.ID),
+				PaymentMode:     hstry.PaymentMode,
+				BookingStatus:   hstry.BookingStatus,
+				CancelledStatus: hstry.CancelledStatus,
+				TotalPrice:      int64(hstry.TotalPrice),
+				UserId:          int64(hstry.UserId),
+				BookingId:       hstry.BookDate.Format("02-01-2006"),
+				StartDate:       hstry.StartDate.Format("02-01-2006"),
+			})
+		}
+
+		return &cpb.Histories{
+			History: histoy,
+		}, nil
+	}
+	history, err := c.Repo.FetchBookings(int(offset), limit, uint(p.Id))
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +68,7 @@ func (c *CoordinatorSVC) ViewBookingSVC(p *cpb.View) (*cpb.History, error) {
 	var traveller []*cpb.TravellerDetails
 	for _, trvler := range booking.Bookings {
 		traveller = append(traveller, &cpb.TravellerDetails{
+			Id:     int64(trvler.ID),
 			Name:   trvler.Name,
 			Age:    trvler.Age,
 			Gender: trvler.Gender,
@@ -118,6 +142,34 @@ func (c *CoordinatorSVC) CancelBookingSVC(p *cpb.View) (*cpb.Responce, error) {
 	return &cpb.Responce{
 		Status:  "Success",
 		Message: "Package cancelled success",
+	}, nil
+
+}
+
+func (c *CoordinatorSVC) ViewTravellerSVC(p *cpb.View) (*cpb.TravellerDetails, error) {
+	traveller, err := c.Repo.FetchTraveller(uint(p.Id))
+	if err != nil {
+		return nil, err
+	}
+	var activity []*cpb.Activity
+	for _, acvty := range traveller.Activity {
+		activity = append(activity, &cpb.Activity{
+			ActivityId:   int64(acvty.ID),
+			Activityname: acvty.ActivityName,
+			Description:  acvty.Description,
+			Location:     acvty.Location,
+			ActivityType: acvty.ActivityType,
+			Amount:       int64(acvty.Amount),
+			Date:         acvty.Date.Format("02-01-2006"),
+			Time:         acvty.Time.Format("03:04 PM"),
+		})
+	}
+
+	return &cpb.TravellerDetails{
+		Name:     traveller.Name,
+		Age:      traveller.Age,
+		Gender:   traveller.Gender,
+		Activity: activity,
 	}, nil
 
 }

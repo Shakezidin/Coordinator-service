@@ -11,10 +11,25 @@ func (c *CoordinatorRepo) FetchHistory(offset, limit int, id uint) (*[]cDOM.Book
 }
 
 func (c *CoordinatorRepo) FetchBooking(id uint) (*cDOM.Booking, error) {
-    booking := &cDOM.Booking{}
-    if err := c.DB.Where("id = ?", id).Preload("Bookings").First(booking).Error; err != nil {
-        return nil, err
-    }
-    return booking, nil
+	booking := &cDOM.Booking{}
+	if err := c.DB.Where("id = ?", id).Preload("Bookings").First(booking).Error; err != nil {
+		return nil, err
+	}
+	return booking, nil
 }
 
+func (c *CoordinatorRepo) FetchBookings(offset, limit int, id uint) (*[]cDOM.Booking, error) {
+	var booking *[]cDOM.Booking
+	if err := c.DB.Where("package_id = ?", id).Offset(offset).Limit(limit).Find(&booking).Error; err != nil {
+		return nil, err
+	}
+	return booking, nil
+}
+
+func (c *CoordinatorRepo) FetchTraveller(id uint) (*cDOM.Traveller, error) {
+	traveller := &cDOM.Traveller{}
+	if err := c.DB.Where("id = ?", id).Preload("Activity").First(traveller).Error; err != nil {
+		return nil, err
+	}
+	return traveller, nil
+}

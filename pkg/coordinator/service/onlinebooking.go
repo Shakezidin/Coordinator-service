@@ -202,21 +202,7 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 	} else {
 		booking.PaymentMode = "full amount"
 	}
-	booking.TotalPrice = amoundata
-	booking.UserId = uint(userId)
-	booking.BookingId = bookingID
-	booking.Bookings = travellers
-	booking.PackageId = pkg.ID
-	booking.BookDate = time.Now()
-	booking.StartDate = pkg.StartDate
-
-	err = tx.Create(&booking).Error
-	if err != nil {
-		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error creating booking: %v", err.Error())
-	}
+	var codId uint
 	if float64(total) != float64(amoundata)*0.3 {
 		coordinator := c.FindCoordinatorByPackageId(pkg.ID)
 
@@ -227,7 +213,7 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 				Status: "fail",
 			}, fmt.Errorf("error creating booking: %v", err.Error())
 		}
-
+		codId = coordinator.ID
 		_, err := c.client.AdminAddWalletRequest(ctx, &pb.AdminAddWallet{
 			Amount: float32(amoundata) * 0.30,
 		})
@@ -247,6 +233,22 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 				Status: "fail",
 			}, fmt.Errorf("error creating booking: %v", err.Error())
 		}
+	}
+	booking.TotalPrice = amoundata
+	booking.UserId = uint(userId)
+	booking.BookingId = bookingID
+	booking.Bookings = travellers
+	booking.PackageId = pkg.ID
+	booking.BookDate = time.Now()
+	booking.StartDate = pkg.StartDate
+	booking.CoordinatorID = codId
+
+	err = tx.Create(&booking).Error
+	if err != nil {
+		tx.Rollback()
+		return &cpb.BookingResponce{
+			Status: "fail",
+		}, fmt.Errorf("error creating booking: %v", err.Error())
 	}
 
 	// Commit the transaction if everything is successful

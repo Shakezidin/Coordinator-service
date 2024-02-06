@@ -26,13 +26,14 @@ service Coordinator {
     rpc ViewCatagories(View)returns(Catagories);
     rpc PackageSearch(Search)returns(PackagesResponce);
     rpc FilterPackage(Filter)returns(PackagesResponce);
-    rpc TravellerDetails(TravellerRequest)returns(TravellerResponse);
+    rpc UserTravellerDetails(TravellerRequest)returns(TravellerResponse);
     rpc OfflineBooking(Booking)returns(BookingResponce);
     rpc OnlinePayment(Booking)returns(OnlinePaymentResponse);
     rpc PaymentConfirmed(PaymentConfirmedRequest)returns(BookingResponce);
     rpc VeiwHistory(View)returns(Histories);
     rpc ViewBooking(View)returns(History);
     rpc CancelBooking(View)returns(Responce);
+    rpc ViewTraveller(View)returns(TravellerDetails);
 }
 
 message Histories{
@@ -107,6 +108,8 @@ message TravellerDetails {
     string age = 2;
     string gender = 3;
     repeated string activityId = 4;
+    int64 Id = 5;
+    repeated Activity activity = 6;
 }
   
 message TravellerRequest {

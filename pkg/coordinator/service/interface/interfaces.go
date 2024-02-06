@@ -34,4 +34,5 @@ type CoordinatorSVCInter interface {
 	ViewhistorySVC(p *cpb.View) (*cpb.Histories, error) 
 	ViewBookingSVC(p *cpb.View)(*cpb.History,error)
 	CancelBookingSVC(p *cpb.View)(*cpb.Responce,error)
+	ViewTravellerSVC(p *cpb.View)(*cpb.TravellerDetails,error)
 }

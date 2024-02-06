@@ -25,10 +25,19 @@ func (c *CoordinatorHandler) ViewBooking(ctx context.Context, p *cpb.View) (*cpb
 	return respnc, nil
 }
 
-func (c *CoordinatorHandler)CancelBooking(ctx context.Context,p *cpb.View)(*cpb.Responce,error){
+func (c *CoordinatorHandler) CancelBooking(ctx context.Context, p *cpb.View) (*cpb.Responce, error) {
 	respnc, err := c.SVC.CancelBookingSVC(p)
 	if err != nil {
 		log.Printf("error while fetching history details err: %v", err.Error())
+		return nil, err
+	}
+	return respnc, nil
+}
+
+func (c *CoordinatorHandler) ViewTraveller(ctx context.Context, p *cpb.View) (*cpb.TravellerDetails, error) {
+	respnc, err := c.SVC.ViewTravellerSVC(p)
+	if err != nil {
+		log.Printf("error while fetching traveller details err: %v", err.Error())
 		return nil, err
 	}
 	return respnc, nil
