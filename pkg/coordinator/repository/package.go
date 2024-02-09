@@ -85,3 +85,11 @@ func (c *CoordinatorRepo) UpdatePackage(pkg *cDOM.Package) error {
 	}
 	return nil
 }
+
+func (c *CoordinatorRepo) UpdatePackageExpiration(date string) error {
+	query := "UPDATE packages SET trip_status = ? WHERE start_date = ?"
+	if err := c.DB.Exec(query, false, date).Error; err != nil {
+		return err
+	}
+	return nil
+}

@@ -209,6 +209,7 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 	var codId uint
 	if float64(total) != float64(amoundata)*0.3 {
 		coordinator := c.FindCoordinatorByPackageId(pkg.ID)
+		codId = coordinator.ID
 
 		reslt := tx.Model(&coordinator).Update("wallet", coordinator.Wallet+float64(amoundata)*0.70)
 		if reslt.Error != nil {
@@ -217,7 +218,6 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 				Status: "fail",
 			}, fmt.Errorf("error creating booking: %v", err.Error())
 		}
-		codId = coordinator.ID
 		_, err := c.client.AdminAddWalletRequest(ctx, &pb.AdminAddWallet{
 			Amount: float32(amoundata) * 0.30,
 		})
@@ -228,6 +228,8 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 			}, fmt.Errorf("error creating booking: %v", err.Error())
 		}
 	} else {
+		coordinator := c.FindCoordinatorByPackageId(pkg.ID)
+		codId = coordinator.ID
 		_, err := c.client.AdminAddWalletRequest(ctx, &pb.AdminAddWallet{
 			Amount: float32(amoundata),
 		})
@@ -247,6 +249,8 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 	booking.BookDate = time.Now()
 	booking.StartDate = pkg.StartDate
 	booking.CoordinatorID = codId
+	booking.UserEmail = email
+	booking.CatagoryId = pkg.Category.ID
 
 	err = tx.Create(&booking).Error
 	if err != nil {

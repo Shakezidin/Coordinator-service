@@ -62,35 +62,35 @@ type Destination struct {
 }
 
 type Activity struct {
-    gorm.Model
-    DestinationId uint        `gorm:"not null"`
-    Destination   Destination `gorm:"ForeignKey:DestinationId"`
-    ActivityName  string      `gorm:"not null"`
-    Description   string      `gorm:"not null"`
-    Location      string      `gorm:"not null"`
-    ActivityType  string      `gorm:"not null"`
-    Amount        int         `gorm:"not null"`
-    Date          time.Time
-    Time          time.Time
+	gorm.Model
+	DestinationId uint        `gorm:"not null"`
+	Destination   Destination `gorm:"ForeignKey:DestinationId"`
+	ActivityName  string      `gorm:"not null"`
+	Description   string      `gorm:"not null"`
+	Location      string      `gorm:"not null"`
+	ActivityType  string      `gorm:"not null"`
+	Amount        int         `gorm:"not null"`
+	Date          time.Time
+	Time          time.Time
 }
 
 type ActivityBooking struct {
-    gorm.Model
-    TravellerId uint
-    Traveller   Traveller `gorm:"foreignKey:TravellerId"`
-    ActivityId  uint
-    Activity    Activity `gorm:"foreignKey:ActivityId"`
+	gorm.Model
+	TravellerId uint
+	Traveller   Traveller `gorm:"foreignKey:TravellerId"`
+	ActivityId  uint
+	Activity    Activity `gorm:"foreignKey:ActivityId"`
 }
 
 type Traveller struct {
-    ID        uint `gorm:"primaryKey"`
-    Name      string
-    Age       string
-    Gender    string
-    UserId    uint
-    PackageId uint
-    Package   Package    `gorm:"foreignKey:PackageId"`
-    Activities []Activity `gorm:"many2many:activity_bookings;"`
+	ID         uint `gorm:"primaryKey"`
+	Name       string
+	Age        string
+	Gender     string
+	UserId     uint
+	PackageId  uint
+	Package    Package    `gorm:"foreignKey:PackageId"`
+	Activities []Activity `gorm:"many2many:activity_booking;"`
 }
 
 type Booking struct {
@@ -101,6 +101,7 @@ type Booking struct {
 	PackagePrice    int
 	PaidPrice       int
 	UserId          uint
+	UserEmail       string
 	BookingId       string
 	Bookings        []Traveller `gorm:"many2many:traveller_booking;"`
 	PackageId       uint
@@ -108,6 +109,7 @@ type Booking struct {
 	BookDate        time.Time
 	StartDate       time.Time
 	CoordinatorID   uint
+	CatagoryId      uint
 }
 
 type RazorPay struct {

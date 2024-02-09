@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/razorpay/razorpay-go v1.3.1
+	github.com/robfig/cron v1.2.0
 	github.com/spf13/viper v1.18.2
 	github.com/twilio/twilio-go v1.16.0
 	golang.org/x/crypto v0.16.0

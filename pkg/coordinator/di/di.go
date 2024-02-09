@@ -24,8 +24,9 @@ func Init() {
 		return
 	}
 	coordinatorepo := repository.NewCoordinatorRepo(db)
-	coordinatorService := service.NewCoordinatorSVC(coordinatorepo, twilio, redis, cnfg,client)
+	coordinatorService := service.NewCoordinatorSVC(coordinatorepo, twilio, redis, cnfg, client)
 	coordinatorHandler := handler.NewCoordinatorHandler(coordinatorService)
+	config.InitCron(coordinatorService)
 	err = server.NewCoordinatorGrpcServer(cnfg, coordinatorHandler)
 	if err != nil {
 		log.Fatalf("something went wrong", err)

@@ -15,7 +15,7 @@ func (c *CoordinatorSVC) ViewhistorySVC(p *cpb.View) (*cpb.Histories, error) {
 	if p.Status == "false" {
 		history, err := c.Repo.FetchHistory(int(offset), limit, uint(p.Id))
 		if err != nil {
-			return nil, err
+			return nil, errors.New("Error while package")
 		}
 
 		var histoy []*cpb.History
@@ -67,7 +67,8 @@ func (c *CoordinatorSVC) ViewhistorySVC(p *cpb.View) (*cpb.Histories, error) {
 func (c *CoordinatorSVC) ViewBookingSVC(p *cpb.View) (*cpb.History, error) {
 	booking, err := c.Repo.FetchBooking(uint(p.Id))
 	if err != nil {
-		return nil, err
+		fmt.Println("heyyyyyyyyyyyyyyy")
+		return nil, errors.New("no packages")
 	}
 	var traveller []*cpb.TravellerDetails
 	for _, trvler := range booking.Bookings {
@@ -180,4 +181,35 @@ func (c *CoordinatorSVC) ViewTravellerSVC(p *cpb.View) (*cpb.TravellerDetails, e
 		Gender:   traveller.Gender,
 		Activity: activity,
 	}, nil
+}
+
+func (c *CoordinatorSVC) SearchBookingSVC(p *cpb.BookingSearchCriteria) (*cpb.Histories, error) {
+	ctx := context.Background()
+
+	bookings, err := c.Repo.SearchBookings(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	var histories []*cpb.History
+	for _, booking := range bookings {
+		history := &cpb.History{
+			Id:              int64(booking.ID),
+			PaymentMode:     booking.PaymentMode,
+			BookingStatus:   booking.BookingStatus,
+			CancelledStatus: booking.CancelledStatus,
+			TotalPrice:      int64(booking.PackagePrice),
+			UserId:          int64(booking.UserId),
+			BookingId:       booking.BookingId,
+			BookDate:        booking.BookDate.Format("02-01-2006"),
+			StartDate:       booking.StartDate.Format("02-01-2006"),
+			PaidAmount:      int64(booking.PaidPrice),
+		}
+		histories = append(histories, history)
+	}
+
+	response := &cpb.Histories{
+		History: histories,
+	}
+	return response, nil
 }

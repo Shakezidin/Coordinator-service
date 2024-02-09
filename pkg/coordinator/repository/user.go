@@ -59,12 +59,42 @@ func (c *CoordinatorRepo) UpdateUser(user *cDOM.User) error {
 
 func (c *CoordinatorRepo) CalculateDailyIncome(id uint, todayStart, todayEnd time.Time) int {
 	var todayIncome int
-	c.DB.Model(&cDOM.Booking{}).Where("coordinator_id = ? AND book_date >= ? AND book_date <= ?", id, todayStart, todayEnd).Select("SUM(paid_price)").Scan(&todayIncome)
+	query := `SELECT COALESCE(SUM(paid_price), 0) FROM "bookings" WHERE (coordinator_id = ? AND book_date >= ? AND book_date <= ? AND cancelled_status = ? AND payment_mode = ?) AND "bookings"."deleted_at" IS NULL`
+	c.DB.Raw(query, id, todayStart, todayEnd, "false", "full amount").Scan(&todayIncome)
 	return todayIncome
 }
 
 func (c *CoordinatorRepo) CalculateMonthlyIncome(id uint, currentMonthStart, currentMonthEnd time.Time) int {
-	var MonthlyIncome int
-	c.DB.Model(&cDOM.Booking{}).Where("coordinator_id = ? AND book_date >= ? AND book_date <= ?", id, currentMonthStart, currentMonthEnd).Select("SUM(paid_price)").Scan(&MonthlyIncome)
-	return MonthlyIncome
+	var monthlyIncome int
+	query := `SELECT COALESCE(SUM(paid_price), 0) FROM "bookings" WHERE (coordinator_id = ? AND book_date >= ? AND book_date <= ? AND cancelled_status = ? AND payment_mode = ?) AND "bookings"."deleted_at" IS NULL`
+	c.DB.Raw(query, id, currentMonthStart, currentMonthEnd, "false", "full amount").Scan(&monthlyIncome)
+	return monthlyIncome
+}
+
+func (c *CoordinatorRepo) AdminCalculateDailyIncome(todayStart, todayEnd time.Time) int {
+	var todayIncome int
+	query := `SELECT COALESCE(SUM(package_price), 0) FROM "bookings" WHERE (book_date >= ? AND book_date <= ? AND cancelled_status = ?) AND "bookings"."deleted_at" IS NULL`
+	c.DB.Raw(query, todayStart, todayEnd, "false").Scan(&todayIncome)
+	return todayIncome
+}
+
+func (c *CoordinatorRepo) AdminCalculateMonthlyIncome(currentMonthStart, currentMonthEnd time.Time) int {
+	var todayIncome int
+	query := `SELECT COALESCE(SUM(package_price), 0) FROM "bookings" WHERE (book_date >= ? AND book_date <= ? AND cancelled_status = ?) AND "bookings"."deleted_at" IS NULL`
+	c.DB.Raw(query, currentMonthStart, currentMonthEnd, "false").Scan(&todayIncome)
+	return todayIncome
+}
+
+func (c *CoordinatorRepo) FetchAllCoordinators(offset, limit int) (*[]cDOM.User, error) {
+	var coordinator *[]cDOM.User
+	if err := c.DB.Offset(offset).Limit(limit).Find(&coordinator).Error; err != nil {
+		return nil, err
+	}
+	return coordinator, nil
+}
+
+func (c *CoordinatorRepo) CoordinatorCount() int64 {
+	var coordinatorCount int64
+	c.DB.Model(&cDOM.User{}).Count(&coordinatorCount)
+	return coordinatorCount
 }

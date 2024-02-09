@@ -30,17 +30,47 @@ service Coordinator {
     rpc OfflineBooking(Booking)returns(BookingResponce);
     rpc OnlinePayment(Booking)returns(OnlinePaymentResponse);
     rpc PaymentConfirmed(PaymentConfirmedRequest)returns(BookingResponce);
-    rpc VeiwHistory(View)returns(Histories);
+    rpc ViewHistory(View)returns(Histories);
     rpc ViewBooking(View)returns(History);
     rpc CancelBooking(View)returns(Responce);
     rpc ViewTraveller(View)returns(TravellerDetails);
     rpc ViewDashBord(View)returns(DashBord);
+    rpc ViewCoordinators(View)returns(Users);
+    rpc SearchBooking(BookingSearchCriteria)returns(Histories);
+}
+
+message BookingSearchCriteria {
+    string payment_mode = 1;
+    string booking_status = 2;
+    bool   cancelled_status = 3;
+    string user_email = 4;
+    string booking_id = 5;
+    string book_date = 6;
+    string start_date = 7;
+    uint32 coordinator_id = 8;
+    int64  page = 9;
+    int64  CatageryId = 10;
+}
+
+message Users{
+    repeated User users = 1;
+}
+
+message User{
+    int64 Id = 1;
+    string name =2;
+    string email = 3;
+    string phone = 4;
+    string password = 5;
+    string role = 6;
 }
 
 message DashBord{
     int64 wallet = 1;
     int64 today = 2;
     int64 monthly = 3;
+    int64 CoordinatorCount = 4;
+    int64 UsersCount = 5;
 }
 
 message Histories{
