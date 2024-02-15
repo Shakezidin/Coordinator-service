@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -25,113 +24,127 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 	ctx := context.Background()
 
 	// Fetch package from repository
-	pkgId, _ := strconv.Atoi(p.PackageId)
-	pkg, err := c.Repo.FetchPackage(uint(pkgId))
+	pkgID, err := strconv.Atoi(p.PackageId)
 	if err != nil {
-		log.Print("package not found")
+		return nil, errors.New("invalid package ID")
+	}
+	pkg, err := c.Repo.FetchPackage(uint(pkgID))
+	if err != nil {
 		return nil, errors.New("package not found")
 	}
 
-	if pkg.Availablespace < len(p.TravellerDetails) {
-		log.Print("package space is not enough")
-		return nil, errors.New("package have no space")
-	} else {
-		pkg.Availablespace = pkg.Availablespace - len(p.TravellerDetails)
+	// Check if package has enough space for travellers
+	if pkg.AvailableSpace < len(p.TravellerDetails) {
+		return nil, errors.New("package has insufficient space for travellers")
 	}
+	pkg.AvailableSpace -= len(p.TravellerDetails)
 
+	// Prepare traveller and activity booking data
 	var travellers []dom.Traveller
 	var activityBookings []dom.ActivityBooking
 
-	packageID, _ := strconv.Atoi(p.PackageId)
 	userID, _ := strconv.Atoi(p.UserId)
 
 	for _, travellerDetail := range p.TravellerDetails {
-		var traveller dom.Traveller
-		traveller.ID = uint(uuid.New().ID())
-		traveller.Age = travellerDetail.Age
-		traveller.Gender = travellerDetail.Gender
-		traveller.Name = travellerDetail.Name
-		traveller.PackageId = uint(packageID)
-		traveller.UserId = uint(userID)
-
+		traveller := dom.Traveller{
+			ID:        uint(uuid.New().ID()),
+			Age:       travellerDetail.Age,
+			Gender:    travellerDetail.Gender,
+			Name:      travellerDetail.Name,
+			PackageID: uint(pkgID),
+			UserID:    uint(userID),
+		}
 		travellers = append(travellers, traveller)
 
 		for _, activityID := range travellerDetail.ActivityId {
-			var activityBooking dom.ActivityBooking
-			actId, _ := strconv.Atoi(activityID)
-			activityBooking.ActivityId = uint(actId)
-			activityBooking.TravellerId = traveller.ID
-
+			actID, err := strconv.Atoi(activityID)
+			if err != nil {
+				continue
+			}
+			activityBooking := dom.ActivityBooking{
+				ActivityID:  uint(actID),
+				TravellerID: traveller.ID,
+			}
 			activityBookings = append(activityBookings, activityBooking)
 		}
 	}
-	activityTotal := c.calculateActivityTotal(p.TravellerDetails)
-	refId := generateBookingReference()
-	email_key := fmt.Sprintf("email:%s", refId)
-	username_key := fmt.Sprintf("username:%s", refId)
-	traveller_key := fmt.Sprintf("traveller:%s", refId)
-	activity_key := fmt.Sprintf("activity_bookings:%s", refId)
-	amount_key := fmt.Sprintf("amount:%s", refId)
-	pkg_key := fmt.Sprint("package:", refId)
-	UserId_Key := fmt.Sprintf("userId:%s", refId)
 
-	err = c.storeInRedis(ctx, email_key, p.Email)
+	// Calculate total amount
+	activityAmount := c.CalculateActivityTotal(p.TravellerDetails)
+	advanceAmount := float64(pkg.MinPrice+activityAmount) * 0.3
+
+	// Store data in Redis
+	refID := generateBookingReference()
+	err = c.StoreTravellerDetailsInRedis(ctx, refID, p, pkg, travellers, activityBookings, pkg.MinPrice+activityAmount)
 	if err != nil {
-		return nil, errors.New("error while storing to redis")
-	}
-	err = c.storeInRedis(ctx, username_key, p.Username)
-	if err != nil {
-		return nil, errors.New("error while storing to redis")
-	}
-	userid, _ := strconv.Atoi(p.UserId)
-	err = c.storeInRedis(ctx, UserId_Key, userid)
-	if err != nil {
-		return nil, errors.New("error while storing to redis")
+		return nil, errors.New("error storing traveller details")
 	}
 
-	err = c.storeInRedis(ctx, pkg_key, pkg)
-	if err != nil {
-		return nil, errors.New("error while storing to redis")
-	}
-
-	err = c.storeInRedis(ctx, traveller_key, travellers)
-	if err != nil {
-		return nil, errors.New("error while storing to redis")
-	}
-
-	err = c.storeInRedis(ctx, activity_key, activityBookings)
-	if err != nil {
-		return nil, errors.New("error while storing to redis")
-	}
-
-	err = c.storeInRedis(ctx, amount_key, pkg.MinPrice+activityTotal)
-	if err != nil {
-		return nil, errors.New("error while storing to redis")
-	}
-
-	totalAmount := pkg.MinPrice + activityTotal
-	advanceAmount := float64(totalAmount) * 0.3
-
+	// Return response
 	return &cpb.TravellerResponse{
 		PackagePrice:       int64(pkg.MinPrice),
-		ActivityTotalPrice: int64(activityTotal),
-		TotalPrice:         int64(totalAmount),
+		ActivityTotalPrice: int64(activityAmount),
+		TotalPrice:         int64(pkg.MinPrice + activityAmount),
 		AdvanceAmount:      int64(advanceAmount),
-		RefId:              refId,
+		RefId:              refID,
 	}, nil
 }
 
+// Helper function to store traveller details in Redis
+func (c *CoordinatorSVC) StoreTravellerDetailsInRedis(ctx context.Context, refID string, p *cpb.TravellerRequest, pkg *dom.Package, travellers []dom.Traveller, activityBookings []dom.ActivityBooking, totalAmount int) error {
+	emailKey := fmt.Sprintf("email:%s", refID)
+	usernameKey := fmt.Sprintf("username:%s", refID)
+	userIDKey := fmt.Sprintf("userId:%s", refID)
+	packageKey := fmt.Sprintf("package:%s", refID)
+	travellerKey := fmt.Sprintf("traveller:%s", refID)
+	activityKey := fmt.Sprintf("activity_bookings:%s", refID)
+	amountKey := fmt.Sprintf("amount:%s", refID)
+
+	err := c.StoreInRedis(ctx, emailKey, p.Email)
+	if err != nil {
+		return fmt.Errorf("error storing email in Redis: %v", err)
+	}
+	err = c.StoreInRedis(ctx, usernameKey, p.Username)
+	if err != nil {
+		return fmt.Errorf("error storing username in Redis: %v", err)
+	}
+	userID, err := strconv.Atoi(p.UserId)
+	if err != nil {
+		return fmt.Errorf("invalid user ID: %s", p.UserId)
+	}
+	err = c.StoreInRedis(ctx, userIDKey, userID)
+	if err != nil {
+		return fmt.Errorf("error storing user ID in Redis: %v", err)
+	}
+	err = c.StoreInRedis(ctx, packageKey, pkg)
+	if err != nil {
+		return fmt.Errorf("error storing package details in Redis: %v", err)
+	}
+	err = c.StoreInRedis(ctx, travellerKey, travellers)
+	if err != nil {
+		return fmt.Errorf("error storing traveller details in Redis: %v", err)
+	}
+	err = c.StoreInRedis(ctx, activityKey, activityBookings)
+	if err != nil {
+		return fmt.Errorf("error storing activity details in Redis: %v", err)
+	}
+	err = c.StoreInRedis(ctx, amountKey, totalAmount)
+	if err != nil {
+		return fmt.Errorf("error storing amount details in Redis: %v", err)
+	}
+
+	return nil
+}
+
 // Helper function to store data in Redis
-func (c *CoordinatorSVC) storeInRedis(ctx context.Context, key string, data interface{}) error {
+func (c *CoordinatorSVC) StoreInRedis(ctx context.Context, key string, data interface{}) error {
 	marshaledData, err := json.Marshal(data)
 	if err != nil {
-		log.Printf("error marshaling %s: %v", key, err)
 		return err
 	}
 
 	err = c.redis.Set(ctx, key, marshaledData, redisExpiration).Err()
 	if err != nil {
-		log.Printf("error storing %s in Redis: %v", key, err)
 		return err
 	}
 
@@ -139,13 +152,19 @@ func (c *CoordinatorSVC) storeInRedis(ctx context.Context, key string, data inte
 }
 
 // Helper function to calculate total activity price
-func (c *CoordinatorSVC) calculateActivityTotal(travellerDetails []*cpb.TravellerDetails) int {
+func (c *CoordinatorSVC) CalculateActivityTotal(travellerDetails []*cpb.TravellerDetails) int {
 	var activityTotal int
 
 	for _, details := range travellerDetails {
 		for _, activityID := range details.ActivityId {
-			activityIDInt, _ := strconv.Atoi(activityID)
-			activity, _ := c.Repo.FecthActivity(uint(activityIDInt))
+			actID, err := strconv.Atoi(activityID)
+			if err != nil {
+				continue
+			}
+			activity, err := c.Repo.FetchActivity(uint(actID))
+			if err != nil {
+				continue
+			}
 			activityTotal += activity.Amount
 		}
 	}
@@ -154,6 +173,5 @@ func (c *CoordinatorSVC) calculateActivityTotal(travellerDetails []*cpb.Travelle
 }
 
 func generateBookingReference() string {
-	ref := uuid.New()
-	return ref.String()
+	return uuid.New().String()
 }

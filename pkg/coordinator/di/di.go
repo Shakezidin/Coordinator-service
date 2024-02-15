@@ -1,7 +1,6 @@
 package di
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/Shakezidin/config"
@@ -15,20 +14,40 @@ import (
 
 func Init() {
 	cnfg := config.LoadConfig()
-	redis := config.ConnectToRedis(cnfg)
+
+	// Connect to Redis
+	redis, err := config.ConnectToRedis(cnfg)
+	if err != nil {
+		log.Fatalf("failed to connect to Redis: %v", err)
+	}
+
+	// Setup Twilio client
 	twilio := config.SetupTwilio(cnfg)
+
+	// Connect to the database
 	db := db.Database(cnfg)
+
+	// Dial gRPC client
 	client, err := client.ClientDial(*cnfg)
 	if err != nil {
-		fmt.Println("client dial error")
-		return
+		log.Fatalf("failed to dial gRPC client: %v", err)
 	}
+
+	// Initialize repository
 	coordinatorepo := repository.NewCoordinatorRepo(db)
+
+	// Initialize coordinator service
 	coordinatorService := service.NewCoordinatorSVC(coordinatorepo, twilio, redis, cnfg, client)
+
+	// Initialize coordinator handler
 	coordinatorHandler := handler.NewCoordinatorHandler(coordinatorService)
+
+	// Initialize cron jobs
 	config.InitCron(coordinatorService)
+
+	// Start gRPC server
 	err = server.NewCoordinatorGrpcServer(cnfg, coordinatorHandler)
 	if err != nil {
-		log.Fatalf("something went wrong", err)
+		log.Fatalf("failed to start gRPC server: %v", err)
 	}
 }

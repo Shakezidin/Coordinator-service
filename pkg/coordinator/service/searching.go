@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -11,16 +10,15 @@ import (
 	dom "github.com/Shakezidin/pkg/entities/packages"
 )
 
-func (c *CoordinatorSVC) SearchPackageSVC(p *cpb.Search) (*cpb.PackagesResponce, error) {
+// SearchPackageSVC searches for packages based on search criteria.
+func (c *CoordinatorSVC) SearchPackageSVC(p *cpb.Search) (*cpb.PackagesResponse, error) {
 	if len(p.Destination) <= 1 {
-		log.Println("no destination condition")
 		packages, err := UnboundedPackages(p.PickupPlace, p.Finaldestination, p.Date, p.Enddate, p.MaxDestination, c, p.Page)
 		if err != nil {
 			return nil, err
 		}
 		return packages, nil
 	}
-	log.Print("destination condition")
 	pkgs, err := BoundedPackages(c, p)
 	if err != nil {
 		return nil, err
@@ -28,14 +26,14 @@ func (c *CoordinatorSVC) SearchPackageSVC(p *cpb.Search) (*cpb.PackagesResponce,
 	return pkgs, nil
 }
 
-func UnboundedPackages(PickupPlace, Finaldestination, date, enddate string, MaxDestination int64, svc *CoordinatorSVC, page int64) (*cpb.PackagesResponce, error) {
+// UnboundedPackages retrieves unbounded packages.
+func UnboundedPackages(PickupPlace, Finaldestination, date, enddate string, MaxDestination int64, svc *CoordinatorSVC, page int64) (*cpb.PackagesResponse, error) {
 	startDate, err := time.Parse("02-01-2006", date)
 	endDate, _ := time.Parse("02-01-2006", enddate)
 	offset := 10 * (page - 1)
 	limit := 10
 	if err != nil {
-		log.Print("error while date parsing")
-		return nil, errors.New("error while date parsing")
+		return nil, errors.New("error while parsing dates")
 	}
 	packages, err := svc.Repo.FindUnboundedPackages(int(offset), limit, PickupPlace, Finaldestination, MaxDestination, startDate, endDate)
 	if err != nil {
@@ -51,7 +49,7 @@ func UnboundedPackages(PickupPlace, Finaldestination, date, enddate string, MaxD
 		pkg.Enddate = pkges.EndDate.Format("02-01-2006")
 		pkg.Image = pkges.Images
 		pkg.Packagename = pkges.Name
-		pkg.AvailableSpace = int64(pkges.Availablespace)
+		pkg.AvailableSpace = int64(pkges.AvailableSpace)
 		pkg.Price = int64(pkges.MinPrice)
 		pkg.Startdate = pkges.EndDate.Format("02-01-2006")
 		pkg.Starttime = pkges.StartTime
@@ -61,19 +59,17 @@ func UnboundedPackages(PickupPlace, Finaldestination, date, enddate string, MaxD
 
 		pkgs = append(pkgs, &pkg)
 	}
-	return &cpb.PackagesResponce{
-		Packages: pkgs,
-	}, nil
+	return &cpb.PackagesResponse{Packages: pkgs}, nil
 }
 
-func BoundedPackages(svc *CoordinatorSVC, p *cpb.Search) (*cpb.PackagesResponce, error) {
+// BoundedPackages retrieves bounded packages.
+func BoundedPackages(svc *CoordinatorSVC, p *cpb.Search) (*cpb.PackagesResponse, error) {
 	startDate, err := time.Parse("02-01-2006", p.Date)
 	endDate, _ := time.Parse("02-01-2006", p.Enddate)
 	offset := 10 * (p.Page - 1)
 	limit := 10
 	if err != nil {
-		log.Print("error while date parsing")
-		return nil, errors.New("error while date parsing")
+		return nil, errors.New("error while parsing dates")
 	}
 
 	packages, err := svc.Repo.FindUnboundedPackages(int(offset), limit, p.PickupPlace, p.Finaldestination, p.MaxDestination, startDate, endDate)
@@ -105,7 +101,7 @@ func BoundedPackages(svc *CoordinatorSVC, p *cpb.Search) (*cpb.PackagesResponce,
 		pkg.Enddate = pkges.EndDate.Format("02-01-2006")
 		pkg.Image = pkges.Images
 		pkg.Packagename = pkges.Name
-		pkg.AvailableSpace = int64(pkges.Availablespace)
+		pkg.AvailableSpace = int64(pkges.AvailableSpace)
 		pkg.Price = int64(pkges.MinPrice)
 		pkg.Startdate = pkges.EndDate.Format("02-01-2006")
 		pkg.Starttime = pkges.StartTime
@@ -115,11 +111,10 @@ func BoundedPackages(svc *CoordinatorSVC, p *cpb.Search) (*cpb.PackagesResponce,
 
 		pkgs = append(pkgs, &pkg)
 	}
-	return &cpb.PackagesResponce{
-		Packages: pkgs,
-	}, nil
+	return &cpb.PackagesResponse{Packages: pkgs}, nil
 }
 
+// hasAllDestinations checks if a package has all specified destinations.
 func hasAllDestinations(packageDestinations, searchDestinations []string) bool {
 	for _, dest := range searchDestinations {
 		if dest == "" {

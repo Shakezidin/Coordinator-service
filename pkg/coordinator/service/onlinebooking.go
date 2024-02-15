@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -22,7 +22,6 @@ func (c *CoordinatorSVC) OnlinePaymentSVC(ctx context.Context, p *cpb.Booking) (
 	userIDKey := fmt.Sprintf("userId:%s", p.RefId)
 	userId, err := c.redis.Get(ctx, userIDKey).Int()
 	if err != nil {
-		log.Printf("error getting user ID from Redis: %v", err)
 		return nil, err
 	}
 
@@ -33,14 +32,12 @@ func (c *CoordinatorSVC) OnlinePaymentSVC(ctx context.Context, p *cpb.Booking) (
 	amountKey := fmt.Sprintf("amount:%s", p.RefId)
 	totalFare, err := c.redis.Get(ctx, amountKey).Int64()
 	if err != nil {
-		log.Printf("error getting total fare from Redis: %v", err)
 		return nil, err
 	}
 
 	// Check if total fare is less than 1
 	if totalFare < 1 {
-		log.Println("total fare must be greater than or equal to 1")
-		return nil, fmt.Errorf("total fare must be greater than or equal to 1")
+		return nil, errors.New("total fare must be greater than or equal to 1")
 	}
 
 	// Calculate the amount based on payment type
@@ -59,15 +56,13 @@ func (c *CoordinatorSVC) OnlinePaymentSVC(ctx context.Context, p *cpb.Booking) (
 	}
 	order, err := client.Order.Create(orderData, nil)
 	if err != nil {
-		log.Printf("error creating order on Razorpay: %v", err)
 		return nil, err
 	}
 
 	// Extract order ID from the response
 	orderID, ok := order["id"].(string)
 	if !ok {
-		log.Println("error extracting order ID from Razorpay response")
-		return nil, fmt.Errorf("failed to extract order ID from Razorpay response")
+		return nil, errors.New("failed to extract order ID from Razorpay response")
 	}
 
 	// Construct the response object
@@ -81,7 +76,8 @@ func (c *CoordinatorSVC) OnlinePaymentSVC(ctx context.Context, p *cpb.Booking) (
 	return response, nil
 }
 
-func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.PaymentConfirmedRequest) (*cpb.BookingResponce, error) {
+// PaymentConfirmedSVC confirms payment and processes the booking.
+func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.PaymentConfirmedRequest) (*cpb.BookingResponse, error) {
 	// Start a new database transaction
 	db := c.Repo.GetDB()
 	tx := db.Begin()
@@ -96,74 +92,66 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 			panic(err)
 		}
 	}()
-	email_key := fmt.Sprintf("email:%s", p.ReferenceID)
-	username_key := fmt.Sprintf("username:%s", p.ReferenceID)
-	traveller_key := fmt.Sprintf("traveller:%s", p.ReferenceID)
-	activity_key := fmt.Sprintf("activity_bookings:%s", p.ReferenceID)
-	amount_key := fmt.Sprintf("amount:%s", p.ReferenceID)
-	pkg_key := fmt.Sprintf("package:%v", p.ReferenceID)
+
+	emailKey := fmt.Sprintf("email:%s", p.ReferenceID)
+	usernameKey := fmt.Sprintf("username:%s", p.ReferenceID)
+	travellerKey := fmt.Sprintf("traveller:%s", p.ReferenceID)
+	activityKey := fmt.Sprintf("activity_bookings:%s", p.ReferenceID)
+	amountKey := fmt.Sprintf("amount:%s", p.ReferenceID)
+	pkgKey := fmt.Sprintf("package:%v", p.ReferenceID)
 	userIDKey := fmt.Sprintf("userId:%s", p.ReferenceID)
+
 	userId, err := c.redis.Get(ctx, userIDKey).Int()
 	if err != nil {
-		log.Printf("error getting user ID from Redis: %v", err)
 		return nil, err
 	}
 
-	email := c.redis.Get(ctx, email_key).Val()
-	name := c.redis.Get(ctx, username_key).Val()
-	totalInt, _ := strconv.Atoi(p.Total)
-	total := float64(totalInt)
+	email := c.redis.Get(ctx, emailKey).Val()
+	name := c.redis.Get(ctx, usernameKey).Val()
+	total, _ := strconv.ParseFloat(p.Total, 64)
 
-	if total == 0 {
-		total, _ = strconv.ParseFloat(p.Total, 64)
+	amountData, err := c.redis.Get(ctx, amountKey).Int()
+	if err != nil {
+		return nil, err
 	}
 
-	amoundata, err := c.redis.Get(ctx, amount_key).Int()
 	rPay := dom.RazorPay{
 		UserID:          uint(userId),
 		RazorPaymentID:  p.PaymentId,
 		Signature:       p.Signature,
 		RazorPayOrderID: p.OrderID,
-		AmountPaid:      float64(total),
+		AmountPaid:      total,
 	}
 
 	var pkg dom.Package
-	pkgData := c.redis.Get(ctx, pkg_key).Val()
+	pkgData := c.redis.Get(ctx, pkgKey).Val()
 	err = json.Unmarshal([]byte(pkgData), &pkg)
 	if err != nil {
 		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error unmarshaling json err: %v", err.Error())
+		return &cpb.BookingResponse{Status: "fail"}, err
 	}
 
 	var activityBooking []dom.ActivityBooking
-	activityData := c.redis.Get(ctx, activity_key).Val()
-
+	activityData := c.redis.Get(ctx, activityKey).Val()
 	err = json.Unmarshal([]byte(activityData), &activityBooking)
 	if err != nil {
 		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error unmarshaling json err: %v", err.Error())
+		return &cpb.BookingResponse{Status: "fail"}, err
 	}
+
 	var travellers []dom.Traveller
-	travellerData := c.redis.Get(ctx, traveller_key).Val()
+	travellerData := c.redis.Get(ctx, travellerKey).Val()
 	err = json.Unmarshal([]byte(travellerData), &travellers)
 	if err != nil {
 		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error unmarshaling json err: %v", err.Error())
+		return &cpb.BookingResponse{Status: "fail"}, err
 	}
 
 	// Update the package within the transaction
 	err = tx.Model(&dom.Package{}).Where("id = ?", pkg.ID).Updates(&pkg).Error
 	if err != nil {
 		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error updating package: %v", err.Error())
+		return &cpb.BookingResponse{Status: "fail"}, err
 	}
 
 	// Create travellers within the transaction
@@ -171,18 +159,14 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 		err := tx.Create(&traveller).Error
 		if err != nil {
 			tx.Rollback()
-			return &cpb.BookingResponce{
-				Status: "fail",
-			}, fmt.Errorf("error creating traveller: %v", err.Error())
+			return &cpb.BookingResponse{Status: "fail"}, err
 		}
 	}
 
 	err = tx.Create(&rPay).Error
 	if err != nil {
 		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error creating razorpay: %v", err.Error())
+		return &cpb.BookingResponse{Status: "fail"}, err
 	}
 
 	// Create activity bookings within the transaction
@@ -190,9 +174,7 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 		err := tx.Create(&activity).Error
 		if err != nil {
 			tx.Rollback()
-			return &cpb.BookingResponce{
-				Status: "fail",
-			}, fmt.Errorf("error creating activity: %v", err.Error())
+			return &cpb.BookingResponse{Status: "fail"}, err
 		}
 	}
 
@@ -201,85 +183,81 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 	var booking dom.Booking
 	booking.BookingStatus = "success"
 	booking.Bookings = travellers
-	if amoundata != int(total) {
+	if amountData != int(total) {
 		booking.PaymentMode = "advance"
 	} else {
 		booking.PaymentMode = "full amount"
 	}
-	var codId uint
-	if float64(total) != float64(amoundata)*0.3 {
-		coordinator := c.FindCoordinatorByPackageId(pkg.ID)
-		codId = coordinator.ID
 
-		reslt := tx.Model(&coordinator).Update("wallet", coordinator.Wallet+float64(amoundata)*0.70)
-		if reslt.Error != nil {
+	var codID uint
+	if float64(total) != float64(amountData)*0.3 {
+		coordinator := c.FindCoordinatorByPackageId(pkg.ID)
+		codID = coordinator.ID
+
+		result := tx.Model(&coordinator).Update("wallet", coordinator.Wallet+float64(amountData)*0.70)
+		if result.Error != nil {
 			tx.Rollback()
-			return &cpb.BookingResponce{
-				Status: "fail",
-			}, fmt.Errorf("error creating booking: %v", err.Error())
+			return &cpb.BookingResponse{Status: "fail"}, err
 		}
 		_, err := c.client.AdminAddWalletRequest(ctx, &pb.AdminAddWallet{
-			Amount: float32(amoundata) * 0.30,
+			Amount: float32(amountData) * 0.3,
 		})
 		if err != nil {
 			tx.Rollback()
-			return &cpb.BookingResponce{
-				Status: "fail",
-			}, fmt.Errorf("error creating booking: %v", err.Error())
+			return &cpb.BookingResponse{Status: "fail"}, err
 		}
 	} else {
 		coordinator := c.FindCoordinatorByPackageId(pkg.ID)
-		codId = coordinator.ID
+		codID = coordinator.ID
+
 		_, err := c.client.AdminAddWalletRequest(ctx, &pb.AdminAddWallet{
-			Amount: float32(amoundata),
+			Amount: float32(amountData) * 0.3,
 		})
 		if err != nil {
 			tx.Rollback()
-			return &cpb.BookingResponce{
-				Status: "fail",
-			}, fmt.Errorf("error creating booking: %v", err.Error())
+			return &cpb.BookingResponse{Status: "fail"}, err
 		}
 	}
+
 	booking.PaidPrice = int(total)
-	booking.PackagePrice = amoundata
-	booking.UserId = uint(userId)
-	booking.BookingId = bookingID
+	booking.PackagePrice = amountData
+	booking.UserID = uint(userId)
+	booking.BookingID = bookingID
 	booking.Bookings = travellers
-	booking.PackageId = pkg.ID
+	booking.PackageID = pkg.ID
 	booking.BookDate = time.Now()
 	booking.StartDate = pkg.StartDate
-	booking.CoordinatorID = codId
+	booking.CoordinatorID = codID
 	booking.UserEmail = email
-	booking.CatagoryId = pkg.Category.ID
+	booking.CategoryID = pkg.Category.ID
 
 	err = tx.Create(&booking).Error
 	if err != nil {
 		tx.Rollback()
-		return &cpb.BookingResponce{
-			Status: "fail",
-		}, fmt.Errorf("error creating booking: %v", err.Error())
+		return &cpb.BookingResponse{Status: "fail"}, err
 	}
 
 	// Commit the transaction if everything is successful
 	tx.Commit()
 
 	var message msg.Messages
-	message.Amount = amoundata
+	message.Amount = amountData
 	message.Email = email
 	message.Username = name
 	message.Messages = "Your booking is confirmed. Amount: "
 	message.Subject = "Booking confirmed"
 
-	msg.PublishConfirmationMessage(message)
+	go msg.PublishConfirmationMessage(message)
 
-	return &cpb.BookingResponce{
+	return &cpb.BookingResponse{
 		Status:     "true",
 		Booking_Id: bookingID,
 	}, nil
 }
 
-func (c *CoordinatorSVC) FindCoordinatorByPackageId(pkgId uint) dom.User {
-	pkg, _ := c.Repo.FetchPackage(pkgId)
+// FindCoordinatorByPackageId finds the coordinator by package ID.
+func (c *CoordinatorSVC) FindCoordinatorByPackageId(pkgID uint) dom.User {
+	pkg, _ := c.Repo.FetchPackage(pkgID)
 
 	coordinator, _ := c.Repo.FetchUserById(pkg.ID)
 	return *coordinator

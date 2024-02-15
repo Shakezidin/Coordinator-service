@@ -1,35 +1,18 @@
 package packages
 
 import (
-	"database/sql/driver"
-	"encoding/json"
-	"errors"
 	"time"
 
 	"gorm.io/gorm"
 )
 
-type JSONB []interface{}
-
-// Value used to retrive value
-func (a JSONB) Value() (driver.Value, error) {
-	return json.Marshal(a)
-}
-
-// Scan helps to scan values
-func (a *JSONB) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to []byte failed")
-	}
-	return json.Unmarshal(b, &a)
-}
-
+// Category represents a trip category.
 type Category struct {
 	gorm.Model
-	Category string `gorm:"not null,unique"`
+	Category string `gorm:"not null;unique"`
 }
 
+// Package represents a tour package.
 type Package struct {
 	gorm.Model
 	Name             string    `gorm:"not null"`
@@ -43,87 +26,44 @@ type Package struct {
 	NumOfDestination int       `gorm:"not null"`
 	TripStatus       bool      `gorm:"default:false"`
 	TripCategoryId   uint      `gorm:"not null"`
-	Category         Category  `gorm:"ForeignKey:TripCategoryId"`
+	Category         Category  `gorm:"foreignKey:TripCategoryId"`
 	Images           string    `gorm:"not null"`
-	CoordinatorId    uint      `gorm:"not null"`
-	Availablespace   int       `grom:"not null"`
+	CoordinatorID    uint      `gorm:"not null"`
+	AvailableSpace   int       `gorm:"not null"`
 	Description      string
 }
 
+// Destination represents a destination within a package.
 type Destination struct {
 	gorm.Model
-	DestinationName    string  `gorm:"not null"`
-	Description        string  `gorm:"not null"`
-	PackageID          uint    `gorm:"not null"`
-	Package            Package `gorm:"ForeignKey:PackageID"`
-	Image              string
+	DestinationName    string `gorm:"not null"`
+	Description        string `gorm:"not null"`
+	PackageID          uint   `gorm:"not null"`
+	Package            Package
+	Image              string `gorm:"not null"`
 	TransportationMode string `gorm:"not null"`
 	ArrivalLocation    string `gorm:"not null"`
 }
 
+// Activity represents an activity within a destination.
 type Activity struct {
 	gorm.Model
-	DestinationId uint        `gorm:"not null"`
-	Destination   Destination `gorm:"ForeignKey:DestinationId"`
-	ActivityName  string      `gorm:"not null"`
-	Description   string      `gorm:"not null"`
-	Location      string      `gorm:"not null"`
-	ActivityType  string      `gorm:"not null"`
-	Amount        int         `gorm:"not null"`
+	DestinationID uint `gorm:"not null"`
+	Destination   Destination
+	ActivityName  string `gorm:"not null"`
+	Description   string `gorm:"not null"`
+	Location      string `gorm:"not null"`
+	ActivityType  string `gorm:"not null"`
+	Amount        int    `gorm:"not null"`
 	Date          time.Time
 	Time          time.Time
 }
 
-type ActivityBooking struct {
-	gorm.Model
-	TravellerId uint
-	Traveller   Traveller `gorm:"foreignKey:TravellerId"`
-	ActivityId  uint
-	Activity    Activity `gorm:"foreignKey:ActivityId"`
-}
-
-type Traveller struct {
-	ID         uint `gorm:"primaryKey"`
-	Name       string
-	Age        string
-	Gender     string
-	UserId     uint
-	PackageId  uint
-	Package    Package    `gorm:"foreignKey:PackageId"`
-	Activities []Activity `gorm:"many2many:activity_booking;"`
-}
-
-type Booking struct {
-	gorm.Model
-	PaymentMode     string `gorm:"not null"`
-	BookingStatus   string `gorm:"default:PENDING"`
-	CancelledStatus string `gorm:"default:false"`
-	PackagePrice    int
-	PaidPrice       int
-	UserId          uint
-	UserEmail       string
-	BookingId       string
-	Bookings        []Traveller `gorm:"many2many:traveller_booking;"`
-	PackageId       uint
-	Package         Package `gorm:"foreignKey:PackageId"`
-	BookDate        time.Time
-	StartDate       time.Time
-	CoordinatorID   uint
-	CatagoryId      uint
-}
-
-type RazorPay struct {
-	UserID          uint
-	RazorPaymentID  string
-	RazorPayOrderID string
-	Signature       string
-	AmountPaid      float64
-}
-
+// FoodMenu represents the food options for a package.
 type FoodMenu struct {
 	gorm.Model
-	PackageId uint
-	Package   Package `gorm:"foreignKey:PackageId"`
+	PackageID uint    `gorm:"not null"`
+	Package   Package `gorm:"foreignKey:PackageID"`
 	Breakfast string
 	Lunch     string
 	Dinner    string

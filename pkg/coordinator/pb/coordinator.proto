@@ -5,36 +5,36 @@ package pb;
 option go_package = ".";
 
 service Coordinator {
-    rpc CoordinatorSignupRequest(Signup)returns(Responce);
-    rpc CoordinatorViewPackages(View)returns(PackagesResponce);
-    rpc CoordinatorSignupVerifyRequest(Verify)returns(Responce);
-    rpc CoordinatorLoginRequest(Login)returns(LoginResponce);
-    rpc CoordinatorAddPackage(Package)returns(Responce);
-    rpc CoordinatorAddFoodMenu(FoodMenu)returns(Responce);
+    rpc CoordinatorSignupRequest(Signup)returns(Response);
+    rpc CoordinatorViewPackages(View)returns(PackagesResponse);
+    rpc CoordinatorSignupVerifyRequest(Verify)returns(Response);
+    rpc CoordinatorLoginRequest(Login)returns(LoginResponse);
+    rpc CoordinatorAddPackage(Package)returns(Response);
+    rpc CoordinatorAddFoodMenu(FoodMenu)returns(Response);
     rpc CoordinatorViewFoodMenu(View)returns(FoodMenus);
-    rpc CoordinatorAddDestination(Destination)returns(Responce);
-    rpc CoordinatorAddActivity(Activity)returns(Responce);
+    rpc CoordinatorAddDestination(Destination)returns(Response);
+    rpc CoordinatorAddActivity(Activity)returns(Response);
     rpc CoordinatorViewPackage(View)returns(Package);
     rpc CoordinatorViewDestination(View)returns(Destination);
     rpc CoordinatorViewActivity(View)returns(Activity);
-    rpc CoordinatorForgetPassword(forgetPassword)returns(Responce);
-    rpc CoordinatorForgetPasswordVerify(forgetPasswordVerify)returns(Responce);
-    rpc CoordinatorNewPassword(newpassword)returns(Responce);
-    rpc AvailablePackages(View) returns (PackagesResponce);
-    rpc AddCatagory(Category)returns(Responce);
-    rpc AdminPacakgeStatus(View)returns(Responce);
-    rpc ViewCatagories(View)returns(Catagories);
-    rpc PackageSearch(Search)returns(PackagesResponce);
-    rpc FilterPackage(Filter)returns(PackagesResponce);
+    rpc CoordinatorForgetPassword(forgetPassword)returns(Response);
+    rpc CoordinatorForgetPasswordVerify(forgetPasswordVerify)returns(Response);
+    rpc CoordinatorNewPassword(newpassword)returns(Response);
+    rpc AvailablePackages(View) returns (PackagesResponse);
+    rpc AddCatagory(Category)returns(Response);
+    rpc AdminPacakgeStatus(View)returns(Response);
+    rpc ViewCatagories(View)returns(Categories);
+    rpc PackageSearch(Search)returns(PackagesResponse);
+    rpc FilterPackage(Filter)returns(PackagesResponse);
     rpc UserTravellerDetails(TravellerRequest)returns(TravellerResponse);
-    rpc OfflineBooking(Booking)returns(BookingResponce);
+    rpc OfflineBooking(Booking)returns(BookingResponse);
     rpc OnlinePayment(Booking)returns(OnlinePaymentResponse);
-    rpc PaymentConfirmed(PaymentConfirmedRequest)returns(BookingResponce);
+    rpc PaymentConfirmed(PaymentConfirmedRequest)returns(BookingResponse);
     rpc ViewHistory(View)returns(Histories);
     rpc ViewBooking(View)returns(History);
-    rpc CancelBooking(View)returns(Responce);
+    rpc CancelBooking(View)returns(Response);
     rpc ViewTraveller(View)returns(TravellerDetails);
-    rpc ViewDashBord(View)returns(DashBord);
+    rpc ViewDashBord(View)returns(Dashboard);
     rpc ViewCoordinators(View)returns(Users);
     rpc SearchBooking(BookingSearchCriteria)returns(Histories);
 }
@@ -65,7 +65,7 @@ message User{
     string role = 6;
 }
 
-message DashBord{
+message Dashboard{
     int64 wallet = 1;
     int64 today = 2;
     int64 monthly = 3;
@@ -121,7 +121,7 @@ message OnlinePaymentResponse {
     string order_id = 5;
 }
 
-message BookingResponce{
+message BookingResponse{
     string status = 1;
     string booking_Id = 2;
 }
@@ -170,11 +170,11 @@ message Search{
     repeated string destination = 9;
 }
 
-message Catagories{
-    repeated Category Catagories = 1;
+message Categories{
+    repeated Category Categories = 1;
 }
 
-message PackagesResponce{
+message PackagesResponse{
     repeated Package Packages = 1;
 }
 
@@ -183,7 +183,7 @@ message Verify{
     string email = 2;
 }
 
-message Responce{
+message Response{
     string status = 1;
     string message = 2;
     int64 Id = 3;
@@ -225,7 +225,7 @@ message Login{
     string role = 3;
 }
 
-message SignupResponce{
+message SignupResponse{
     string status = 1;
     string message = 2;
 }
@@ -289,10 +289,10 @@ message Package{
 }
 
 message Category{
-    int64 CatagoryId = 1;
+    int64 CategoryId = 1;
     string categoryName = 2;
 }
 
-message LoginResponce{
+message LoginResponse{
     string            token = 1;
 }

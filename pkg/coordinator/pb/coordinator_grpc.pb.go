@@ -57,36 +57,36 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CoordinatorClient interface {
-	CoordinatorSignupRequest(ctx context.Context, in *Signup, opts ...grpc.CallOption) (*Responce, error)
-	CoordinatorViewPackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponce, error)
-	CoordinatorSignupVerifyRequest(ctx context.Context, in *Verify, opts ...grpc.CallOption) (*Responce, error)
-	CoordinatorLoginRequest(ctx context.Context, in *Login, opts ...grpc.CallOption) (*LoginResponce, error)
-	CoordinatorAddPackage(ctx context.Context, in *Package, opts ...grpc.CallOption) (*Responce, error)
-	CoordinatorAddFoodMenu(ctx context.Context, in *FoodMenu, opts ...grpc.CallOption) (*Responce, error)
+	CoordinatorSignupRequest(ctx context.Context, in *Signup, opts ...grpc.CallOption) (*Response, error)
+	CoordinatorViewPackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponse, error)
+	CoordinatorSignupVerifyRequest(ctx context.Context, in *Verify, opts ...grpc.CallOption) (*Response, error)
+	CoordinatorLoginRequest(ctx context.Context, in *Login, opts ...grpc.CallOption) (*LoginResponse, error)
+	CoordinatorAddPackage(ctx context.Context, in *Package, opts ...grpc.CallOption) (*Response, error)
+	CoordinatorAddFoodMenu(ctx context.Context, in *FoodMenu, opts ...grpc.CallOption) (*Response, error)
 	CoordinatorViewFoodMenu(ctx context.Context, in *View, opts ...grpc.CallOption) (*FoodMenus, error)
-	CoordinatorAddDestination(ctx context.Context, in *Destination, opts ...grpc.CallOption) (*Responce, error)
-	CoordinatorAddActivity(ctx context.Context, in *Activity, opts ...grpc.CallOption) (*Responce, error)
+	CoordinatorAddDestination(ctx context.Context, in *Destination, opts ...grpc.CallOption) (*Response, error)
+	CoordinatorAddActivity(ctx context.Context, in *Activity, opts ...grpc.CallOption) (*Response, error)
 	CoordinatorViewPackage(ctx context.Context, in *View, opts ...grpc.CallOption) (*Package, error)
 	CoordinatorViewDestination(ctx context.Context, in *View, opts ...grpc.CallOption) (*Destination, error)
 	CoordinatorViewActivity(ctx context.Context, in *View, opts ...grpc.CallOption) (*Activity, error)
-	CoordinatorForgetPassword(ctx context.Context, in *ForgetPassword, opts ...grpc.CallOption) (*Responce, error)
-	CoordinatorForgetPasswordVerify(ctx context.Context, in *ForgetPasswordVerify, opts ...grpc.CallOption) (*Responce, error)
-	CoordinatorNewPassword(ctx context.Context, in *Newpassword, opts ...grpc.CallOption) (*Responce, error)
-	AvailablePackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponce, error)
-	AddCatagory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*Responce, error)
-	AdminPacakgeStatus(ctx context.Context, in *View, opts ...grpc.CallOption) (*Responce, error)
-	ViewCatagories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Catagories, error)
-	PackageSearch(ctx context.Context, in *Search, opts ...grpc.CallOption) (*PackagesResponce, error)
-	FilterPackage(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*PackagesResponce, error)
+	CoordinatorForgetPassword(ctx context.Context, in *ForgetPassword, opts ...grpc.CallOption) (*Response, error)
+	CoordinatorForgetPasswordVerify(ctx context.Context, in *ForgetPasswordVerify, opts ...grpc.CallOption) (*Response, error)
+	CoordinatorNewPassword(ctx context.Context, in *Newpassword, opts ...grpc.CallOption) (*Response, error)
+	AvailablePackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponse, error)
+	AddCatagory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*Response, error)
+	AdminPacakgeStatus(ctx context.Context, in *View, opts ...grpc.CallOption) (*Response, error)
+	ViewCatagories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Categories, error)
+	PackageSearch(ctx context.Context, in *Search, opts ...grpc.CallOption) (*PackagesResponse, error)
+	FilterPackage(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*PackagesResponse, error)
 	UserTravellerDetails(ctx context.Context, in *TravellerRequest, opts ...grpc.CallOption) (*TravellerResponse, error)
-	OfflineBooking(ctx context.Context, in *Booking, opts ...grpc.CallOption) (*BookingResponce, error)
+	OfflineBooking(ctx context.Context, in *Booking, opts ...grpc.CallOption) (*BookingResponse, error)
 	OnlinePayment(ctx context.Context, in *Booking, opts ...grpc.CallOption) (*OnlinePaymentResponse, error)
-	PaymentConfirmed(ctx context.Context, in *PaymentConfirmedRequest, opts ...grpc.CallOption) (*BookingResponce, error)
+	PaymentConfirmed(ctx context.Context, in *PaymentConfirmedRequest, opts ...grpc.CallOption) (*BookingResponse, error)
 	ViewHistory(ctx context.Context, in *View, opts ...grpc.CallOption) (*Histories, error)
 	ViewBooking(ctx context.Context, in *View, opts ...grpc.CallOption) (*History, error)
-	CancelBooking(ctx context.Context, in *View, opts ...grpc.CallOption) (*Responce, error)
+	CancelBooking(ctx context.Context, in *View, opts ...grpc.CallOption) (*Response, error)
 	ViewTraveller(ctx context.Context, in *View, opts ...grpc.CallOption) (*TravellerDetails, error)
-	ViewDashBord(ctx context.Context, in *View, opts ...grpc.CallOption) (*DashBord, error)
+	ViewDashBord(ctx context.Context, in *View, opts ...grpc.CallOption) (*Dashboard, error)
 	ViewCoordinators(ctx context.Context, in *View, opts ...grpc.CallOption) (*Users, error)
 	SearchBooking(ctx context.Context, in *BookingSearchCriteria, opts ...grpc.CallOption) (*Histories, error)
 }
@@ -99,8 +99,8 @@ func NewCoordinatorClient(cc grpc.ClientConnInterface) CoordinatorClient {
 	return &coordinatorClient{cc}
 }
 
-func (c *coordinatorClient) CoordinatorSignupRequest(ctx context.Context, in *Signup, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) CoordinatorSignupRequest(ctx context.Context, in *Signup, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorSignupRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -108,8 +108,8 @@ func (c *coordinatorClient) CoordinatorSignupRequest(ctx context.Context, in *Si
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorViewPackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponce, error) {
-	out := new(PackagesResponce)
+func (c *coordinatorClient) CoordinatorViewPackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponse, error) {
+	out := new(PackagesResponse)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorViewPackages_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -117,8 +117,8 @@ func (c *coordinatorClient) CoordinatorViewPackages(ctx context.Context, in *Vie
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorSignupVerifyRequest(ctx context.Context, in *Verify, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) CoordinatorSignupVerifyRequest(ctx context.Context, in *Verify, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorSignupVerifyRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -126,8 +126,8 @@ func (c *coordinatorClient) CoordinatorSignupVerifyRequest(ctx context.Context, 
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorLoginRequest(ctx context.Context, in *Login, opts ...grpc.CallOption) (*LoginResponce, error) {
-	out := new(LoginResponce)
+func (c *coordinatorClient) CoordinatorLoginRequest(ctx context.Context, in *Login, opts ...grpc.CallOption) (*LoginResponse, error) {
+	out := new(LoginResponse)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorLoginRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -135,8 +135,8 @@ func (c *coordinatorClient) CoordinatorLoginRequest(ctx context.Context, in *Log
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorAddPackage(ctx context.Context, in *Package, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) CoordinatorAddPackage(ctx context.Context, in *Package, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorAddPackage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -144,8 +144,8 @@ func (c *coordinatorClient) CoordinatorAddPackage(ctx context.Context, in *Packa
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorAddFoodMenu(ctx context.Context, in *FoodMenu, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) CoordinatorAddFoodMenu(ctx context.Context, in *FoodMenu, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorAddFoodMenu_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -162,8 +162,8 @@ func (c *coordinatorClient) CoordinatorViewFoodMenu(ctx context.Context, in *Vie
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorAddDestination(ctx context.Context, in *Destination, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) CoordinatorAddDestination(ctx context.Context, in *Destination, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorAddDestination_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -171,8 +171,8 @@ func (c *coordinatorClient) CoordinatorAddDestination(ctx context.Context, in *D
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorAddActivity(ctx context.Context, in *Activity, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) CoordinatorAddActivity(ctx context.Context, in *Activity, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorAddActivity_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -207,8 +207,8 @@ func (c *coordinatorClient) CoordinatorViewActivity(ctx context.Context, in *Vie
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorForgetPassword(ctx context.Context, in *ForgetPassword, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) CoordinatorForgetPassword(ctx context.Context, in *ForgetPassword, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorForgetPassword_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -216,8 +216,8 @@ func (c *coordinatorClient) CoordinatorForgetPassword(ctx context.Context, in *F
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorForgetPasswordVerify(ctx context.Context, in *ForgetPasswordVerify, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) CoordinatorForgetPasswordVerify(ctx context.Context, in *ForgetPasswordVerify, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorForgetPasswordVerify_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -225,8 +225,8 @@ func (c *coordinatorClient) CoordinatorForgetPasswordVerify(ctx context.Context,
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorNewPassword(ctx context.Context, in *Newpassword, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) CoordinatorNewPassword(ctx context.Context, in *Newpassword, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorNewPassword_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -234,8 +234,8 @@ func (c *coordinatorClient) CoordinatorNewPassword(ctx context.Context, in *Newp
 	return out, nil
 }
 
-func (c *coordinatorClient) AvailablePackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponce, error) {
-	out := new(PackagesResponce)
+func (c *coordinatorClient) AvailablePackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponse, error) {
+	out := new(PackagesResponse)
 	err := c.cc.Invoke(ctx, Coordinator_AvailablePackages_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -243,8 +243,8 @@ func (c *coordinatorClient) AvailablePackages(ctx context.Context, in *View, opt
 	return out, nil
 }
 
-func (c *coordinatorClient) AddCatagory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) AddCatagory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_AddCatagory_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -252,8 +252,8 @@ func (c *coordinatorClient) AddCatagory(ctx context.Context, in *Category, opts 
 	return out, nil
 }
 
-func (c *coordinatorClient) AdminPacakgeStatus(ctx context.Context, in *View, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) AdminPacakgeStatus(ctx context.Context, in *View, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_AdminPacakgeStatus_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -261,8 +261,8 @@ func (c *coordinatorClient) AdminPacakgeStatus(ctx context.Context, in *View, op
 	return out, nil
 }
 
-func (c *coordinatorClient) ViewCatagories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Catagories, error) {
-	out := new(Catagories)
+func (c *coordinatorClient) ViewCatagories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Categories, error) {
+	out := new(Categories)
 	err := c.cc.Invoke(ctx, Coordinator_ViewCatagories_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -270,8 +270,8 @@ func (c *coordinatorClient) ViewCatagories(ctx context.Context, in *View, opts .
 	return out, nil
 }
 
-func (c *coordinatorClient) PackageSearch(ctx context.Context, in *Search, opts ...grpc.CallOption) (*PackagesResponce, error) {
-	out := new(PackagesResponce)
+func (c *coordinatorClient) PackageSearch(ctx context.Context, in *Search, opts ...grpc.CallOption) (*PackagesResponse, error) {
+	out := new(PackagesResponse)
 	err := c.cc.Invoke(ctx, Coordinator_PackageSearch_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -279,8 +279,8 @@ func (c *coordinatorClient) PackageSearch(ctx context.Context, in *Search, opts 
 	return out, nil
 }
 
-func (c *coordinatorClient) FilterPackage(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*PackagesResponce, error) {
-	out := new(PackagesResponce)
+func (c *coordinatorClient) FilterPackage(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*PackagesResponse, error) {
+	out := new(PackagesResponse)
 	err := c.cc.Invoke(ctx, Coordinator_FilterPackage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -297,8 +297,8 @@ func (c *coordinatorClient) UserTravellerDetails(ctx context.Context, in *Travel
 	return out, nil
 }
 
-func (c *coordinatorClient) OfflineBooking(ctx context.Context, in *Booking, opts ...grpc.CallOption) (*BookingResponce, error) {
-	out := new(BookingResponce)
+func (c *coordinatorClient) OfflineBooking(ctx context.Context, in *Booking, opts ...grpc.CallOption) (*BookingResponse, error) {
+	out := new(BookingResponse)
 	err := c.cc.Invoke(ctx, Coordinator_OfflineBooking_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -315,8 +315,8 @@ func (c *coordinatorClient) OnlinePayment(ctx context.Context, in *Booking, opts
 	return out, nil
 }
 
-func (c *coordinatorClient) PaymentConfirmed(ctx context.Context, in *PaymentConfirmedRequest, opts ...grpc.CallOption) (*BookingResponce, error) {
-	out := new(BookingResponce)
+func (c *coordinatorClient) PaymentConfirmed(ctx context.Context, in *PaymentConfirmedRequest, opts ...grpc.CallOption) (*BookingResponse, error) {
+	out := new(BookingResponse)
 	err := c.cc.Invoke(ctx, Coordinator_PaymentConfirmed_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -342,8 +342,8 @@ func (c *coordinatorClient) ViewBooking(ctx context.Context, in *View, opts ...g
 	return out, nil
 }
 
-func (c *coordinatorClient) CancelBooking(ctx context.Context, in *View, opts ...grpc.CallOption) (*Responce, error) {
-	out := new(Responce)
+func (c *coordinatorClient) CancelBooking(ctx context.Context, in *View, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CancelBooking_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -360,8 +360,8 @@ func (c *coordinatorClient) ViewTraveller(ctx context.Context, in *View, opts ..
 	return out, nil
 }
 
-func (c *coordinatorClient) ViewDashBord(ctx context.Context, in *View, opts ...grpc.CallOption) (*DashBord, error) {
-	out := new(DashBord)
+func (c *coordinatorClient) ViewDashBord(ctx context.Context, in *View, opts ...grpc.CallOption) (*Dashboard, error) {
+	out := new(Dashboard)
 	err := c.cc.Invoke(ctx, Coordinator_ViewDashBord_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -391,36 +391,36 @@ func (c *coordinatorClient) SearchBooking(ctx context.Context, in *BookingSearch
 // All implementations must embed UnimplementedCoordinatorServer
 // for forward compatibility
 type CoordinatorServer interface {
-	CoordinatorSignupRequest(context.Context, *Signup) (*Responce, error)
-	CoordinatorViewPackages(context.Context, *View) (*PackagesResponce, error)
-	CoordinatorSignupVerifyRequest(context.Context, *Verify) (*Responce, error)
-	CoordinatorLoginRequest(context.Context, *Login) (*LoginResponce, error)
-	CoordinatorAddPackage(context.Context, *Package) (*Responce, error)
-	CoordinatorAddFoodMenu(context.Context, *FoodMenu) (*Responce, error)
+	CoordinatorSignupRequest(context.Context, *Signup) (*Response, error)
+	CoordinatorViewPackages(context.Context, *View) (*PackagesResponse, error)
+	CoordinatorSignupVerifyRequest(context.Context, *Verify) (*Response, error)
+	CoordinatorLoginRequest(context.Context, *Login) (*LoginResponse, error)
+	CoordinatorAddPackage(context.Context, *Package) (*Response, error)
+	CoordinatorAddFoodMenu(context.Context, *FoodMenu) (*Response, error)
 	CoordinatorViewFoodMenu(context.Context, *View) (*FoodMenus, error)
-	CoordinatorAddDestination(context.Context, *Destination) (*Responce, error)
-	CoordinatorAddActivity(context.Context, *Activity) (*Responce, error)
+	CoordinatorAddDestination(context.Context, *Destination) (*Response, error)
+	CoordinatorAddActivity(context.Context, *Activity) (*Response, error)
 	CoordinatorViewPackage(context.Context, *View) (*Package, error)
 	CoordinatorViewDestination(context.Context, *View) (*Destination, error)
 	CoordinatorViewActivity(context.Context, *View) (*Activity, error)
-	CoordinatorForgetPassword(context.Context, *ForgetPassword) (*Responce, error)
-	CoordinatorForgetPasswordVerify(context.Context, *ForgetPasswordVerify) (*Responce, error)
-	CoordinatorNewPassword(context.Context, *Newpassword) (*Responce, error)
-	AvailablePackages(context.Context, *View) (*PackagesResponce, error)
-	AddCatagory(context.Context, *Category) (*Responce, error)
-	AdminPacakgeStatus(context.Context, *View) (*Responce, error)
-	ViewCatagories(context.Context, *View) (*Catagories, error)
-	PackageSearch(context.Context, *Search) (*PackagesResponce, error)
-	FilterPackage(context.Context, *Filter) (*PackagesResponce, error)
+	CoordinatorForgetPassword(context.Context, *ForgetPassword) (*Response, error)
+	CoordinatorForgetPasswordVerify(context.Context, *ForgetPasswordVerify) (*Response, error)
+	CoordinatorNewPassword(context.Context, *Newpassword) (*Response, error)
+	AvailablePackages(context.Context, *View) (*PackagesResponse, error)
+	AddCatagory(context.Context, *Category) (*Response, error)
+	AdminPacakgeStatus(context.Context, *View) (*Response, error)
+	ViewCatagories(context.Context, *View) (*Categories, error)
+	PackageSearch(context.Context, *Search) (*PackagesResponse, error)
+	FilterPackage(context.Context, *Filter) (*PackagesResponse, error)
 	UserTravellerDetails(context.Context, *TravellerRequest) (*TravellerResponse, error)
-	OfflineBooking(context.Context, *Booking) (*BookingResponce, error)
+	OfflineBooking(context.Context, *Booking) (*BookingResponse, error)
 	OnlinePayment(context.Context, *Booking) (*OnlinePaymentResponse, error)
-	PaymentConfirmed(context.Context, *PaymentConfirmedRequest) (*BookingResponce, error)
+	PaymentConfirmed(context.Context, *PaymentConfirmedRequest) (*BookingResponse, error)
 	ViewHistory(context.Context, *View) (*Histories, error)
 	ViewBooking(context.Context, *View) (*History, error)
-	CancelBooking(context.Context, *View) (*Responce, error)
+	CancelBooking(context.Context, *View) (*Response, error)
 	ViewTraveller(context.Context, *View) (*TravellerDetails, error)
-	ViewDashBord(context.Context, *View) (*DashBord, error)
+	ViewDashBord(context.Context, *View) (*Dashboard, error)
 	ViewCoordinators(context.Context, *View) (*Users, error)
 	SearchBooking(context.Context, *BookingSearchCriteria) (*Histories, error)
 	mustEmbedUnimplementedCoordinatorServer()
@@ -430,31 +430,31 @@ type CoordinatorServer interface {
 type UnimplementedCoordinatorServer struct {
 }
 
-func (UnimplementedCoordinatorServer) CoordinatorSignupRequest(context.Context, *Signup) (*Responce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorSignupRequest(context.Context, *Signup) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorSignupRequest not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorViewPackages(context.Context, *View) (*PackagesResponce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorViewPackages(context.Context, *View) (*PackagesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorViewPackages not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorSignupVerifyRequest(context.Context, *Verify) (*Responce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorSignupVerifyRequest(context.Context, *Verify) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorSignupVerifyRequest not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorLoginRequest(context.Context, *Login) (*LoginResponce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorLoginRequest(context.Context, *Login) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorLoginRequest not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorAddPackage(context.Context, *Package) (*Responce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorAddPackage(context.Context, *Package) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorAddPackage not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorAddFoodMenu(context.Context, *FoodMenu) (*Responce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorAddFoodMenu(context.Context, *FoodMenu) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorAddFoodMenu not implemented")
 }
 func (UnimplementedCoordinatorServer) CoordinatorViewFoodMenu(context.Context, *View) (*FoodMenus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorViewFoodMenu not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorAddDestination(context.Context, *Destination) (*Responce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorAddDestination(context.Context, *Destination) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorAddDestination not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorAddActivity(context.Context, *Activity) (*Responce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorAddActivity(context.Context, *Activity) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorAddActivity not implemented")
 }
 func (UnimplementedCoordinatorServer) CoordinatorViewPackage(context.Context, *View) (*Package, error) {
@@ -466,43 +466,43 @@ func (UnimplementedCoordinatorServer) CoordinatorViewDestination(context.Context
 func (UnimplementedCoordinatorServer) CoordinatorViewActivity(context.Context, *View) (*Activity, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorViewActivity not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorForgetPassword(context.Context, *ForgetPassword) (*Responce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorForgetPassword(context.Context, *ForgetPassword) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorForgetPassword not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorForgetPasswordVerify(context.Context, *ForgetPasswordVerify) (*Responce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorForgetPasswordVerify(context.Context, *ForgetPasswordVerify) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorForgetPasswordVerify not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorNewPassword(context.Context, *Newpassword) (*Responce, error) {
+func (UnimplementedCoordinatorServer) CoordinatorNewPassword(context.Context, *Newpassword) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorNewPassword not implemented")
 }
-func (UnimplementedCoordinatorServer) AvailablePackages(context.Context, *View) (*PackagesResponce, error) {
+func (UnimplementedCoordinatorServer) AvailablePackages(context.Context, *View) (*PackagesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AvailablePackages not implemented")
 }
-func (UnimplementedCoordinatorServer) AddCatagory(context.Context, *Category) (*Responce, error) {
+func (UnimplementedCoordinatorServer) AddCatagory(context.Context, *Category) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCatagory not implemented")
 }
-func (UnimplementedCoordinatorServer) AdminPacakgeStatus(context.Context, *View) (*Responce, error) {
+func (UnimplementedCoordinatorServer) AdminPacakgeStatus(context.Context, *View) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminPacakgeStatus not implemented")
 }
-func (UnimplementedCoordinatorServer) ViewCatagories(context.Context, *View) (*Catagories, error) {
+func (UnimplementedCoordinatorServer) ViewCatagories(context.Context, *View) (*Categories, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewCatagories not implemented")
 }
-func (UnimplementedCoordinatorServer) PackageSearch(context.Context, *Search) (*PackagesResponce, error) {
+func (UnimplementedCoordinatorServer) PackageSearch(context.Context, *Search) (*PackagesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PackageSearch not implemented")
 }
-func (UnimplementedCoordinatorServer) FilterPackage(context.Context, *Filter) (*PackagesResponce, error) {
+func (UnimplementedCoordinatorServer) FilterPackage(context.Context, *Filter) (*PackagesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FilterPackage not implemented")
 }
 func (UnimplementedCoordinatorServer) UserTravellerDetails(context.Context, *TravellerRequest) (*TravellerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserTravellerDetails not implemented")
 }
-func (UnimplementedCoordinatorServer) OfflineBooking(context.Context, *Booking) (*BookingResponce, error) {
+func (UnimplementedCoordinatorServer) OfflineBooking(context.Context, *Booking) (*BookingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OfflineBooking not implemented")
 }
 func (UnimplementedCoordinatorServer) OnlinePayment(context.Context, *Booking) (*OnlinePaymentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OnlinePayment not implemented")
 }
-func (UnimplementedCoordinatorServer) PaymentConfirmed(context.Context, *PaymentConfirmedRequest) (*BookingResponce, error) {
+func (UnimplementedCoordinatorServer) PaymentConfirmed(context.Context, *PaymentConfirmedRequest) (*BookingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PaymentConfirmed not implemented")
 }
 func (UnimplementedCoordinatorServer) ViewHistory(context.Context, *View) (*Histories, error) {
@@ -511,13 +511,13 @@ func (UnimplementedCoordinatorServer) ViewHistory(context.Context, *View) (*Hist
 func (UnimplementedCoordinatorServer) ViewBooking(context.Context, *View) (*History, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewBooking not implemented")
 }
-func (UnimplementedCoordinatorServer) CancelBooking(context.Context, *View) (*Responce, error) {
+func (UnimplementedCoordinatorServer) CancelBooking(context.Context, *View) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelBooking not implemented")
 }
 func (UnimplementedCoordinatorServer) ViewTraveller(context.Context, *View) (*TravellerDetails, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewTraveller not implemented")
 }
-func (UnimplementedCoordinatorServer) ViewDashBord(context.Context, *View) (*DashBord, error) {
+func (UnimplementedCoordinatorServer) ViewDashBord(context.Context, *View) (*Dashboard, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewDashBord not implemented")
 }
 func (UnimplementedCoordinatorServer) ViewCoordinators(context.Context, *View) (*Users, error) {

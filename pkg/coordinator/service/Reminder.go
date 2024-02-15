@@ -15,14 +15,20 @@ func (c *CoordinatorSVC) FetchNextDayTrip() {
 		return
 	}
 	for _, booking := range *bookings {
-		msgs := msg.Messages{
-			Email:    booking.UserEmail,
-			Amount:   booking.PackagePrice,
-			Messages: fmt.Sprintf("Dear %s,\n\nThis is a friendly reminder that your booking for %s is scheduled for tomorrow, %s. We hope you're looking forward to your trip!\n\nIf you have any questions or need further assistance, feel free to contact us. Have a fantastic trip!\n\nBest regards,\nGlobal Package", booking.UserEmail, booking.Package.Name, tomorrow),
-			Subject:  fmt.Sprintf("Reminder: Your Booking for %s Tomorrow", booking.Package.Name),
-		}
-		msg.PublishConfirmationMessage(msgs)
+		msg := fmt.Sprintf("Dear %s,\n\nThis is a friendly reminder that your booking for %s is scheduled for tomorrow, %s. We hope you're looking forward to your trip!\n\nIf you have any questions or need further assistance, feel free to contact us. Have a fantastic trip!\n\nBest regards,\nGlobal Package", booking.UserEmail, booking.Package.Name, tomorrow)
+		sbjct := fmt.Sprintf("Reminder: Your Booking for %s Tomorrow", booking.Package.Name)
+		go CreateMessage(booking.PackagePrice, booking.UserEmail, msg, sbjct)
 	}
+}
+
+func CreateMessage(amount int, email, message, subject string) {
+	msgs := msg.Messages{
+		Email:    email,
+		Amount:   amount,
+		Messages: message,
+		Subject:  subject,
+	}
+	msg.PublishConfirmationMessage(msgs)
 }
 
 func (c *CoordinatorSVC) UpdateExpiredPackage() {
@@ -30,7 +36,6 @@ func (c *CoordinatorSVC) UpdateExpiredPackage() {
 
 	err := c.Repo.UpdatePackageExpiration(yesterday)
 	if err != nil {
-		// Handle the error appropriately
 		return
 	}
 }

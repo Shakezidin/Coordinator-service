@@ -4,8 +4,8 @@ import (
 	cDOM "github.com/Shakezidin/pkg/entities/packages"
 )
 
-func (c *CoordinatorRepo) FetchHistory(offset, limit int, id uint) (*[]cDOM.Booking, error) {
-	var booking *[]cDOM.Booking
+func (c *CoordinatorRepo) FetchHistory(offset, limit int, id uint) ([]*cDOM.Booking, error) {
+	var booking []*cDOM.Booking
 	if err := c.DB.Where("user_id = ?", id).Offset(offset).Limit(limit).Find(&booking).Error; err != nil {
 		return nil, err
 	}
@@ -20,8 +20,8 @@ func (c *CoordinatorRepo) FetchBooking(id uint) (*cDOM.Booking, error) {
 	return booking, nil
 }
 
-func (c *CoordinatorRepo) FetchBookings(offset, limit int, id uint) (*[]cDOM.Booking, error) {
-	var booking *[]cDOM.Booking
+func (c *CoordinatorRepo) FetchBookings(offset, limit int, id uint) ([]*cDOM.Booking, error) {
+	var booking []*cDOM.Booking
 	if err := c.DB.Where("package_id = ?", id).Offset(offset).Limit(limit).Find(&booking).Error; err != nil {
 		return nil, err
 	}

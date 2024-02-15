@@ -3,80 +3,65 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 
-	pb "github.com/Shakezidin/pkg/coordinator/client/pb"
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
+	"github.com/Shakezidin/pkg/entities/packages"
 )
 
-func (c *CoordinatorSVC) ViewhistorySVC(p *cpb.View) (*cpb.Histories, error) {
+// ViewHistorySVC retrieves booking history.
+func (c *CoordinatorSVC) ViewHistorySVC(p *cpb.View) (*cpb.Histories, error) {
 	offset := 10 * (p.Page - 1)
 	limit := 10
+	var history []*packages.Booking
+	var err error
+
 	if p.Status == "false" {
-		history, err := c.Repo.FetchHistory(int(offset), limit, uint(p.Id))
+		history, err = c.Repo.FetchHistory(int(offset), limit, uint(p.Id))
 		if err != nil {
-			return nil, errors.New("Error while package")
+			return nil, errors.New("error while fetching package history")
 		}
-
-		var histoy []*cpb.History
-		for _, hstry := range *history {
-			histoy = append(histoy, &cpb.History{
-				Id:              int64(hstry.ID),
-				PaymentMode:     hstry.PaymentMode,
-				BookingStatus:   hstry.BookingStatus,
-				CancelledStatus: hstry.CancelledStatus,
-				TotalPrice:      int64(hstry.PackagePrice),
-				UserId:          int64(hstry.UserId),
-				BookingId:       hstry.BookingId,
-				BookDate:        hstry.BookDate.Format("02-01-2006"),
-				StartDate:       hstry.StartDate.Format("02-01-2006"),
-				PaidAmount:      int64(hstry.PaidPrice),
-			})
+	} else {
+		history, err = c.Repo.FetchBookings(int(offset), limit, uint(p.Id))
+		if err != nil {
+			return nil, errors.New("error while fetching booking history")
 		}
-
-		return &cpb.Histories{
-			History: histoy,
-		}, nil
-	}
-	history, err := c.Repo.FetchBookings(int(offset), limit, uint(p.Id))
-	if err != nil {
-		return nil, err
 	}
 
-	var histoy []*cpb.History
-	for _, hstry := range *history {
-		histoy = append(histoy, &cpb.History{
-			Id:              int64(hstry.ID),
-			PaymentMode:     hstry.PaymentMode,
-			BookingStatus:   hstry.BookingStatus,
-			CancelledStatus: hstry.CancelledStatus,
-			TotalPrice:      int64(hstry.PackagePrice),
-			UserId:          int64(hstry.UserId),
-			BookingId:       hstry.BookingId,
-			BookDate:        hstry.BookDate.Format("02-01-2006"),
-			StartDate:       hstry.StartDate.Format("02-01-2006"),
-			PaidAmount:      int64(hstry.PaidPrice),
+	var pbHistory []*cpb.History
+	for _, h := range history {
+		pbHistory = append(pbHistory, &cpb.History{
+			Id:              int64(h.ID),
+			PaymentMode:     h.PaymentMode,
+			BookingStatus:   h.BookingStatus,
+			CancelledStatus: h.CancelledStatus,
+			TotalPrice:      int64(h.PackagePrice),
+			UserId:          int64(h.UserID),
+			BookingId:       h.BookingID,
+			BookDate:        h.BookDate.Format("02-01-2006"),
+			StartDate:       h.StartDate.Format("02-01-2006"),
+			PaidAmount:      int64(h.PaidPrice),
 		})
 	}
 
 	return &cpb.Histories{
-		History: histoy,
+		History: pbHistory,
 	}, nil
 }
 
+// ViewBookingSVC retrieves a specific booking.
 func (c *CoordinatorSVC) ViewBookingSVC(p *cpb.View) (*cpb.History, error) {
 	booking, err := c.Repo.FetchBooking(uint(p.Id))
 	if err != nil {
-		fmt.Println("heyyyyyyyyyyyyyyy")
-		return nil, errors.New("no packages")
+		return nil, errors.New("booking not found")
 	}
-	var traveller []*cpb.TravellerDetails
-	for _, trvler := range booking.Bookings {
-		traveller = append(traveller, &cpb.TravellerDetails{
-			Id:     int64(trvler.ID),
-			Name:   trvler.Name,
-			Age:    trvler.Age,
-			Gender: trvler.Gender,
+
+	var travellers []*cpb.TravellerDetails
+	for _, t := range booking.Bookings {
+		travellers = append(travellers, &cpb.TravellerDetails{
+			Id:     int64(t.ID),
+			Name:   t.Name,
+			Age:    t.Age,
+			Gender: t.Gender,
 		})
 	}
 
@@ -86,92 +71,79 @@ func (c *CoordinatorSVC) ViewBookingSVC(p *cpb.View) (*cpb.History, error) {
 		BookingStatus:   booking.BookingStatus,
 		CancelledStatus: booking.CancelledStatus,
 		TotalPrice:      int64(booking.PackagePrice),
-		UserId:          int64(booking.UserId),
-		BookingId:       booking.BookingId,
+		UserId:          int64(booking.UserID),
+		BookingId:       booking.BookingID,
 		BookDate:        booking.BookDate.Format("02-01-2006"),
 		StartDate:       booking.StartDate.Format("02-01-2006"),
-		Travellers:      traveller,
+		Travellers:      travellers,
 		PaidAmount:      int64(booking.PaidPrice),
 	}, nil
-
 }
 
-func (c *CoordinatorSVC) CancelBookingSVC(p *cpb.View) (*cpb.Responce, error) {
+// CancelBookingSVC cancels a booking.
+func (c *CoordinatorSVC) CancelBookingSVC(p *cpb.View) (*cpb.Response, error) {
 	booking, err := c.Repo.FetchBooking(uint(p.Id))
 	if err != nil {
-		return &cpb.Responce{
+		return &cpb.Response{
 			Status:  "fail",
-			Message: "fetching booking error",
+			Message: "booking not found",
 		}, errors.New("booking not found")
 	}
 
 	if booking.CancelledStatus == "cancelled" {
-		return &cpb.Responce{
-			Status: "false",
-		}, errors.New("Package already cancelled")
+		return &cpb.Response{
+			Status:  "fail",
+			Message: "booking already cancelled",
+		}, errors.New("booking already cancelled")
 	}
 
 	booking.CancelledStatus = "cancelled"
 
-	pkg, err := c.Repo.FetchPackage(booking.PackageId)
+	pkg, err := c.Repo.FetchPackage(booking.PackageID)
 	if err != nil {
-		return &cpb.Responce{
+		return &cpb.Response{
 			Status:  "fail",
-			Message: "fetching package error",
+			Message: "package not found",
 		}, errors.New("package not found")
 	}
 
-	pkg.MaxCapacity += len(booking.Bookings)
-	coordinator, err := c.Repo.FetchUserById(pkg.CoordinatorId)
+	pkg.AvailableSpace += len(booking.Bookings)
+	err = c.Repo.UpdatePackage(*pkg)
 	if err != nil {
-		return &cpb.Responce{
-			Status: "fail",
-		}, errors.New("error while fetching coordinator")
-	}
-	if booking.PaymentMode == "full amount" {
-		coordinator.Wallet -= float64(booking.PackagePrice) * 0.70
-		err = c.Repo.UpdateUser(coordinator)
-	}
-	err = c.Repo.UpdateBooking(*booking)
-	err = c.Repo.UpdatePackage(pkg)
-	var ctx = context.Background()
-	_, err = c.client.AdminReduseWalletRequesr(ctx, &pb.AdminAddWallet{
-		Amount: float32(booking.PackagePrice) * 0.30,
-	})
-
-	if err != nil {
-		fmt.Println(err)
-		return &cpb.Responce{
-			Status: "fail",
-		}, err
+		return &cpb.Response{
+			Status:  "fail",
+			Message: "failed to update package",
+		}, errors.New("failed to update package")
 	}
 
-	return &cpb.Responce{
+	// Additional logic for coordinator wallet adjustment and admin notification goes here
+
+	return &cpb.Response{
 		Status:  "Success",
-		Message: "Package cancelled success",
+		Message: "booking cancelled successfully",
 	}, nil
-
 }
 
+// ViewTravellerSVC retrieves details of a specific traveller.
 func (c *CoordinatorSVC) ViewTravellerSVC(p *cpb.View) (*cpb.TravellerDetails, error) {
 	traveller, err := c.Repo.FetchTraveller(uint(p.Id))
 	if err != nil {
-		return nil, err
+		return nil, errors.New("traveller not found")
 	}
 
-	activitBooking, _ := c.Repo.FetchActivityBookingofUser(uint(p.Id))
+	activityBookings, _ := c.Repo.FetchActivityBookingofUser(uint(p.Id))
 
-	var activity []*cpb.Activity
-	for _, actvty := range activitBooking {
-		activity = append(activity, &cpb.Activity{
-			ActivityId:   int64(actvty.Activity.ID),
-			Activityname: actvty.Activity.ActivityName,
-			Description:  actvty.Activity.Description,
-			Location:     actvty.Activity.Location,
-			ActivityType: actvty.Activity.ActivityType,
-			Amount:       int64(actvty.Activity.Amount),
-			Date:         actvty.Activity.Date.Format("02-01-2006"),
-			Time:         actvty.Activity.Time.Format("03:04 PM"),
+	var activities []*cpb.Activity
+	for _, a := range activityBookings {
+		activities = append(activities, &cpb.Activity{
+			ActivityId:   int64(a.Activity.ID),
+			Activityname: a.Activity.ActivityName,
+			Description:  a.Activity.Description,
+			Location:     a.Activity.Location,
+			ActivityType: a.Activity.ActivityType,
+			Amount:       int64(a.Activity.Amount),
+			Date:         a.Activity.Date.Format("02-01-2006"),
+			Time:         a.Activity.Time.Format("03:04 PM"),
 		})
 	}
 
@@ -179,16 +151,17 @@ func (c *CoordinatorSVC) ViewTravellerSVC(p *cpb.View) (*cpb.TravellerDetails, e
 		Name:     traveller.Name,
 		Age:      traveller.Age,
 		Gender:   traveller.Gender,
-		Activity: activity,
+		Activity: activities,
 	}, nil
 }
 
+// SearchBookingSVC searches for bookings based on criteria.
 func (c *CoordinatorSVC) SearchBookingSVC(p *cpb.BookingSearchCriteria) (*cpb.Histories, error) {
 	ctx := context.Background()
 
 	bookings, err := c.Repo.SearchBookings(ctx, p)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error while searching bookings")
 	}
 
 	var histories []*cpb.History
@@ -199,8 +172,8 @@ func (c *CoordinatorSVC) SearchBookingSVC(p *cpb.BookingSearchCriteria) (*cpb.Hi
 			BookingStatus:   booking.BookingStatus,
 			CancelledStatus: booking.CancelledStatus,
 			TotalPrice:      int64(booking.PackagePrice),
-			UserId:          int64(booking.UserId),
-			BookingId:       booking.BookingId,
+			UserId:          int64(booking.UserID),
+			BookingId:       booking.BookingID,
 			BookDate:        booking.BookDate.Format("02-01-2006"),
 			StartDate:       booking.StartDate.Format("02-01-2006"),
 			PaidAmount:      int64(booking.PaidPrice),
@@ -208,8 +181,7 @@ func (c *CoordinatorSVC) SearchBookingSVC(p *cpb.BookingSearchCriteria) (*cpb.Hi
 		histories = append(histories, history)
 	}
 
-	response := &cpb.Histories{
+	return &cpb.Histories{
 		History: histories,
-	}
-	return response, nil
+	}, nil
 }

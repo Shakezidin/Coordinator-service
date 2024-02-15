@@ -17,12 +17,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.Responce, error) {
+// SignupSVC handles the signup process.
+func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.Response, error) {
 	hashPassword, err := utils.HashPassword(p.Password)
 	if err != nil {
-		log.Printf("unable to hash password in CoordinatorSvc() - service, err: %v", err.Error())
-		return nil, errors.New("unable to hash password in CoordinatorSvc")
+		return nil, errors.New("unable to hash password")
 	}
+
 	phone, _ := strconv.Atoi(p.Phone)
 	user := &cDOM.User{
 		Phone:    phone,
@@ -32,9 +33,10 @@ func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.Responce, error) {
 		Role:     "coordinator",
 	}
 
-	resp, err := c.twilio.SentTwilioOTP(p.Phone)
+	// Send OTP
+	resp, err := c.twilio.SendTwilioOTP(p.Phone)
 	if err != nil {
-		return nil, errors.New("error while senting OTP")
+		return nil, errors.New("error while sending OTP")
 	} else {
 		if resp.Status != nil {
 			log.Println(*resp.Status)
@@ -42,47 +44,42 @@ func (c *CoordinatorSVC) SignupSVC(p *cpb.Signup) (*cpb.Responce, error) {
 			log.Println(resp.Status)
 		}
 	}
+
+	// Store user data in Redis for OTP verification
 	userData, err := json.Marshal(&user)
 	if err != nil {
-		log.Printf("error parsing JSON, err: %v", err.Error())
-		return nil, errors.New("error while passing in JSON for marshal")
+		return nil, errors.New("error while marshalling user data")
 	}
 
 	registerUser := fmt.Sprintf("register_user_%v", p.Email)
 	c.redis.Set(context.Background(), registerUser, userData, time.Minute*2)
-	return &cpb.Responce{
+
+	return &cpb.Response{
 		Status:  "success",
 		Message: "user creation initiated, check message for OTP",
 	}, nil
 }
 
-func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.Responce, error) {
+// VerifySVC verifies the OTP and creates the user.
+func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.Response, error) {
 	registerUser := fmt.Sprintf("register_user_%v", p.Email)
 	redisVal := c.redis.Get(context.Background(), registerUser)
-
 	if redisVal.Err() != nil {
-		log.Printf("unable to get value from redis err: %v", redisVal.Err().Error())
-		return &cpb.Responce{
-			Status: "failed",
-		}, errors.New("unable to get value from redis")
+		return &cpb.Response{Status: "failed"}, errors.New("unable to get value from redis")
 	}
 
+	// Unmarshal user data from Redis
 	var userData cDOM.User
 	err := json.Unmarshal([]byte(redisVal.Val()), &userData)
 	if err != nil {
-		log.Println("unable to unmarshal json")
-		return &cpb.Responce{
-			Status: "failed",
-		}, errors.New("error while unmarshalling data")
+		return &cpb.Response{Status: "failed"}, errors.New("error while unmarshalling data")
 	}
 
 	code := fmt.Sprintf("%v", p.OTP)
 	phone := strconv.Itoa(userData.Phone)
 	resp, err := c.twilio.VerifyTwilioOTP(phone, code)
 	if err != nil {
-		return &cpb.Responce{
-			Status: "failed",
-		}, errors.New("otp verification failed")
+		return &cpb.Response{Status: "failed"}, errors.New("OTP verification failed")
 	} else {
 		if resp.Status != nil {
 			log.Println(*resp.Status)
@@ -91,60 +88,54 @@ func (c *CoordinatorSVC) VerifySVC(p *cpb.Verify) (*cpb.Responce, error) {
 		}
 	}
 
+	// Check if email or phone already exists
 	_, err = c.Repo.FindUserByEmail(userData.Email)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Printf("Existing email found  of a user %v", p.Email)
-		return &cpb.Responce{
-			Status: "failed",
-		}, errors.New("email already exists")
+		return &cpb.Response{Status: "failed"}, errors.New("email already exists")
 	}
+
 	_, err = c.Repo.FindUserByPhone(userData.Phone)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Printf("Existing phone found  of a user %v", p.Email)
-		return &cpb.Responce{
-			Status: "failed",
-		}, errors.New("number already exists")
+		return &cpb.Response{Status: "failed"}, errors.New("phone number already exists")
 	}
 
+	// Create the user
 	err = c.Repo.CreateUser(&userData)
 	if err != nil {
-		return &cpb.Responce{
-			Status: "failed",
-		}, errors.New("error while creating user")
+		return &cpb.Response{Status: "failed"}, errors.New("error while creating user")
 	}
-	return &cpb.Responce{
-		Status:  "Success",
-		Message: "User creation done",
-	}, nil
 
+	return &cpb.Response{
+		Status:  "success",
+		Message: "user creation done",
+	}, nil
 }
 
-func (c *CoordinatorSVC) UserLogin(p *cpb.Login) (*cpb.LoginResponce, error) {
+// UserLogin handles user login.
+func (c *CoordinatorSVC) UserLogin(p *cpb.Login) (*cpb.LoginResponse, error) {
+	// Find user by email
 	user, err := c.Repo.FindUserByEmail(p.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Printf("No existing record found og %v", p.Email)
 			return nil, errors.New("user not found")
-		} else {
-			log.Printf("unable to login %v, err: %v", p.Email, err.Error())
-			return nil, errors.New("error while logging in")
 		}
+		return nil, errors.New("error while logging in")
 	}
 
+	// Check password
 	check := utils.CheckPasswordMatch([]byte(user.Password), p.Password)
 	if !check {
-		log.Printf("password mismatch for user %v", p.Email)
 		return nil, fmt.Errorf("password mismatch for user %v", p.Email)
 	}
 
-	userid := strconv.Itoa(int(user.ID))
-	token, err := utils.GenerateToken(p.Email, p.Role, userid, config.LoadConfig().SECRETKEY)
+	// Generate JWT token
+	userID := strconv.Itoa(int(user.ID))
+	token, err := utils.GenerateToken(p.Email, p.Role, userID, config.LoadConfig().SECRETKEY)
 	if err != nil {
-		log.Printf("unable to generate token for user %v, err: %v", p.Email, err.Error())
 		return nil, errors.New("error while generating JWT")
 	}
 
-	return &cpb.LoginResponce{
+	return &cpb.LoginResponse{
 		Token: token,
 	}, nil
 }
