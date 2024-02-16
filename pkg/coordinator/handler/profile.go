@@ -52,7 +52,7 @@ func (c *CoordinatorHandler) CoordinatorNewPassword(ctx context.Context, p *cpb.
 	return respnc, nil
 }
 
-func (c *CoordinatorHandler) ViewDashBord(ctx context.Context, p *cpb.View) (*cpb.Dashboard, error) {
+func (c *CoordinatorHandler) ViewDashboard(ctx context.Context, p *cpb.View) (*cpb.Dashboard, error) {
 	respnc, err := c.SVC.ViewDashBordSVC(p)
 	if err != nil {
 		return respnc, err

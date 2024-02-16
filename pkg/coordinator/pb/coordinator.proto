@@ -34,7 +34,7 @@ service Coordinator {
     rpc ViewBooking(View)returns(History);
     rpc CancelBooking(View)returns(Response);
     rpc ViewTraveller(View)returns(TravellerDetails);
-    rpc ViewDashBord(View)returns(Dashboard);
+    rpc ViewDashboard(View)returns(Dashboard);
     rpc ViewCoordinators(View)returns(Users);
     rpc SearchBooking(BookingSearchCriteria)returns(Histories);
 }
