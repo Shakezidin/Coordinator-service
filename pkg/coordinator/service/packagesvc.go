@@ -29,7 +29,7 @@ func (c *CoordinatorSVC) AddPackageSVC(p *cpb.Package) (*cpb.Responce, error) {
 	pkg.Images = p.Image
 	pkg.MaxCapacity = int(p.MaxCapacity)
 	pkg.Name = p.Packagename
-	pkg.Availablespace = int(p.MaxCapacity)
+	pkg.AvailableSpace = int(p.MaxCapacity)
 	pkg.NumOfDestination = int(p.DestinationCount)
 	pkg.MinPrice = int(p.Price)
 	pkg.StartDate = startdate
@@ -71,7 +71,7 @@ func (c *CoordinatorSVC) AvailablePackageSvc(p *cpb.View) (*cpb.PackagesResponce
 			pkg.Enddate = pkges.EndDate.Format("02-01-2006")
 			pkg.Image = pkges.Images
 			pkg.Packagename = pkges.Name
-			pkg.AvailableSpace = int64(pkges.Availablespace)
+			pkg.AvailableSpace = int64(pkges.AvailableSpace)
 			pkg.Price = int64(pkges.MinPrice)
 			pkg.Startdate = pkges.EndDate.Format("02-01-2006")
 			pkg.Starttime = pkges.StartTime
@@ -100,7 +100,7 @@ func (c *CoordinatorSVC) AvailablePackageSvc(p *cpb.View) (*cpb.PackagesResponce
 			pkg.Enddate = pkges.EndDate.Format("02-01-2006")
 			pkg.Image = pkges.Images
 			pkg.Packagename = pkges.Name
-			pkg.AvailableSpace = int64(pkges.Availablespace)
+			pkg.AvailableSpace = int64(pkges.AvailableSpace)
 			pkg.Price = int64(pkges.MinPrice)
 			pkg.Startdate = pkges.EndDate.Format("02-01-2006")
 			pkg.Starttime = pkges.StartTime
@@ -154,7 +154,7 @@ func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.View) (*cpb.Package, error) {
 		DestinationCount: int64(pkg.NumOfDestination),
 		Destination:      pkg.Destination,
 		PackageId:        int64(pkg.ID),
-		AvailableSpace:   int64(pkg.Availablespace),
+		AvailableSpace:   int64(pkg.AvailableSpace),
 		Description:      pkg.Description,
 		MaxCapacity:      int64(pkg.MaxCapacity),
 		Category:         ctgry,
@@ -218,7 +218,7 @@ func (c *CoordinatorSVC) FilterPackageSvc(p *cpb.Filter) (*cpb.PackagesResponce,
 			Enddate:          pkge.EndDate.Format("02-01-2006"),
 			Image:            pkge.Images,
 			Packagename:      pkge.Name,
-			AvailableSpace:   int64(pkge.Availablespace),
+			AvailableSpace:   int64(pkge.AvailableSpace),
 			Price:            int64(pkge.MinPrice),
 			Startdate:        pkge.StartDate.Format("02-01-2006"),
 			Startlocation:    pkge.StartLocation,
@@ -251,7 +251,7 @@ func (c *CoordinatorSVC) ViewPackagesSvc(p *cpb.View) (*cpb.PackagesResponce, er
 		pkg.Enddate = pkges.EndDate.Format("02-01-2006")
 		pkg.Image = pkges.Images
 		pkg.Packagename = pkges.Name
-		pkg.AvailableSpace = int64(pkges.Availablespace)
+		pkg.AvailableSpace = int64(pkges.AvailableSpace)
 		pkg.Price = int64(pkges.MinPrice)
 		pkg.Startdate = pkges.EndDate.Format("02-01-2006")
 		pkg.Starttime = pkges.StartTime

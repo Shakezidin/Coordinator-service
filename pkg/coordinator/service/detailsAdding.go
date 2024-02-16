@@ -32,11 +32,12 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 		return nil, errors.New("package not found")
 	}
 
-	if pkg.Availablespace < len(p.TravellerDetails) {
+	fmt.Println(pkg.AvailableSpace ,"hhhhh",len(p.TravellerDetails))
+	if pkg.AvailableSpace < len(p.TravellerDetails) {
 		log.Print("package space is not enough")
 		return nil, errors.New("package have no space")
 	} else {
-		pkg.Availablespace = pkg.Availablespace - len(p.TravellerDetails)
+		pkg.AvailableSpace = pkg.AvailableSpace - len(p.TravellerDetails)
 	}
 
 	var travellers []dom.Traveller

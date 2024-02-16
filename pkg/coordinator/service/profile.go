@@ -55,7 +55,7 @@ func (c *CoordinatorSVC) ForgetPasswordVerify(p *cpb.ForgetPasswordVerify) (*cpb
 		return &cpb.Responce{
 			Status:  "failure",
 			Message: "phone number mis-match",
-		}, errors.New("Provided phone number does not match the saved phone number.")
+		}, errors.New("provided phone number does not match the saved phone number")
 	}
 
 	resp, err := c.twilio.VerifyTwilioOTP(p.Phone, p.Otp)

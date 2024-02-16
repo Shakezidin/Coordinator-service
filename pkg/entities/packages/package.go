@@ -46,7 +46,7 @@ type Package struct {
 	Category         Category  `gorm:"ForeignKey:TripCategoryId"`
 	Images           string    `gorm:"not null"`
 	CoordinatorId    uint      `gorm:"not null"`
-	Availablespace   int       `grom:"not null"`
+	AvailableSpace   int       `grom:"not null"`
 	Description      string
 }
 
