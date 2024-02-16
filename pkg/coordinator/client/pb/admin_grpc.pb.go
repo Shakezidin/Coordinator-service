@@ -27,8 +27,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdminClient interface {
-	AdminAddWalletRequest(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponce, error)
-	AdminReduseWalletRequesr(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponce, error)
+	AdminAddWalletRequest(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponse, error)
+	AdminReduseWalletRequesr(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponse, error)
 }
 
 type adminClient struct {
@@ -39,8 +39,8 @@ func NewAdminClient(cc grpc.ClientConnInterface) AdminClient {
 	return &adminClient{cc}
 }
 
-func (c *adminClient) AdminAddWalletRequest(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponce, error) {
-	out := new(AdminResponce)
+func (c *adminClient) AdminAddWalletRequest(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponse, error) {
+	out := new(AdminResponse)
 	err := c.cc.Invoke(ctx, Admin_AdminAddWalletRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -48,8 +48,8 @@ func (c *adminClient) AdminAddWalletRequest(ctx context.Context, in *AdminAddWal
 	return out, nil
 }
 
-func (c *adminClient) AdminReduseWalletRequesr(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponce, error) {
-	out := new(AdminResponce)
+func (c *adminClient) AdminReduseWalletRequesr(ctx context.Context, in *AdminAddWallet, opts ...grpc.CallOption) (*AdminResponse, error) {
+	out := new(AdminResponse)
 	err := c.cc.Invoke(ctx, Admin_AdminReduseWalletRequesr_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -61,8 +61,8 @@ func (c *adminClient) AdminReduseWalletRequesr(ctx context.Context, in *AdminAdd
 // All implementations must embed UnimplementedAdminServer
 // for forward compatibility
 type AdminServer interface {
-	AdminAddWalletRequest(context.Context, *AdminAddWallet) (*AdminResponce, error)
-	AdminReduseWalletRequesr(context.Context, *AdminAddWallet) (*AdminResponce, error)
+	AdminAddWalletRequest(context.Context, *AdminAddWallet) (*AdminResponse, error)
+	AdminReduseWalletRequesr(context.Context, *AdminAddWallet) (*AdminResponse, error)
 	mustEmbedUnimplementedAdminServer()
 }
 
@@ -70,10 +70,10 @@ type AdminServer interface {
 type UnimplementedAdminServer struct {
 }
 
-func (UnimplementedAdminServer) AdminAddWalletRequest(context.Context, *AdminAddWallet) (*AdminResponce, error) {
+func (UnimplementedAdminServer) AdminAddWalletRequest(context.Context, *AdminAddWallet) (*AdminResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminAddWalletRequest not implemented")
 }
-func (UnimplementedAdminServer) AdminReduseWalletRequesr(context.Context, *AdminAddWallet) (*AdminResponce, error) {
+func (UnimplementedAdminServer) AdminReduseWalletRequesr(context.Context, *AdminAddWallet) (*AdminResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminReduseWalletRequesr not implemented")
 }
 func (UnimplementedAdminServer) mustEmbedUnimplementedAdminServer() {}

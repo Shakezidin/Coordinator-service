@@ -19,7 +19,7 @@ import (
 // OnlinePaymentSVC handles online payments for bookings.
 func (c *CoordinatorSVC) OnlinePaymentSVC(ctx context.Context, p *cpb.Booking) (*cpb.OnlinePaymentResponse, error) {
 	// Retrieve user ID from Redis
-	userIDKey := fmt.Sprintf("userId:%s", p.RefId)
+	userIDKey := fmt.Sprintf("userId:%s", p.Ref_ID)
 	userId, err := c.redis.Get(ctx, userIDKey).Int()
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (c *CoordinatorSVC) OnlinePaymentSVC(ctx context.Context, p *cpb.Booking) (
 	client := razorpay.NewClient(c.cfg.RAZORPAYKEYID, c.cfg.RAZORPAYSECRETKEY)
 
 	// Retrieve total fare from Redis
-	amountKey := fmt.Sprintf("amount:%s", p.RefId)
+	amountKey := fmt.Sprintf("amount:%s", p.Ref_ID)
 	totalFare, err := c.redis.Get(ctx, amountKey).Int64()
 	if err != nil {
 		return nil, err
@@ -67,10 +67,10 @@ func (c *CoordinatorSVC) OnlinePaymentSVC(ctx context.Context, p *cpb.Booking) (
 
 	// Construct the response object
 	response := &cpb.OnlinePaymentResponse{
-		UserId:           int32(userId),
-		TotalFare:        float32(amount) / 100,
-		BookingReference: p.RefId,
-		OrderId:          orderID,
+		User_ID:           int32(userId),
+		Total_Fare:        float32(amount) / 100,
+		Booking_Reference: p.Ref_ID,
+		Order_ID:          orderID,
 	}
 
 	return response, nil
@@ -93,13 +93,13 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 		}
 	}()
 
-	emailKey := fmt.Sprintf("email:%s", p.ReferenceID)
-	usernameKey := fmt.Sprintf("username:%s", p.ReferenceID)
-	travellerKey := fmt.Sprintf("traveller:%s", p.ReferenceID)
-	activityKey := fmt.Sprintf("activity_bookings:%s", p.ReferenceID)
-	amountKey := fmt.Sprintf("amount:%s", p.ReferenceID)
-	pkgKey := fmt.Sprintf("package:%v", p.ReferenceID)
-	userIDKey := fmt.Sprintf("userId:%s", p.ReferenceID)
+	emailKey := fmt.Sprintf("email:%s", p.Reference_ID)
+	usernameKey := fmt.Sprintf("username:%s", p.Reference_ID)
+	travellerKey := fmt.Sprintf("traveller:%s", p.Reference_ID)
+	activityKey := fmt.Sprintf("activity_bookings:%s", p.Reference_ID)
+	amountKey := fmt.Sprintf("amount:%s", p.Reference_ID)
+	pkgKey := fmt.Sprintf("package:%v", p.Reference_ID)
+	userIDKey := fmt.Sprintf("userId:%s", p.Reference_ID)
 
 	userId, err := c.redis.Get(ctx, userIDKey).Int()
 	if err != nil {
@@ -117,9 +117,9 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 
 	rPay := dom.RazorPay{
 		UserID:          uint(userId),
-		RazorPaymentID:  p.PaymentId,
+		RazorPaymentID:  p.Payment_ID,
 		Signature:       p.Signature,
-		RazorPayOrderID: p.OrderID,
+		RazorPayOrderID: p.Order_ID,
 		AmountPaid:      total,
 	}
 
@@ -251,7 +251,7 @@ func (c *CoordinatorSVC) PaymentConfirmedSVC(ctx context.Context, p *cpb.Payment
 
 	return &cpb.BookingResponse{
 		Status:     "true",
-		Booking_Id: bookingID,
+		Booking_ID: bookingID,
 	}, nil
 }
 

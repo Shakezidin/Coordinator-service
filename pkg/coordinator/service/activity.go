@@ -31,13 +31,13 @@ func (c *CoordinatorSVC) AddActivitySVC(p *cpb.Activity) (*cpb.Response, error) 
 	}
 
 	// Set activity details
-	activity.ActivityName = p.Activityname
-	activity.ActivityType = p.ActivityType
+	activity.ActivityName = p.Activity_Name
+	activity.ActivityType = p.Activity_Type
 	activity.Amount = int(p.Amount)
 	activity.Date = date
 	activity.Time = time
 	activity.Description = p.Description
-	activity.DestinationID = uint(p.DestinationId)
+	activity.DestinationID = uint(p.Destination_ID)
 	activity.Location = p.Location
 
 	// Create activity in the repository
@@ -52,25 +52,25 @@ func (c *CoordinatorSVC) AddActivitySVC(p *cpb.Activity) (*cpb.Response, error) 
 	// Return success response
 	return &cpb.Response{
 		Status: "success",
-		Id:     int64(activity.ID),
+		ID:     int64(activity.ID),
 	}, nil
 }
 
 // ViewActivitySvc fetches details of an activity by ID.
 func (c *CoordinatorSVC) ViewActivitySvc(p *cpb.View) (*cpb.Activity, error) {
 	// Fetch activity from the repository
-	activity, err := c.Repo.FetchActivity(uint(p.Id))
+	activity, err := c.Repo.FetchActivity(uint(p.ID))
 	if err != nil {
 		return &cpb.Activity{}, errors.New("error while fetching activity")
 	}
 
 	// Return activity details
 	return &cpb.Activity{
-		ActivityId:   int64(activity.ID),
-		Activityname: activity.ActivityName,
+		Activity_ID:   int64(activity.ID),
+		Activity_Name: activity.ActivityName,
 		Description:  activity.Description,
 		Location:     activity.Location,
-		ActivityType: activity.ActivityType,
+		Activity_Type: activity.ActivityType,
 		Amount:       int64(activity.Amount),
 		Time:         activity.Time.Format("03:04 PM"),
 		Date:         activity.Date.Format("02-01-2006"),

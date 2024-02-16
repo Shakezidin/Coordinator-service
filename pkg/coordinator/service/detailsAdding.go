@@ -24,7 +24,7 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 	ctx := context.Background()
 
 	// Fetch package from repository
-	pkgID, err := strconv.Atoi(p.PackageId)
+	pkgID, err := strconv.Atoi(p.Package_ID)
 	if err != nil {
 		return nil, errors.New("invalid package ID")
 	}
@@ -34,18 +34,18 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 	}
 
 	// Check if package has enough space for travellers
-	if pkg.AvailableSpace < len(p.TravellerDetails) {
+	if pkg.AvailableSpace < len(p.Traveller_Details) {
 		return nil, errors.New("package has insufficient space for travellers")
 	}
-	pkg.AvailableSpace -= len(p.TravellerDetails)
+	pkg.AvailableSpace -= len(p.Traveller_Details)
 
 	// Prepare traveller and activity booking data
 	var travellers []dom.Traveller
 	var activityBookings []dom.ActivityBooking
 
-	userID, _ := strconv.Atoi(p.UserId)
+	userID, _ := strconv.Atoi(p.User_ID)
 
-	for _, travellerDetail := range p.TravellerDetails {
+	for _, travellerDetail := range p.Traveller_Details {
 		traveller := dom.Traveller{
 			ID:        uint(uuid.New().ID()),
 			Age:       travellerDetail.Age,
@@ -56,7 +56,7 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 		}
 		travellers = append(travellers, traveller)
 
-		for _, activityID := range travellerDetail.ActivityId {
+		for _, activityID := range travellerDetail.Activity_ID {
 			actID, err := strconv.Atoi(activityID)
 			if err != nil {
 				continue
@@ -70,7 +70,7 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 	}
 
 	// Calculate total amount
-	activityAmount := c.CalculateActivityTotal(p.TravellerDetails)
+	activityAmount := c.CalculateActivityTotal(p.Traveller_Details)
 	advanceAmount := float64(pkg.MinPrice+activityAmount) * 0.3
 
 	// Store data in Redis
@@ -82,11 +82,11 @@ func (c *CoordinatorSVC) TravellerDetails(p *cpb.TravellerRequest) (*cpb.Travell
 
 	// Return response
 	return &cpb.TravellerResponse{
-		PackagePrice:       int64(pkg.MinPrice),
-		ActivityTotalPrice: int64(activityAmount),
-		TotalPrice:         int64(pkg.MinPrice + activityAmount),
-		AdvanceAmount:      int64(advanceAmount),
-		RefId:              refID,
+		Package_Price:        int64(pkg.MinPrice),
+		Activity_Total_Price: int64(activityAmount),
+		Total_Price:          int64(pkg.MinPrice + activityAmount),
+		Advance_Amount:       int64(advanceAmount),
+		Ref_ID:               refID,
 	}, nil
 }
 
@@ -108,9 +108,9 @@ func (c *CoordinatorSVC) StoreTravellerDetailsInRedis(ctx context.Context, refID
 	if err != nil {
 		return fmt.Errorf("error storing username in Redis: %v", err)
 	}
-	userID, err := strconv.Atoi(p.UserId)
+	userID, err := strconv.Atoi(p.User_ID)
 	if err != nil {
-		return fmt.Errorf("invalid user ID: %s", p.UserId)
+		return fmt.Errorf("invalid user ID: %s", p.User_ID)
 	}
 	err = c.StoreInRedis(ctx, userIDKey, userID)
 	if err != nil {
@@ -156,7 +156,7 @@ func (c *CoordinatorSVC) CalculateActivityTotal(travellerDetails []*cpb.Travelle
 	var activityTotal int
 
 	for _, details := range travellerDetails {
-		for _, activityID := range details.ActivityId {
+		for _, activityID := range details.Activity_ID {
 			actID, err := strconv.Atoi(activityID)
 			if err != nil {
 				continue

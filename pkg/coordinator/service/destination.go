@@ -10,7 +10,7 @@ import (
 // AddDestinationSVC adds a new destination.
 func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.Destination) (*cpb.Response, error) {
 	// Check if the package exists
-	pkg, err := c.Repo.FetchPackage(uint(p.PackageID))
+	pkg, err := c.Repo.FetchPackage(uint(p.Package_ID))
 	if err != nil {
 		return &cpb.Response{
 			Status:  "fail",
@@ -19,7 +19,7 @@ func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.Destination) (*cpb.Response, e
 	}
 
 	// Check if the number of destinations exceeded
-	dstn, _ := c.Repo.FetchPackageDestination(uint(p.PackageID))
+	dstn, _ := c.Repo.FetchPackageDestination(uint(p.Package_ID))
 	if len(dstn) >= pkg.NumOfDestination {
 		return &cpb.Response{
 			Status:  "fail",
@@ -30,11 +30,11 @@ func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.Destination) (*cpb.Response, e
 	// Create a new destination
 	var destination dom.Destination
 	destination.Description = p.Description
-	destination.DestinationName = p.DestinationName
+	destination.DestinationName = p.Destination_Name
 	destination.Image = p.Image
-	destination.PackageID = uint(p.PackageID)
-	destination.TransportationMode = p.TransportationMode
-	destination.ArrivalLocation = p.ArrivalLocation
+	destination.PackageID = uint(p.Package_ID)
+	destination.TransportationMode = p.Transportation_Mode
+	destination.ArrivalLocation = p.Arrival_Location
 
 	err = c.Repo.CreateDestination(&destination)
 	if err != nil {
@@ -47,14 +47,14 @@ func (c *CoordinatorSVC) AddDestinationSVC(p *cpb.Destination) (*cpb.Response, e
 	return &cpb.Response{
 		Status:  "success",
 		Message: "destination creation done",
-		Id:      int64(destination.ID),
+		ID:      int64(destination.ID),
 	}, nil
 }
 
 // ViewDestinationSvc retrieves information about a destination.
 func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.View) (*cpb.Destination, error) {
 	// Fetch the destination
-	dstn, err := c.Repo.FecthDestination(uint(p.Id))
+	dstn, err := c.Repo.FecthDestination(uint(p.ID))
 	if err != nil {
 		return nil, errors.New("error while fetching destination")
 	}
@@ -69,26 +69,26 @@ func (c *CoordinatorSVC) ViewDestinationSvc(p *cpb.View) (*cpb.Destination, erro
 	var arr []*cpb.Activity
 	for _, act := range activity {
 		actvt := cpb.Activity{
-			ActivityType: act.ActivityType,
-			Activityname: act.ActivityName,
-			Amount:       int64(act.Amount),
-			Date:         act.Date.Format("02-01-2006"),
-			Description:  act.Description,
-			Location:     act.Location,
-			Time:         act.Time.Format("03:04 PM"),
-			ActivityId:   int64(act.Model.ID),
+			Activity_Type: act.ActivityType,
+			Activity_Name: act.ActivityName,
+			Amount:        int64(act.Amount),
+			Date:          act.Date.Format("02-01-2006"),
+			Description:   act.Description,
+			Location:      act.Location,
+			Time:          act.Time.Format("03:04 PM"),
+			Activity_ID:   int64(act.Model.ID),
 		}
 		arr = append(arr, &actvt)
 	}
 
 	// Prepare destination response
 	return &cpb.Destination{
-		DestinationId:      int64(dstn.ID),
-		DestinationName:    dstn.DestinationName,
-		Description:        dstn.Description,
-		Image:              dstn.Image,
-		TransportationMode: dstn.TransportationMode,
-		ArrivalLocation:    dstn.ArrivalLocation,
-		Activity:           arr,
+		Destination_ID:      int64(dstn.ID),
+		Destination_Name:    dstn.DestinationName,
+		Description:         dstn.Description,
+		Image:               dstn.Image,
+		Transportation_Mode: dstn.TransportationMode,
+		Arrival_Location:    dstn.ArrivalLocation,
+		Activity:            arr,
 	}, nil
 }

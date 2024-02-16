@@ -24,7 +24,7 @@ func (c *CoordinatorSVC) ViewCoordinatorsSVC(p *cpb.View) (*cpb.Users, error) {
 	for _, coordinator := range *coordinators {
 		phone := strconv.Itoa(coordinator.Phone)
 		pbCoordinator := &cpb.User{
-			Id:    int64(coordinator.ID),
+			ID:    int64(coordinator.ID),
 			Name:  coordinator.Name,
 			Email: coordinator.Email,
 			Phone: phone,

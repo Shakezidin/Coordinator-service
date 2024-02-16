@@ -12,14 +12,14 @@ import (
 // AddCategorySVC handles the addition of a new category.
 func (c *CoordinatorSVC) AddCategorySVC(p *cpb.Category) (*cpb.Response, error) {
 	// Check if category already exists
-	fmt.Println(p.CategoryName)
-	_, err := c.Repo.FetchCategory(p.CategoryName)
+	fmt.Println(p.Category_Name)
+	_, err := c.Repo.FetchCategory(p.Category_Name)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return &cpb.Response{Status: "failed"}, errors.New("category already exists")
 	}
 
 	// Create new category
-	category := dom.Category{Category: p.CategoryName}
+	category := dom.Category{Category: p.Category_Name}
 	err = c.Repo.CreateCategory(category)
 	if err != nil {
 		return &cpb.Response{
@@ -31,7 +31,7 @@ func (c *CoordinatorSVC) AddCategorySVC(p *cpb.Category) (*cpb.Response, error) 
 	return &cpb.Response{
 		Status:  "success",
 		Message: "category created successfully",
-		Id:      int64(category.ID),
+		ID:      int64(category.ID),
 	}, nil
 }
 
@@ -51,8 +51,8 @@ func (c *CoordinatorSVC) ViewCategoriesSVC(p *cpb.View) (*cpb.Categories, error)
 	var pbCategories []*cpb.Category
 	for _, category := range categories {
 		pbCategory := &cpb.Category{
-			CategoryId:   int64(category.ID),
-			CategoryName: category.Category,
+			Category_ID:   int64(category.ID),
+			Category_Name: category.Category,
 		}
 		pbCategories = append(pbCategories, pbCategory)
 	}

@@ -37,7 +37,7 @@ func (c *CoordinatorHandler) CoordinatorForgetPasswordVerify(ctx context.Context
 	return respnc, nil
 }
 
-func (c *CoordinatorHandler) CoordinatorNewPassword(ctx context.Context, p *cpb.Newpassword) (*cpb.Response, error) {
+func (c *CoordinatorHandler) CoordinatorNewPassword(ctx context.Context, p *cpb.NewPassword) (*cpb.Response, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
 		return &cpb.Response{

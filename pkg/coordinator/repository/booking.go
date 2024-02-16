@@ -50,41 +50,41 @@ func (r *CoordinatorRepo) SearchBookings(ctx context.Context, criteria *cpb.Book
 	query := r.DB.Model(&cDOM.Booking{})
 
 	// Apply filters based on the provided search criteria
-	if criteria.PaymentMode != "" {
-		query = query.Where("payment_mode = ?", criteria.PaymentMode)
+	if criteria.Payment_Mode != "" {
+		query = query.Where("payment_mode = ?", criteria.Payment_Mode)
 	}
-	if criteria.BookingStatus != "" {
-		query = query.Where("booking_status = ?", criteria.BookingStatus)
+	if criteria.Booking_Status != "" {
+		query = query.Where("booking_status = ?", criteria.Booking_Status)
 	}
-	if criteria.CancelledStatus {
+	if criteria.Cancelled_Status {
 		query = query.Where("cancelled_status = ?", true)
 	}
-	if criteria.UserEmail != "" {
-		query = query.Where("user_email = ?", criteria.UserEmail)
+	if criteria.User_Email != "" {
+		query = query.Where("user_email = ?", criteria.User_Email)
 	}
-	if criteria.BookingId != "" {
-		query = query.Where("booking_id = ?", criteria.BookingId)
+	if criteria.Booking_ID != "" {
+		query = query.Where("booking_id = ?", criteria.Booking_ID)
 	}
-	if criteria.BookDate != "" {
-		bookDate, err := time.Parse("02-01-2006", criteria.BookDate)
+	if criteria.Book_Date != "" {
+		bookDate, err := time.Parse("02-01-2006", criteria.Book_Date)
 		if err != nil {
 			return nil, err
 		}
 		query = query.Where("book_date >= ?", bookDate)
 	}
-	if criteria.StartDate != "" {
-		startDate, err := time.Parse("02-01-2006", criteria.StartDate)
+	if criteria.Start_Date != "" {
+		startDate, err := time.Parse("02-01-2006", criteria.Start_Date)
 		if err != nil {
 			return nil, err
 		}
 		query = query.Where("start_date >= ?", startDate)
 	}
-	if criteria.CoordinatorId != 0 {
-		query = query.Where("coordinator_id = ?", criteria.CoordinatorId)
+	if criteria.Coordinator_ID != 0 {
+		query = query.Where("coordinator_id = ?", criteria.Coordinator_ID)
 	}
-	
-	if criteria.CatageryId != 0 {
-		query = query.Where("category_id = ?", criteria.CatageryId)
+
+	if criteria.Category_ID != 0 {
+		query = query.Where("category_id = ?", criteria.Category_ID)
 	}
 
 	if err := query.Find(&bookings).Error; err != nil {

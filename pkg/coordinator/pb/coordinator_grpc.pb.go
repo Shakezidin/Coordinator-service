@@ -37,7 +37,7 @@ const (
 	Coordinator_AvailablePackages_FullMethodName               = "/pb.Coordinator/AvailablePackages"
 	Coordinator_AddCategory_FullMethodName                     = "/pb.Coordinator/AddCategory"
 	Coordinator_AdminPacakgeStatus_FullMethodName              = "/pb.Coordinator/AdminPacakgeStatus"
-	Coordinator_ViewCatagories_FullMethodName                  = "/pb.Coordinator/ViewCatagories"
+	Coordinator_Viewcategories_FullMethodName                  = "/pb.Coordinator/Viewcategories"
 	Coordinator_PackageSearch_FullMethodName                   = "/pb.Coordinator/PackageSearch"
 	Coordinator_FilterPackage_FullMethodName                   = "/pb.Coordinator/FilterPackage"
 	Coordinator_UserTravellerDetails_FullMethodName            = "/pb.Coordinator/UserTravellerDetails"
@@ -71,11 +71,11 @@ type CoordinatorClient interface {
 	CoordinatorViewActivity(ctx context.Context, in *View, opts ...grpc.CallOption) (*Activity, error)
 	CoordinatorForgetPassword(ctx context.Context, in *ForgetPassword, opts ...grpc.CallOption) (*Response, error)
 	CoordinatorForgetPasswordVerify(ctx context.Context, in *ForgetPasswordVerify, opts ...grpc.CallOption) (*Response, error)
-	CoordinatorNewPassword(ctx context.Context, in *Newpassword, opts ...grpc.CallOption) (*Response, error)
+	CoordinatorNewPassword(ctx context.Context, in *NewPassword, opts ...grpc.CallOption) (*Response, error)
 	AvailablePackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponse, error)
 	AddCategory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*Response, error)
 	AdminPacakgeStatus(ctx context.Context, in *View, opts ...grpc.CallOption) (*Response, error)
-	ViewCatagories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Categories, error)
+	Viewcategories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Categories, error)
 	PackageSearch(ctx context.Context, in *Search, opts ...grpc.CallOption) (*PackagesResponse, error)
 	FilterPackage(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*PackagesResponse, error)
 	UserTravellerDetails(ctx context.Context, in *TravellerRequest, opts ...grpc.CallOption) (*TravellerResponse, error)
@@ -225,7 +225,7 @@ func (c *coordinatorClient) CoordinatorForgetPasswordVerify(ctx context.Context,
 	return out, nil
 }
 
-func (c *coordinatorClient) CoordinatorNewPassword(ctx context.Context, in *Newpassword, opts ...grpc.CallOption) (*Response, error) {
+func (c *coordinatorClient) CoordinatorNewPassword(ctx context.Context, in *NewPassword, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
 	err := c.cc.Invoke(ctx, Coordinator_CoordinatorNewPassword_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -261,9 +261,9 @@ func (c *coordinatorClient) AdminPacakgeStatus(ctx context.Context, in *View, op
 	return out, nil
 }
 
-func (c *coordinatorClient) ViewCatagories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Categories, error) {
+func (c *coordinatorClient) Viewcategories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Categories, error) {
 	out := new(Categories)
-	err := c.cc.Invoke(ctx, Coordinator_ViewCatagories_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Coordinator_Viewcategories_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -405,11 +405,11 @@ type CoordinatorServer interface {
 	CoordinatorViewActivity(context.Context, *View) (*Activity, error)
 	CoordinatorForgetPassword(context.Context, *ForgetPassword) (*Response, error)
 	CoordinatorForgetPasswordVerify(context.Context, *ForgetPasswordVerify) (*Response, error)
-	CoordinatorNewPassword(context.Context, *Newpassword) (*Response, error)
+	CoordinatorNewPassword(context.Context, *NewPassword) (*Response, error)
 	AvailablePackages(context.Context, *View) (*PackagesResponse, error)
 	AddCategory(context.Context, *Category) (*Response, error)
 	AdminPacakgeStatus(context.Context, *View) (*Response, error)
-	ViewCatagories(context.Context, *View) (*Categories, error)
+	Viewcategories(context.Context, *View) (*Categories, error)
 	PackageSearch(context.Context, *Search) (*PackagesResponse, error)
 	FilterPackage(context.Context, *Filter) (*PackagesResponse, error)
 	UserTravellerDetails(context.Context, *TravellerRequest) (*TravellerResponse, error)
@@ -472,7 +472,7 @@ func (UnimplementedCoordinatorServer) CoordinatorForgetPassword(context.Context,
 func (UnimplementedCoordinatorServer) CoordinatorForgetPasswordVerify(context.Context, *ForgetPasswordVerify) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorForgetPasswordVerify not implemented")
 }
-func (UnimplementedCoordinatorServer) CoordinatorNewPassword(context.Context, *Newpassword) (*Response, error) {
+func (UnimplementedCoordinatorServer) CoordinatorNewPassword(context.Context, *NewPassword) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoordinatorNewPassword not implemented")
 }
 func (UnimplementedCoordinatorServer) AvailablePackages(context.Context, *View) (*PackagesResponse, error) {
@@ -484,8 +484,8 @@ func (UnimplementedCoordinatorServer) AddCategory(context.Context, *Category) (*
 func (UnimplementedCoordinatorServer) AdminPacakgeStatus(context.Context, *View) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminPacakgeStatus not implemented")
 }
-func (UnimplementedCoordinatorServer) ViewCatagories(context.Context, *View) (*Categories, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewCatagories not implemented")
+func (UnimplementedCoordinatorServer) Viewcategories(context.Context, *View) (*Categories, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Viewcategories not implemented")
 }
 func (UnimplementedCoordinatorServer) PackageSearch(context.Context, *Search) (*PackagesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PackageSearch not implemented")
@@ -792,7 +792,7 @@ func _Coordinator_CoordinatorForgetPasswordVerify_Handler(srv interface{}, ctx c
 }
 
 func _Coordinator_CoordinatorNewPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Newpassword)
+	in := new(NewPassword)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -804,7 +804,7 @@ func _Coordinator_CoordinatorNewPassword_Handler(srv interface{}, ctx context.Co
 		FullMethod: Coordinator_CoordinatorNewPassword_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoordinatorServer).CoordinatorNewPassword(ctx, req.(*Newpassword))
+		return srv.(CoordinatorServer).CoordinatorNewPassword(ctx, req.(*NewPassword))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -863,20 +863,20 @@ func _Coordinator_AdminPacakgeStatus_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Coordinator_ViewCatagories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Coordinator_Viewcategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(View)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CoordinatorServer).ViewCatagories(ctx, in)
+		return srv.(CoordinatorServer).Viewcategories(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Coordinator_ViewCatagories_FullMethodName,
+		FullMethod: Coordinator_Viewcategories_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoordinatorServer).ViewCatagories(ctx, req.(*View))
+		return srv.(CoordinatorServer).Viewcategories(ctx, req.(*View))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1195,8 +1195,8 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Coordinator_AdminPacakgeStatus_Handler,
 		},
 		{
-			MethodName: "ViewCatagories",
-			Handler:    _Coordinator_ViewCatagories_Handler,
+			MethodName: "Viewcategories",
+			Handler:    _Coordinator_Viewcategories_Handler,
 		},
 		{
 			MethodName: "PackageSearch",

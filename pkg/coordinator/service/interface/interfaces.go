@@ -5,7 +5,6 @@ import (
 
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 	dom "github.com/Shakezidin/pkg/entities/packages"
-
 )
 
 type CoordinatorSVCInter interface {
@@ -19,7 +18,7 @@ type CoordinatorSVCInter interface {
 	ViewPackageSVC(p *cpb.View) (*cpb.Package, error)
 	ViewDestinationSvc(p *cpb.View) (*cpb.Destination, error)
 	ViewActivitySvc(p *cpb.View) (*cpb.Activity, error)
-	NewPassword(p *cpb.Newpassword) (*cpb.Response, error)
+	NewPassword(p *cpb.NewPassword) (*cpb.Response, error)
 	ForgetPassword(p *cpb.ForgetPassword) (*cpb.Response, error)
 	ForgetPasswordVerify(p *cpb.ForgetPasswordVerify) (*cpb.Response, error)
 	AddCategorySVC(p *cpb.Category) (*cpb.Response, error)
@@ -43,8 +42,7 @@ type CoordinatorSVCInter interface {
 	FindCoordinatorByPackageId(pkgID uint) dom.User
 	FetchNextDayTrip()
 	UpdateExpiredPackage()
-	StoreTravellerDetailsInRedis(ctx context.Context, refID string, p *cpb.TravellerRequest, pkg *dom.Package, travellers []dom.Traveller, activityBookings []dom.ActivityBooking, totalAmount int) error 
+	StoreTravellerDetailsInRedis(ctx context.Context, refID string, p *cpb.TravellerRequest, pkg *dom.Package, travellers []dom.Traveller, activityBookings []dom.ActivityBooking, totalAmount int) error
 	StoreInRedis(ctx context.Context, key string, data interface{}) error
 	CalculateActivityTotal(travellerDetails []*cpb.TravellerDetails) int
-	
 }

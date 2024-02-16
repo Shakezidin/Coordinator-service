@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -27,11 +26,8 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		fmt.Println("Error loading the .env file:", err)
-		os.Exit(1)
-	}
+	godotenv.Load("../../.env")
+
 	var config Config
 
 	// Use os.Getenv to retrieve environment variables

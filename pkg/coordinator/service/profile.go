@@ -55,7 +55,7 @@ func (c *CoordinatorSVC) ForgetPasswordVerify(p *cpb.ForgetPasswordVerify) (*cpb
 		}, errors.New("provided phone number does not match the saved phone number")
 	}
 
-	resp, err := c.twilio.VerifyTwilioOTP(p.Phone, p.Otp)
+	resp, err := c.twilio.VerifyTwilioOTP(p.Phone, p.OTP)
 	if err != nil {
 		return &cpb.Response{
 			Status: "failure",
@@ -90,14 +90,14 @@ func (c *CoordinatorSVC) ForgetPasswordVerify(p *cpb.ForgetPasswordVerify) (*cpb
 	}, nil
 }
 
-func (c *CoordinatorSVC) NewPassword(p *cpb.Newpassword) (*cpb.Response, error) {
-	hashPassword, err := utils.HashPassword(p.Newpassword)
+func (c *CoordinatorSVC) NewPassword(p *cpb.NewPassword) (*cpb.Response, error) {
+	hashPassword, err := utils.HashPassword(p.New_Password)
 	if err != nil {
 		return &cpb.Response{
 			Status: "fail",
 		}, errors.New("error while hashing password")
 	}
-	id, _ := strconv.Atoi(p.Id)
+	id, _ := strconv.Atoi(p.ID)
 	err = c.Repo.UpdatePassword(uint(id), string(hashPassword))
 	if err != nil {
 		return &cpb.Response{
@@ -108,12 +108,12 @@ func (c *CoordinatorSVC) NewPassword(p *cpb.Newpassword) (*cpb.Response, error) 
 	return &cpb.Response{
 		Status:  "success",
 		Message: "password updated",
-		Id:      int64(id),
+		ID:      int64(id),
 	}, nil
 }
 
 func (c *CoordinatorSVC) ViewDashBordSVC(p *cpb.View) (*cpb.Dashboard, error) {
-	if p.Id == 0 {
+	if p.ID == 0 {
 		todayStart := time.Now().Truncate(24 * time.Hour)
 		todayEnd := time.Now()
 		dailyIncome := c.Repo.AdminCalculateDailyIncome(todayStart, todayEnd)
@@ -125,22 +125,22 @@ func (c *CoordinatorSVC) ViewDashBordSVC(p *cpb.View) (*cpb.Dashboard, error) {
 		coordinatorCount := c.Repo.CoordinatorCount()
 
 		return &cpb.Dashboard{
-			Today:            int64(float64(dailyIncome) * 0.30),
-			Monthly:          int64(float64(monthlyIncome) * 0.30),
-			CoordinatorCount: int64(coordinatorCount),
+			Today:             int64(float64(dailyIncome) * 0.30),
+			Monthly:           int64(float64(monthlyIncome) * 0.30),
+			Coordinator_Count: int64(coordinatorCount),
 		}, nil
 	}
 	todayStart := time.Now().Truncate(24 * time.Hour)
 	todayEnd := time.Now()
 
-	dailyIncome := c.Repo.CalculateDailyIncome(uint(p.Id), todayStart, todayEnd)
+	dailyIncome := c.Repo.CalculateDailyIncome(uint(p.ID), todayStart, todayEnd)
 	currentMonthStart := time.Date(2024, time.Now().Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	currentMonthEnd := time.Now()
 
-	monthlyIncome := c.Repo.CalculateMonthlyIncome(uint(p.Id), currentMonthStart, currentMonthEnd)
+	monthlyIncome := c.Repo.CalculateMonthlyIncome(uint(p.ID), currentMonthStart, currentMonthEnd)
 
-	user, _ := c.Repo.FetchUserById(uint(p.Id))
+	user, _ := c.Repo.FetchUserById(uint(p.ID))
 
 	return &cpb.Dashboard{
 		Wallet:  int64(user.Wallet),

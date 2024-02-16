@@ -10,7 +10,7 @@ import (
 // AddFoodMenuSVC adds a food menu for a package.
 func (c *CoordinatorSVC) AddFoodMenuSVC(p *cpb.FoodMenu) (*cpb.Response, error) {
 	// Check if the package exists
-	_, err := c.Repo.FetchPackage(uint(p.PackageID))
+	_, err := c.Repo.FetchPackage(uint(p.Package_ID))
 	if err != nil {
 		return &cpb.Response{
 			Status:  "fail",
@@ -20,7 +20,7 @@ func (c *CoordinatorSVC) AddFoodMenuSVC(p *cpb.FoodMenu) (*cpb.Response, error) 
 
 	// Create the food menu
 	var foodMenu dom.FoodMenu
-	foodMenu.PackageID = uint(p.PackageID)
+	foodMenu.PackageID = uint(p.Package_ID)
 	foodMenu.Breakfast = p.Breakfast
 	foodMenu.Lunch = p.Lunch
 	foodMenu.Dinner = p.Dinner
@@ -36,7 +36,7 @@ func (c *CoordinatorSVC) AddFoodMenuSVC(p *cpb.FoodMenu) (*cpb.Response, error) 
 
 	return &cpb.Response{
 		Status: "Success",
-		Id:     int64(foodMenu.ID),
+		ID:     int64(foodMenu.ID),
 	}, nil
 }
 
@@ -47,7 +47,7 @@ func (c *CoordinatorSVC) ViewFoodMenuSVC(p *cpb.View) (*cpb.FoodMenus, error) {
 	limit := 10
 
 	// Fetch food menus from the repository
-	foodMenus, err := c.Repo.FetchFoodMenus(int(offset), limit, uint(p.Id))
+	foodMenus, err := c.Repo.FetchFoodMenus(int(offset), limit, uint(p.ID))
 	if err != nil {
 		return nil, errors.New("error while fetching food menus")
 	}
@@ -56,16 +56,16 @@ func (c *CoordinatorSVC) ViewFoodMenuSVC(p *cpb.View) (*cpb.FoodMenus, error) {
 	var pbFoodMenus []*cpb.FoodMenu
 	for _, menu := range *foodMenus {
 		pbFoodMenus = append(pbFoodMenus, &cpb.FoodMenu{
-			FoodMenuId: int64(menu.ID),
-			PackageID:  int64(menu.PackageID),
-			Breakfast:  menu.Breakfast,
-			Lunch:      menu.Lunch,
-			Dinner:     menu.Dinner,
-			Date:       menu.Date,
+			Food_Menu_ID: int64(menu.ID),
+			Package_ID:   int64(menu.PackageID),
+			Breakfast:    menu.Breakfast,
+			Lunch:        menu.Lunch,
+			Dinner:       menu.Dinner,
+			Date:         menu.Date,
 		})
 	}
 
 	return &cpb.FoodMenus{
-		Foodmenu: pbFoodMenus,
+		Food_Menu: pbFoodMenus,
 	}, nil
 }
