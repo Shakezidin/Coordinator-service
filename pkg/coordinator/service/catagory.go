@@ -2,20 +2,20 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 	dom "github.com/Shakezidin/pkg/entities/packages"
+	"gorm.io/gorm"
 )
 
 // AddCategorySVC handles the addition of a new category.
 func (c *CoordinatorSVC) AddCategorySVC(p *cpb.Category) (*cpb.Response, error) {
 	// Check if category already exists
+	fmt.Println(p.CategoryName)
 	_, err := c.Repo.FetchCategory(p.CategoryName)
-	if err == nil {
-		return &cpb.Response{
-			Status:  "fail",
-			Message: "category already exists",
-		}, errors.New("category already exists")
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return &cpb.Response{Status: "failed"}, errors.New("category already exists")
 	}
 
 	// Create new category

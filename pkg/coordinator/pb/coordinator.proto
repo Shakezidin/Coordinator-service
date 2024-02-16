@@ -21,7 +21,7 @@ service Coordinator {
     rpc CoordinatorForgetPasswordVerify(forgetPasswordVerify)returns(Response);
     rpc CoordinatorNewPassword(newpassword)returns(Response);
     rpc AvailablePackages(View) returns (PackagesResponse);
-    rpc AddCatagory(Category)returns(Response);
+    rpc AddCategory(Category)returns(Response);
     rpc AdminPacakgeStatus(View)returns(Response);
     rpc ViewCatagories(View)returns(Categories);
     rpc PackageSearch(Search)returns(PackagesResponse);

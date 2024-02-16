@@ -73,7 +73,7 @@ func (c *CoordinatorRepo) FetchCategories(offset, limit int) ([]*cDOM.Category, 
 
 func (c *CoordinatorRepo) FetchCategory(catagory string) (*cDOM.Category, error) {
 	var catagories *cDOM.Category
-	if err := c.DB.First(&catagories).Error; err != nil {
+	if err := c.DB.Where("category = ?",catagory).First(&catagories).Error; err != nil {
 		return nil, err
 	}
 	return catagories, nil

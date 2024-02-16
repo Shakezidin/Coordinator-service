@@ -35,7 +35,7 @@ const (
 	Coordinator_CoordinatorForgetPasswordVerify_FullMethodName = "/pb.Coordinator/CoordinatorForgetPasswordVerify"
 	Coordinator_CoordinatorNewPassword_FullMethodName          = "/pb.Coordinator/CoordinatorNewPassword"
 	Coordinator_AvailablePackages_FullMethodName               = "/pb.Coordinator/AvailablePackages"
-	Coordinator_AddCatagory_FullMethodName                     = "/pb.Coordinator/AddCatagory"
+	Coordinator_AddCategory_FullMethodName                     = "/pb.Coordinator/AddCategory"
 	Coordinator_AdminPacakgeStatus_FullMethodName              = "/pb.Coordinator/AdminPacakgeStatus"
 	Coordinator_ViewCatagories_FullMethodName                  = "/pb.Coordinator/ViewCatagories"
 	Coordinator_PackageSearch_FullMethodName                   = "/pb.Coordinator/PackageSearch"
@@ -73,7 +73,7 @@ type CoordinatorClient interface {
 	CoordinatorForgetPasswordVerify(ctx context.Context, in *ForgetPasswordVerify, opts ...grpc.CallOption) (*Response, error)
 	CoordinatorNewPassword(ctx context.Context, in *Newpassword, opts ...grpc.CallOption) (*Response, error)
 	AvailablePackages(ctx context.Context, in *View, opts ...grpc.CallOption) (*PackagesResponse, error)
-	AddCatagory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*Response, error)
+	AddCategory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*Response, error)
 	AdminPacakgeStatus(ctx context.Context, in *View, opts ...grpc.CallOption) (*Response, error)
 	ViewCatagories(ctx context.Context, in *View, opts ...grpc.CallOption) (*Categories, error)
 	PackageSearch(ctx context.Context, in *Search, opts ...grpc.CallOption) (*PackagesResponse, error)
@@ -243,9 +243,9 @@ func (c *coordinatorClient) AvailablePackages(ctx context.Context, in *View, opt
 	return out, nil
 }
 
-func (c *coordinatorClient) AddCatagory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*Response, error) {
+func (c *coordinatorClient) AddCategory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
-	err := c.cc.Invoke(ctx, Coordinator_AddCatagory_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Coordinator_AddCategory_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -407,7 +407,7 @@ type CoordinatorServer interface {
 	CoordinatorForgetPasswordVerify(context.Context, *ForgetPasswordVerify) (*Response, error)
 	CoordinatorNewPassword(context.Context, *Newpassword) (*Response, error)
 	AvailablePackages(context.Context, *View) (*PackagesResponse, error)
-	AddCatagory(context.Context, *Category) (*Response, error)
+	AddCategory(context.Context, *Category) (*Response, error)
 	AdminPacakgeStatus(context.Context, *View) (*Response, error)
 	ViewCatagories(context.Context, *View) (*Categories, error)
 	PackageSearch(context.Context, *Search) (*PackagesResponse, error)
@@ -478,8 +478,8 @@ func (UnimplementedCoordinatorServer) CoordinatorNewPassword(context.Context, *N
 func (UnimplementedCoordinatorServer) AvailablePackages(context.Context, *View) (*PackagesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AvailablePackages not implemented")
 }
-func (UnimplementedCoordinatorServer) AddCatagory(context.Context, *Category) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddCatagory not implemented")
+func (UnimplementedCoordinatorServer) AddCategory(context.Context, *Category) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddCategory not implemented")
 }
 func (UnimplementedCoordinatorServer) AdminPacakgeStatus(context.Context, *View) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminPacakgeStatus not implemented")
@@ -827,20 +827,20 @@ func _Coordinator_AvailablePackages_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Coordinator_AddCatagory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Coordinator_AddCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Category)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CoordinatorServer).AddCatagory(ctx, in)
+		return srv.(CoordinatorServer).AddCategory(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Coordinator_AddCatagory_FullMethodName,
+		FullMethod: Coordinator_AddCategory_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoordinatorServer).AddCatagory(ctx, req.(*Category))
+		return srv.(CoordinatorServer).AddCategory(ctx, req.(*Category))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1187,8 +1187,8 @@ var Coordinator_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Coordinator_AvailablePackages_Handler,
 		},
 		{
-			MethodName: "AddCatagory",
-			Handler:    _Coordinator_AddCatagory_Handler,
+			MethodName: "AddCategory",
+			Handler:    _Coordinator_AddCategory_Handler,
 		},
 		{
 			MethodName: "AdminPacakgeStatus",

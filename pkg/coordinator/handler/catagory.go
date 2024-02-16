@@ -5,7 +5,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (c *CoordinatorHandler) AddCatagory(ctx context.Context, p *cpb.Category) (*cpb.Response, error) {
+func (c *CoordinatorHandler) AddCategory(ctx context.Context, p *cpb.Category) (*cpb.Response, error) {
 	respnc, err := c.SVC.AddCategorySVC(p)
 	if err != nil {
 		return respnc, err
