@@ -9,190 +9,164 @@ import (
 	dom "github.com/Shakezidin/pkg/entities/packages"
 )
 
-func (c *CoordinatorSVC) AddPackageSVC(p *cpb.Package) (*cpb.Responce, error) {
+// AddPackageSVC adds a new package.
+func (c *CoordinatorSVC) AddPackageSVC(p *cpb.Package) (*cpb.Response, error) {
 	var pkg dom.Package
 	layout := "02-01-2006"
 
-	startdate, err := time.Parse(layout, p.Startdate)
-	enddate, err := time.Parse(layout, p.Enddate)
+	startDate, err := time.Parse(layout, p.Start_Date)
 	if err != nil {
-		fmt.Println("date passing error")
-		return &cpb.Responce{
-			Status: "fail",
-		}, errors.New("date passing error")
+		return &cpb.Response{Status: "fail"}, errors.New("failed to parse startdate")
 	}
 
-	pkg.CoordinatorId = uint(p.CoorinatorId)
+	endDate, err := time.Parse(layout, p.End_Date)
+	if err != nil {
+		return &cpb.Response{Status: "fail"}, errors.New("failed to parse enddate")
+	}
+
+	pkg.CoordinatorID = uint(p.Coorinator_ID)
 	pkg.Description = p.Description
 	pkg.Destination = p.Destination
-	pkg.EndDate = enddate
+	pkg.EndDate = endDate
 	pkg.Images = p.Image
-	pkg.MaxCapacity = int(p.MaxCapacity)
-	pkg.Name = p.Packagename
-	pkg.Availablespace = int(p.MaxCapacity)
-	pkg.NumOfDestination = int(p.DestinationCount)
+	pkg.MaxCapacity = int(p.Max_Capacity)
+	pkg.Name = p.Package_Name
+	pkg.AvailableSpace = int(p.Max_Capacity)
+	pkg.NumOfDestination = int(p.Destination_Count)
 	pkg.MinPrice = int(p.Price)
-	pkg.StartDate = startdate
-	pkg.StartLocation = p.Startlocation
-	pkg.TripCategoryId = uint(p.CategoryId)
+	pkg.StartDate = startDate
+	pkg.StartTime = p.Start_Time
+	pkg.StartLocation = p.Start_Location
+	pkg.TripCategoryId = uint(p.Category_ID)
 
 	err = c.Repo.CreatePackage(&pkg)
 	if err != nil {
-		return &cpb.Responce{
-			Status: "failure",
-		}, errors.New("error while creating package")
+		return &cpb.Response{Status: "fail"}, errors.New("failed to create package")
 	}
-	return &cpb.Responce{
+	return &cpb.Response{
 		Status:  "success",
-		Message: "package creation done",
-		Id:      int64(pkg.ID),
+		Message: "package creation successful",
+		ID:      int64(pkg.ID),
 	}, nil
 }
 
-func (c *CoordinatorSVC) AvailablePackageSvc(p *cpb.View) (*cpb.PackagesResponce, error) {
+// AvailablePackageSvc retrieves available packages.
+func (c *CoordinatorSVC) AvailablePackageSvc(p *cpb.View) (*cpb.PackagesResponse, error) {
 	var pkgs []*cpb.Package
+	var err error
+
+	var packages []*dom.Package
+	offset := 10 * (p.Page - 1)
+	limit := 10
+
 	if p.Status == "" {
-		offset := 10 * (p.Page - 1)
-		limit := 10
-		packages, err := c.Repo.FetchAllPackages(int(offset), limit)
-		if err != nil {
-			return &cpb.PackagesResponce{
-				Packages: nil,
-			}, errors.New("error while fetching all packages")
-		}
-
-		for _, pkges := range *packages {
-			var pkg cpb.Package
-
-			pkg.PackageId = int64(pkges.ID)
-			pkg.Destination = pkges.Destination
-			pkg.DestinationCount = int64(pkges.NumOfDestination)
-			pkg.Enddate = pkges.EndDate.Format("02-01-2006")
-			pkg.Image = pkges.Images
-			pkg.Packagename = pkges.Name
-			pkg.AvailableSpace = int64(pkges.Availablespace)
-			pkg.Price = int64(pkges.MinPrice)
-			pkg.Startdate = pkges.EndDate.Format("02-01-2006")
-			pkg.Startlocation = pkges.StartLocation
-			pkg.Description = pkges.Description
-			pkg.MaxCapacity = int64(pkges.MaxCapacity)
-
-			pkgs = append(pkgs, &pkg)
-		}
+		packages, err = c.Repo.FetchAllPackages(int(offset), limit)
 	} else {
-		offset := 10 * (p.Page - 1)
-		limit := 10
-		packages, err := c.Repo.FetchPackages(int(offset), limit, p.Status)
-		if err != nil {
-			return &cpb.PackagesResponce{
-				Packages: nil,
-			}, errors.New("error while fetching active packages")
-		}
-
-		for _, pkges := range packages {
-			var pkg cpb.Package
-
-			pkg.PackageId = int64(pkges.ID)
-			pkg.Destination = pkges.Destination
-			pkg.DestinationCount = int64(pkges.NumOfDestination)
-			pkg.Enddate = pkges.EndDate.Format("02-01-2006")
-			pkg.Image = pkges.Images
-			pkg.Packagename = pkges.Name
-			pkg.AvailableSpace = int64(pkges.Availablespace)
-			pkg.Price = int64(pkges.MinPrice)
-			pkg.Startdate = pkges.EndDate.Format("02-01-2006")
-			pkg.Startlocation = pkges.StartLocation
-			pkg.Description = pkges.Description
-			pkg.MaxCapacity = int64(pkges.MaxCapacity)
-
-			pkgs = append(pkgs, &pkg)
-		}
+		packages, err = c.Repo.FetchPackages(int(offset), limit, p.Status)
 	}
-	return &cpb.PackagesResponce{
-		Packages: pkgs,
-	}, nil
+
+	if err != nil {
+		return nil, errors.New("failed to fetch packages")
+	}
+
+	for _, pkge := range packages {
+		pkg := &cpb.Package{
+			Package_ID:        int64(pkge.ID),
+			Destination:       pkge.Destination,
+			Destination_Count: int64(pkge.NumOfDestination),
+			End_Date:          pkge.EndDate.Format("02-01-2006"),
+			Image:             pkge.Images,
+			Package_Name:      pkge.Name,
+			Available_Space:   int64(pkge.AvailableSpace),
+			Price:             int64(pkge.MinPrice),
+			Start_Date:        pkge.StartDate.Format("02-01-2006"),
+			Start_Location:    pkge.StartLocation,
+			Description:       pkge.Description,
+			Max_Capacity:      int64(pkge.MaxCapacity),
+		}
+		pkgs = append(pkgs, pkg)
+	}
+
+	return &cpb.PackagesResponse{Packages: pkgs}, nil
 }
 
+// ViewPackageSVC retrieves details of a specific package.
 func (c *CoordinatorSVC) ViewPackageSVC(p *cpb.View) (*cpb.Package, error) {
-	pkg, err := c.Repo.FetchPackage(uint(p.Id))
+	pkg, err := c.Repo.FetchPackage(uint(p.ID))
 	if err != nil {
-		return &cpb.Package{}, errors.New("error while fetching package")
+		return nil, errors.New("failed to fetch package")
 	}
 
 	ctgry := &cpb.Category{
-		CategoryName: pkg.Category.Category,
+		Category_Name: pkg.Category.Category,
 	}
 
 	destinations, err := c.Repo.FetchPackageDestination(pkg.ID)
 	if err != nil {
-		return &cpb.Package{}, errors.New("error while fetching package destination")
+		return nil, errors.New("failed to fetch package destination")
 	}
 
 	var dstn = []*cpb.Destination{}
 	for _, dsn := range destinations {
 		var ds = cpb.Destination{}
 		ds.Description = dsn.Description
-		ds.DestinationName = dsn.DestinationName
+		ds.Destination_Name = dsn.DestinationName
 		ds.Image = dsn.Image
-		ds.DestinationId = int64(dsn.Model.ID)
+		ds.Destination_ID = int64(dsn.Model.ID)
+		ds.Transportation_Mode = dsn.TransportationMode
+		ds.Arrival_Location = dsn.ArrivalLocation
 		dstn = append(dstn, &ds)
 	}
 
 	return &cpb.Package{
-		Packagename:      pkg.Name,
-		Startlocation:    pkg.StartLocation,
-		Startdate:        pkg.StartDate.Format("02-01-2006"),
-		Enddate:          pkg.EndDate.Format("02-01-2006"),
-		Price:            int64(pkg.MinPrice),
-		Image:            pkg.Images,
-		DestinationCount: int64(pkg.NumOfDestination),
-		Destination:      pkg.Destination,
-		PackageId:        int64(pkg.ID),
-		AvailableSpace:   int64(pkg.Availablespace),
-		Description:      pkg.Description,
-		MaxCapacity:      int64(pkg.MaxCapacity),
-		Category:         ctgry,
-		Destinations:     dstn,
+		Package_Name:      pkg.Name,
+		Start_Location:    pkg.StartLocation,
+		Start_Date:        pkg.StartDate.Format("02-01-2006"),
+		Start_Time:        pkg.StartTime,
+		End_Date:          pkg.EndDate.Format("02-01-2006"),
+		Price:             int64(pkg.MinPrice),
+		Image:             pkg.Images,
+		Destination_Count: int64(pkg.NumOfDestination),
+		Destination:       pkg.Destination,
+		Package_ID:        int64(pkg.ID),
+		Available_Space:   int64(pkg.AvailableSpace),
+		Description:       pkg.Description,
+		Max_Capacity:      int64(pkg.MaxCapacity),
+		Category:          ctgry,
+		Destinations:      dstn,
 	}, nil
 }
 
-func (c *CoordinatorSVC) AdminPackageStatusSvc(p *cpb.View) (*cpb.Responce, error) {
-	err := c.Repo.PackageStatusUpdate(uint(p.Id))
+// AdminPackageStatusSvc updates package status.
+func (c *CoordinatorSVC) AdminPackageStatusSvc(p *cpb.View) (*cpb.Response, error) {
+	err := c.Repo.PackageStatusUpdate(uint(p.ID))
 	if err != nil {
-		return &cpb.Responce{
-			Status: "fail",
-		}, errors.New("error while updating package status")
+		return &cpb.Response{Status: "fail"}, errors.New("failed to update package status")
 	}
-	return &cpb.Responce{
-		Status:  "success",
-		Message: "package status updated",
-	}, nil
+	return &cpb.Response{Status: "success"}, nil
 }
 
-func (c *CoordinatorSVC) FilterPackageSvc(p *cpb.Filter) (*cpb.PackagesResponce, error) {
+// FilterPackageSvc filters packages based on criteria.
+func (c *CoordinatorSVC) FilterPackageSvc(p *cpb.Filter) (*cpb.PackagesResponse, error) {
 	query := "SELECT * FROM packages WHERE 1 = 1"
-	var args []interface{}
 
-	if p.Departurtime != "" {
-		query += " AND start_time = ?"
-		args = append(args, p.Departurtime)
+	if p.Departure_Time != "" {
+		val := fmt.Sprintf(" AND start_time >= '%s'", p.Departure_Time)
+		query += val
 	}
-	if p.MinPrice > 0 {
-		query += " AND min_price >= ?"
-		args = append(args, p.MinPrice)
+	if p.Min_Price > 0 {
+		val := fmt.Sprintf(" AND min_price BETWEEN %d AND %d ", p.Min_Price, p.Max_Price)
+		query += val
 	}
-	if p.MaxPrice > 0 {
-		query += " AND min_price <= ?"
-		args = append(args, p.MaxPrice)
-	}
-	if p.CategoryId != 0 {
-		query += " AND trip_category_id = ?"
-		args = append(args, p.CategoryId)
+
+	if p.Category_ID != 0 {
+		val := fmt.Sprintf(" AND trip_category_id = %d ", p.Category_ID)
+		query += val
 	}
 
 	// Add ORDER BY clause
-	if p.OrderBy != "" {
-		query += " ORDER BY " + p.OrderBy
+	if p.Order_By != "" {
+		query += " ORDER BY min_price " + p.Order_By
 	}
 
 	// Add LIMIT and OFFSET clauses for paging
@@ -200,43 +174,65 @@ func (c *CoordinatorSVC) FilterPackageSvc(p *cpb.Filter) (*cpb.PackagesResponce,
 	limit := 10
 	query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
 
-	db := c.Repo.GetDB()
-	rows, err := db.Raw(query, args...).Rows()
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
 	var packages []*dom.Package
-	for rows.Next() {
-		var p dom.Package
-		if err := rows.Scan(&p.ID, &p.Name, &p.MinPrice, &p.TripCategoryId); err != nil {
-			return nil, err
-		}
-		packages = append(packages, &p)
+	db := c.Repo.GetDB()
+	rows := db.Raw(query).Scan(&packages)
+	if rows.Error != nil {
+		return nil, errors.New("failed to filter packages")
 	}
 
 	// Convert packages to protobuf format
 	var pkgs []*cpb.Package
 	for _, pkge := range packages {
 		pkg := &cpb.Package{
-			PackageId:        int64(pkge.ID),
-			Destination:      pkge.Destination,
-			DestinationCount: int64(pkge.NumOfDestination),
-			Enddate:          pkge.EndDate.Format("02-01-2006"),
-			Image:            pkge.Images,
-			Packagename:      pkge.Name,
-			AvailableSpace:   int64(pkge.Availablespace),
-			Price:            int64(pkge.MinPrice),
-			Startdate:        pkge.StartDate.Format("02-01-2006"),
-			Startlocation:    pkge.StartLocation,
-			Description:      pkge.Description,
-			MaxCapacity:      int64(pkge.MaxCapacity),
+			Package_ID:        int64(pkge.ID),
+			Destination:       pkge.Destination,
+			Destination_Count: int64(pkge.NumOfDestination),
+			End_Date:          pkge.EndDate.Format("02-01-2006"),
+			Image:             pkge.Images,
+			Package_Name:      pkge.Name,
+			Available_Space:   int64(pkge.AvailableSpace),
+			Price:             int64(pkge.MinPrice),
+			Start_Date:        pkge.StartDate.Format("02-01-2006"),
+			Start_Location:    pkge.StartLocation,
+			Description:       pkge.Description,
+			Max_Capacity:      int64(pkge.MaxCapacity),
 		}
 		pkgs = append(pkgs, pkg)
 	}
 
-	return &cpb.PackagesResponce{
-		Packages: pkgs,
-	}, nil
+	return &cpb.PackagesResponse{Packages: pkgs}, nil
+}
+
+// ViewPackagesSvc retrieves packages of a coordinator.
+func (c *CoordinatorSVC) ViewPackagesSvc(p *cpb.View) (*cpb.PackagesResponse, error) {
+	offset := 10 * (p.Page - 1)
+	limit := 10
+	rslt, err := c.Repo.FindCoordinatorPackages(int(offset), limit, uint(p.ID))
+	if err != nil {
+		return nil, errors.New("failed to find packages")
+	}
+
+	var packages []*cpb.Package
+	for _, pkges := range rslt {
+		var pkg cpb.Package
+
+		pkg.Package_ID = int64(pkges.ID)
+		pkg.Destination = pkges.Destination
+		pkg.Destination_Count = int64(pkges.NumOfDestination)
+		pkg.End_Date = pkges.EndDate.Format("02-01-2006")
+		pkg.Image = pkges.Images
+		pkg.Package_Name = pkges.Name
+		pkg.Available_Space = int64(pkges.AvailableSpace)
+		pkg.Price = int64(pkges.MinPrice)
+		pkg.Start_Date = pkges.EndDate.Format("02-01-2006")
+		pkg.Start_Time = pkges.StartTime
+		pkg.Start_Location = pkges.StartLocation
+		pkg.Description = pkges.Description
+		pkg.Max_Capacity = int64(pkges.MaxCapacity)
+
+		packages = append(packages, &pkg)
+	}
+
+	return &cpb.PackagesResponse{Packages: packages}, nil
 }

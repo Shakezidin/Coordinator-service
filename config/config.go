@@ -1,37 +1,52 @@
 package config
 
 import (
-	"log"
+	"os"
 
-	"github.com/spf13/viper"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Host                string `mapstructure:"HOST"`
-	User                string `mapstructure:"USER"`
-	Password            string `mapstructure:"PASSWORD"`
-	Database            string `mapstructure:"DATABASE"`
-	Port                string `mapstructure:"PORT"`
-	Sslmode             string `mapstructure:"SSLMODE"`
-	GRPCCOORDINATORPORT string `mapstructure:"GRPCCOORDINATORPORT"`
-	SID                 string `mapstructure:"SID"`
-	TOKEN               string `mapstructure:"TOKEN"`
-	SERVICETOKEN        string `mapstructure:"SERVICETOKEN"`
-	SECRETKEY           string `mapstructure:"SECRETKEY"`
-	REDISHOST           string `mapstructure:"REDISHOST"`
-	RAZORPAYKEYID       string `mapstructure:"RAZORPAYKEYID"`
-	RAZORPAYSECRETKEY   string `mapstructure:"RAZORPAYSECRETKEY"`
-	GRPCADMINPORT       string `mapstructure:"GRPCADMINPORT"`
+	Host                string
+	User                string
+	Password            string
+	Database            string
+	Port                string
+	Sslmode             string
+	GRPCCOORDINATORPORT string
+	SID                 string
+	TOKEN               string
+	SERVICETOKEN        string
+	SECRETKEY           string
+	REDISHOST           string
+	RAZORPAYKEYID       string
+	RAZORPAYSECRETKEY   string
+	GRPCADMINPORT       string
+	REDISPassword       string
 }
 
 func LoadConfig() *Config {
-	var config Config
-	viper.SetConfigFile("../../.env")
-	err := viper.ReadInConfig()
-	err = viper.Unmarshal(&config)
+	godotenv.Load("../../.env")
 
-	if err != nil {
-		log.Fatal("Error while loading configure")
-	}
+	var config Config
+
+	// Use os.Getenv to retrieve environment variables
+	config.Host = os.Getenv("HOST")
+	config.User = os.Getenv("USER")
+	config.Password = os.Getenv("PASSWORD")
+	config.Database = os.Getenv("DATABASE")
+	config.Port = os.Getenv("PORT")
+	config.Sslmode = os.Getenv("SSLMODE")
+	config.GRPCCOORDINATORPORT = os.Getenv("GRPCCOORDINATORPORT")
+	config.SID = os.Getenv("SID")
+	config.TOKEN = os.Getenv("TOKEN")
+	config.SERVICETOKEN = os.Getenv("SERVICETOKEN")
+	config.SECRETKEY = os.Getenv("SECRETKEY")
+	config.REDISHOST = os.Getenv("REDISHOST")
+	config.RAZORPAYKEYID = os.Getenv("RAZORPAYKEYID")
+	config.RAZORPAYSECRETKEY = os.Getenv("RAZORPAYSECRETKEY")
+	config.GRPCADMINPORT = os.Getenv("GRPCADMINPORT")
+	config.REDISPassword = os.Getenv("REDISPASSWORD")
+
 	return &config
 }

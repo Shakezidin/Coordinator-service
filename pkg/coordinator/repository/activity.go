@@ -16,3 +16,12 @@ func (c *CoordinatorRepo) FecthDestinationActivity(id uint) ([]*cDOM.Activity, e
 	}
 	return actvty, nil
 }
+
+func (c *CoordinatorRepo) FetchActivityBookingofUser(id uint) ([]*cDOM.ActivityBooking, error) {
+    var actvtyBooking []*cDOM.ActivityBooking
+    if err := c.DB.Preload("Activity").Where("traveller_id = ?", id).Find(&actvtyBooking).Error; err != nil {
+        return nil, err
+    }
+    return actvtyBooking, nil
+}
+

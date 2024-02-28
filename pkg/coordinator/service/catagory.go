@@ -3,56 +3,61 @@ package service
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 	dom "github.com/Shakezidin/pkg/entities/packages"
 	"gorm.io/gorm"
 )
 
-func (c *CoordinatorSVC) AddCatagorySVC(p *cpb.Category) (*cpb.Responce, error) {
-	var catagory dom.Category
-	_, err := c.Repo.FetchCatagory(p.CategoryName)
+// AddCategorySVC handles the addition of a new category.
+func (c *CoordinatorSVC) AddCategorySVC(p *cpb.Category) (*cpb.Response, error) {
+	// Check if category already exists
+	fmt.Println(p.Category_Name)
+	_, err := c.Repo.FetchCategory(p.Category_Name)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Printf("Existing catagory found of %v", p.CategoryName)
-		return nil, errors.New("category already exists")
+		return &cpb.Response{Status: "failed"}, errors.New("category already exists")
 	}
 
-	catagory.Category = p.CategoryName
-	err = c.Repo.CreateCatagory(catagory)
+	// Create new category
+	category := dom.Category{Category: p.Category_Name}
+	err = c.Repo.CreateCategory(category)
 	if err != nil {
-		fmt.Println("error while creating category")
-		return &cpb.Responce{
+		return &cpb.Response{
 			Status:  "fail",
 			Message: "error while creating category",
-		}, err
+		}, errors.New("error while creating category")
 	}
-	return &cpb.Responce{
+
+	return &cpb.Response{
 		Status:  "success",
-		Message: "catagory created successsfully",
-		Id:      int64(catagory.ID),
+		Message: "category created successfully",
+		ID:      int64(category.ID),
 	}, nil
 }
 
-func (c *CoordinatorSVC) ViewCatagoriesSVC(p *cpb.View) (*cpb.Catagories, error) {
+// ViewCategoriesSVC retrieves a list of categories.
+func (c *CoordinatorSVC) ViewCategoriesSVC(p *cpb.View) (*cpb.Categories, error) {
+	// Define pagination parameters
 	offset := 10 * (p.Page - 1)
 	limit := 10
-	catagories, err := c.Repo.FetchCatagories(int(offset), limit)
+
+	// Fetch categories from the repository
+	categories, err := c.Repo.FetchCategories(int(offset), limit)
 	if err != nil {
-		return nil, errors.New("error while fetching catagories")
+		return nil, errors.New("error while fetching categories")
 	}
 
-	var ctgries []*cpb.Category
-
-	for _, cgry := range catagories {
-		var ctgry cpb.Category
-		ctgry.CatagoryId = int64(cgry.ID)
-		ctgry.CategoryName = cgry.Category
-		ctgries = append(ctgries, &ctgry)
+	// Prepare response
+	var pbCategories []*cpb.Category
+	for _, category := range categories {
+		pbCategory := &cpb.Category{
+			Category_ID:   int64(category.ID),
+			Category_Name: category.Category,
+		}
+		pbCategories = append(pbCategories, pbCategory)
 	}
 
-	return &cpb.Catagories{
-		Catagories: ctgries,
+	return &cpb.Categories{
+		Categories: pbCategories,
 	}, nil
-
 }

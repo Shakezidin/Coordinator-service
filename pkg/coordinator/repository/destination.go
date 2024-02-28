@@ -27,7 +27,7 @@ func (c *CoordinatorRepo) FecthDestination(id uint) (*cDOM.Destination, error) {
 	return &dstn, nil
 }
 
-func (c *CoordinatorRepo) FecthActivity(id uint) (*cDOM.Activity, error) {
+func (c *CoordinatorRepo) FetchActivity(id uint) (*cDOM.Activity, error) {
 	var activity *cDOM.Activity
 	if err := c.DB.Where("id = ?", id).First(&activity).Error; err != nil {
 		return nil, err

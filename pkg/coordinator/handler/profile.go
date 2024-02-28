@@ -2,60 +2,60 @@ package handler
 
 import (
 	"errors"
-	"log"
 	"time"
 
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 	"golang.org/x/net/context"
 )
 
-func (c *CoordinatorHandler) CoordinatorForgetPassword(ctx context.Context, p *cpb.ForgetPassword) (*cpb.Responce, error) {
+func (c *CoordinatorHandler) CoordinatorForgetPassword(ctx context.Context, p *cpb.ForgetPassword) (*cpb.Response, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
-		log.Println("deadline passed, aborting gRPC call")
-		return &cpb.Responce{
+		return &cpb.Response{
 			Status: "fail",
 		}, errors.New("deadline passed, aborting gRPC call")
 	}
-	resp, err := c.SVC.ForgetPassword(p)
+	respnc, err := c.SVC.ForgetPassword(p)
 	if err != nil {
-		log.Printf("Unable to verify sent of otp for phone == %v, err: %v", p.Phone, err.Error())
-		return resp, err
+		return respnc, err
 	}
-	return resp, nil
+	return respnc, nil
 }
 
-func (c *CoordinatorHandler) CoordinatorForgetPasswordVerify(ctx context.Context, p *cpb.ForgetPasswordVerify) (*cpb.Responce, error) {
+func (c *CoordinatorHandler) CoordinatorForgetPasswordVerify(ctx context.Context, p *cpb.ForgetPasswordVerify) (*cpb.Response, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
-		log.Println("deadline passed, aborting gRPC call")
-		return &cpb.Responce{
-			Status: "fail",
-		}, errors.New("deadline passed, aborting gRPC call")
-	}
-
-	resp, err := c.SVC.ForgetPasswordVerify(p)
-	if err != nil {
-		log.Printf("Unable to verify otp for phone == %v, err: %v", p.Phone, err.Error())
-		return resp, err
-	}
-	return resp, nil
-}
-
-func (c *CoordinatorHandler) CoordinatorNewPassword(ctx context.Context, p *cpb.Newpassword) (*cpb.Responce, error) {
-	deadline, ok := ctx.Deadline()
-	if ok && deadline.Before(time.Now()) {
-		log.Println("deadline passed, aborting gRPC call")
-		return &cpb.Responce{
+		return &cpb.Response{
 			Status: "fail",
 		}, errors.New("deadline passed, aborting gRPC call")
 	}
 
-	resp, err := c.SVC.NewPassword(p)
+	respnc, err := c.SVC.ForgetPasswordVerify(p)
 	if err != nil {
-		log.Printf("Unable to update password, err: %v", err.Error())
-		return resp, err
+		return respnc, err
 	}
-	return resp, nil
+	return respnc, nil
 }
 
+func (c *CoordinatorHandler) CoordinatorNewPassword(ctx context.Context, p *cpb.NewPassword) (*cpb.Response, error) {
+	deadline, ok := ctx.Deadline()
+	if ok && deadline.Before(time.Now()) {
+		return &cpb.Response{
+			Status: "fail",
+		}, errors.New("deadline passed, aborting gRPC call")
+	}
+
+	respnc, err := c.SVC.NewPassword(p)
+	if err != nil {
+		return respnc, err
+	}
+	return respnc, nil
+}
+
+func (c *CoordinatorHandler) ViewDashboard(ctx context.Context, p *cpb.View) (*cpb.Dashboard, error) {
+	respnc, err := c.SVC.ViewDashBordSVC(p)
+	if err != nil {
+		return respnc, err
+	}
+	return respnc, nil
+}

@@ -5,15 +5,16 @@ package pb;
 option go_package = ".";
 
 service Admin {
-    rpc AdminAddWalletRequest(AdminAddWallet)returns(AdminResponce);
+    rpc AdminAddWalletRequest(AdminAddWallet)returns(AdminResponse);
+    rpc AdminReduseWalletRequesr(AdminAddWallet)returns(AdminResponse);
 }
 
 message AdminAddWallet{
     float amount = 1;
 }
 
-message AdminResponce{
+message AdminResponse{
     string status = 1;
     string message = 2;
-    int64  Id = 3;
+    int64  ID = 3;
 }

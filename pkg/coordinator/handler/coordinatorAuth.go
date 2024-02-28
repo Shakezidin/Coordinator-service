@@ -2,53 +2,47 @@ package handler
 
 import (
 	"errors"
-	"log"
 	"time"
 
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 	"golang.org/x/net/context"
 )
 
-func (c *CoordinatorHandler) CoordinatorSignupRequest(ctx context.Context, p *cpb.Signup) (*cpb.Responce, error) {
+func (c *CoordinatorHandler) CoordinatorSignupRequest(ctx context.Context, p *cpb.Signup) (*cpb.Response, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
-		log.Println("deadline passed, aborting gRPC call")
 		return nil, errors.New("deadline passed, aborting gRPC call")
 	}
-	result, err := c.SVC.SignupSVC(p)
+	respnc, err := c.SVC.SignupSVC(p)
 	if err != nil {
-		return nil, err
+		return respnc, err
 	}
 
-	return result, nil
+	return respnc, nil
 }
 
-func (c *CoordinatorHandler) CoordinatorSignupVerifyRequest(ctx context.Context, p *cpb.Verify) (*cpb.Responce, error) {
+func (c *CoordinatorHandler) CoordinatorSignupVerifyRequest(ctx context.Context, p *cpb.Verify) (*cpb.Response, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
-		log.Println("deadline passed, aborting gRPC call")
 		return nil, errors.New("deadline passed, aborting gRPC call")
 	}
 
-	resp, err := c.SVC.VerifySVC(p)
+	respnc, err := c.SVC.VerifySVC(p)
 	if err != nil {
-		log.Printf("Unable to verify %v of email == %v, err: %v", p.OTP, p.Email, err.Error())
-		return nil, err
+		return respnc, err
 	}
-	return resp, nil
+	return respnc, nil
 }
 
-func (c *CoordinatorHandler) CoordinatorLoginRequest(ctx context.Context, p *cpb.Login) (*cpb.LoginResponce, error) {
+func (c *CoordinatorHandler) CoordinatorLoginRequest(ctx context.Context, p *cpb.Login) (*cpb.LoginResponse, error) {
 	deadline, ok := ctx.Deadline()
 	if ok && deadline.Before(time.Now()) {
-		log.Println("deadline passed, aborting gRPC call")
 		return nil, errors.New("deadline passed, aborting gRPC call")
 	}
 
 	respnc, err := c.SVC.UserLogin(p)
 	if err != nil {
-		log.Printf("Unable to login %v of email == %v, err: %v", p.Role, p.Email, err.Error())
-		return nil, err
+		return respnc, err
 	}
 	return respnc, nil
 }

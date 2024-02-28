@@ -16,35 +16,35 @@ func (c *CoordinatorRepo) CreatePackage(pkg *cDOM.Package) error {
 	return c.DB.Create(&pkg).Error
 }
 
-func (c *CoordinatorRepo) FetchPackages(offset, limit int, val string) ([]cDOM.Package, error) {
-	var packages []cDOM.Package
+func (c *CoordinatorRepo) FetchPackages(offset, limit int, val string) ([]*cDOM.Package, error) {
+	var packages []*cDOM.Package
 	if err := c.DB.Offset(offset).Limit(limit).Where("trip_status = ?", val).Find(&packages).Error; err != nil {
 		return nil, err
 	}
 	return packages, nil
 }
 
-func (c *CoordinatorRepo) FindCoordinatorPackages(id uint) (*[]cDOM.Package, error) {
-	var packages []cDOM.Package
-	if err := c.DB.Where("coordinator_id = ?", id).Find(&packages).Error; err != nil {
+func (c *CoordinatorRepo) FindCoordinatorPackages(offset, limit int, id uint) ([]*cDOM.Package, error) {
+	var packages []*cDOM.Package
+	if err := c.DB.Offset(offset).Limit(limit).Where("coordinator_id = ?", id).Find(&packages).Error; err != nil {
 		return nil, err
 	}
-	return &packages, nil
+	return packages, nil
 }
 
-func (c *CoordinatorRepo) CreateCatagory(catagory cDOM.Category) error {
+func (c *CoordinatorRepo) CreateCategory(catagory cDOM.Category) error {
 	if err := c.DB.Create(&catagory).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c *CoordinatorRepo) FetchAllPackages(offset, limit int) (*[]cDOM.Package, error) {
-	var packages []cDOM.Package
+func (c *CoordinatorRepo) FetchAllPackages(offset, limit int) ([]*cDOM.Package, error) {
+	var packages []*cDOM.Package
 	if err := c.DB.Offset(offset).Limit(limit).Find(&packages).Error; err != nil {
 		return nil, err
 	}
-	return &packages, nil
+	return packages, nil
 }
 
 func (c *CoordinatorRepo) PackageStatusUpdate(id uint) error {
@@ -63,7 +63,7 @@ func (c *CoordinatorRepo) PackageStatusUpdate(id uint) error {
 	return nil
 }
 
-func (c *CoordinatorRepo) FetchCatagories(offset, limit int) ([]*cDOM.Category, error) {
+func (c *CoordinatorRepo) FetchCategories(offset, limit int) ([]*cDOM.Category, error) {
 	var categories []*cDOM.Category
 	if err := c.DB.Offset(offset).Limit(limit).Find(&categories).Error; err != nil {
 		return nil, err
@@ -71,16 +71,24 @@ func (c *CoordinatorRepo) FetchCatagories(offset, limit int) ([]*cDOM.Category, 
 	return categories, nil
 }
 
-func (c *CoordinatorRepo) FetchCatagory(catagory string) (*cDOM.Category, error) {
+func (c *CoordinatorRepo) FetchCategory(catagory string) (*cDOM.Category, error) {
 	var catagories *cDOM.Category
-	if err := c.DB.First(&catagories).Error; err != nil {
+	if err := c.DB.Where("category = ?",catagory).First(&catagories).Error; err != nil {
 		return nil, err
 	}
 	return catagories, nil
 }
 
-func (c *CoordinatorRepo) UpdatePackage(pkg *cDOM.Package) error {
+func (c *CoordinatorRepo) UpdatePackage(pkg cDOM.Package) error {
 	if err := c.DB.Save(&pkg).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *CoordinatorRepo) UpdatePackageExpiration(date string) error {
+	query := "UPDATE packages SET trip_status = ? WHERE start_date = ?"
+	if err := c.DB.Exec(query, false, date).Error; err != nil {
 		return err
 	}
 	return nil
