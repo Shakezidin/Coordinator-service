@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	pb "github.com/Shakezidin/pkg/coordinator/client/pb"
 	cpb "github.com/Shakezidin/pkg/coordinator/pb"
 	"github.com/Shakezidin/pkg/entities/packages"
 )
@@ -108,19 +109,48 @@ func (c *CoordinatorSVC) CancelBookingSVC(p *cpb.View) (*cpb.Response, error) {
 	}
 
 	pkg.AvailableSpace += len(booking.Bookings)
+	coordinator, err := c.Repo.FetchUserById(pkg.CoordinatorID)
+	if err != nil {
+		return &cpb.Response{
+			Status: "fail",
+		}, errors.New("error while fetching coordinator")
+	}
+	if booking.PaymentMode == "full amount" {
+		coordinator.Wallet -= float64(booking.PackagePrice) * 0.70
+		err = c.Repo.UpdateUser(coordinator)
+		if err != nil {
+			return &cpb.Response{
+				Status: "fail",
+			}, errors.New("error while updating coordinator")
+		}
+	}
+	err = c.Repo.UpdateBooking(*booking)
+	if err != nil {
+		return &cpb.Response{
+			Status: "fail",
+		}, errors.New("error while updating booking")
+	}
 	err = c.Repo.UpdatePackage(*pkg)
 	if err != nil {
 		return &cpb.Response{
-			Status:  "fail",
-			Message: "failed to update package",
-		}, errors.New("failed to update package")
+			Status: "fail",
+		}, errors.New("error while updating package")
+	}
+	var ctx = context.Background()
+	_, err = c.client.AdminReduseWalletRequesr(ctx, &pb.AdminAddWallet{
+		Amount: float32(booking.PackagePrice) * 0.30,
+	})
+
+	if err != nil {
+		return &cpb.Response{
+			Status: "fail",
+		}, err
 	}
 
-	// Additional logic for coordinator wallet adjustment and admin notification goes here
-
 	return &cpb.Response{
-		Status:  "success",
-		Message: "booking cancelled successfully",
+		Amount:  int64(booking.PaidPrice),
+		Status:  "Success",
+		Message: "Package cancelled success",
 	}, nil
 }
 

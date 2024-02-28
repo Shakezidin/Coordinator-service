@@ -14,6 +14,7 @@ func (c *CoordinatorSVC) FetchNextDayTrip() {
 		// Handle the error appropriately
 		return
 	}
+
 	for _, booking := range *bookings {
 		msg := fmt.Sprintf("Dear %s,\n\nThis is a friendly reminder that your booking for %s is scheduled for tomorrow, %s. We hope you're looking forward to your trip!\n\nIf you have any questions or need further assistance, feel free to contact us. Have a fantastic trip!\n\nBest regards,\nGlobal Package", booking.UserEmail, booking.Package.Name, tomorrow)
 		sbjct := fmt.Sprintf("Reminder: Your Booking for %s Tomorrow", booking.Package.Name)

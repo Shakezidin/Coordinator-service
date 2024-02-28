@@ -13,7 +13,7 @@ func (c *CoordinatorHandler) AddCategory(ctx context.Context, p *cpb.Category) (
 	return respnc, nil
 }
 
-func (c *CoordinatorHandler) ViewCatagories(ctx context.Context, p *cpb.View) (*cpb.Categories, error) {
+func (c *CoordinatorHandler) Viewcategories(ctx context.Context, p *cpb.View) (*cpb.Categories, error) {
 	respnc, err := c.SVC.ViewCategoriesSVC(p)
 	if err != nil {
 		return respnc, err
